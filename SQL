@@ -1,153 +1,91 @@
 CREATE TABLE Paiement (
-    id_paiement     NUMBER(10) PRIMARY KEY,
-    nom             VARCHAR2(10),
-    prenom          VARCHAR2(25),
-    adresse_mail    VARCHAR2(25),
-    isAdmin         VARCHAR2(3),
-    isLivreur       VARCHAR2(3),
-    isMajeur        VARCHAR2(3),
-    numTel          VARCHAR2(15),
-    id_commande     NUMBER(10),
-    id_client       NUMBER(10),
+    id_paiement     INT(10) PRIMARY KEY,
+    nom             VARCHAR(10),
+    prenom          VARCHAR(25),
+    adresse_mail    VARCHAR(25),
+    isAdmin         ENUM('oui', 'non'),
+    isLivreur       ENUM('oui', 'non'),
+    isMajeur        ENUM('oui', 'non'),
+    numTel          VARCHAR(15),
+    id_commande     INT(10),
+    id_client       INT(10),
     CONSTRAINT fk_paiement_id_commande FOREIGN KEY (id_commande) REFERENCES Commande(id_commande),
     CONSTRAINT fk_paiement_id_client FOREIGN KEY (id_client) REFERENCES Utilisateur(id_client)
 );
 
-
 CREATE TABLE Utilisateur (
-    email         VARCHAR2(25) PRIMARY KEY,
-    nom           VARCHAR2(25),
-    prenom        VARCHAR2(25),
-    num_tel       VARCHAR2(15),
-    type_utilisateur VARCHAR2(10) CHECK (type_utilisateur IN ('client', 'livreur', 'admin')),
-    id_client     NUMBER(10),
-    id_livreur    NUMBER(10),
-    id_admin      NUMBER(10),
-    plaque        VARCHAR2(25),    
-    disponibilite VARCHAR2(10)  
+    email         VARCHAR(25) PRIMARY KEY,
+    nom           VARCHAR(25),
+    prenom        VARCHAR(25),
+    num_tel       VARCHAR(15),
+    type_utilisateur ENUM('client', 'livreur', 'admin'),
+    id_client     INT(10),
+    id_livreur    INT(10),
+    id_admin      INT(10),
+    plaque        VARCHAR(25),    
+    disponibilite VARCHAR(10)  
 );
 
 CREATE TABLE Adresse (
-    id_adresse  NUMBER(10) PRIMARY KEY,
-    rue         VARCHAR2(25),
-    code_postal VARCHAR2(25),
-    ville       VARCHAR2(25),
-    email       VARCHAR2(25),
+    id_adresse  INT(10) PRIMARY KEY,
+    rue         VARCHAR(25),
+    code_postal VARCHAR(25),
+    ville       VARCHAR(25),
+    email       VARCHAR(25),
     CONSTRAINT fk_adresse_email FOREIGN KEY (email) REFERENCES Utilisateur(email)
 );
 
 CREATE TABLE Commande (
-    id_commande     NUMBER(10) PRIMARY KEY,
+    id_commande     INT(10) PRIMARY KEY,
     date_creation   DATE,
-    statut          VARCHAR2(15),
-    montant_total   NUMBER(10,2),
-    id_adresse      NUMBER(10),
-    id_magasin      NUMBER(10),
-    id_client       NUMBER(10),
+    statut          VARCHAR(15),
+    montant_total   DECIMAL(10,2),
+    id_adresse      INT(10),
+    id_magasin      INT(10),
+    id_client       INT(10),
     CONSTRAINT fk_commande_id_adresse FOREIGN KEY (id_adresse) REFERENCES Adresse(id_adresse),
     CONSTRAINT fk_commande_id_magasin FOREIGN KEY (id_magasin) REFERENCES Magasin(id_magasin),
     CONSTRAINT fk_commande_id_client FOREIGN KEY (id_client) REFERENCES Utilisateur(id_client)
 );
 
 CREATE TABLE Commandes_Produits (
-    id_commande     NUMBER(10),
-    id_produits      NUMBER(10),
-    quantite        NUMBER(5),
+    id_commande     INT(10),
+    id_produits     INT(10),
+    quantite        INT(5),
     CONSTRAINT fk_Commandes_Produits_id_commande FOREIGN KEY (id_commande) REFERENCES Commande(id_commande),
     CONSTRAINT fk_Commandes_Produits_id_produits FOREIGN KEY (id_produits) REFERENCES Produits(id_produits)
 );
 
 CREATE TABLE Produits (
-    id_produits     NUMBER(25) PRIMARY KEY,
-    nom             VARCHAR2(25),
-    description     VARCHAR2(1000),
-    prix            NUMBER(10,2),
-    categorie       VARCHAR2(100),
-    disponibilite   VARCHAR2(20)
+    id_produits     INT(25) PRIMARY KEY,
+    nom             VARCHAR(25),
+    description     VARCHAR(1000),
+    prix            DECIMAL(10,2),
+    categorie       VARCHAR(100),
+    disponibilite   VARCHAR(20)
 );
 
 CREATE TABLE Produits_Magasin (
-    id_magasin      NUMBER(10),
-    id_produits     NUMBER(25),
-    quantite        NUMBER(5),
+    id_magasin      INT(10),
+    id_produits     INT(25),
+    quantite        INT(5),
     CONSTRAINT pk_ProduitsMagasin_clefs_primaires PRIMARY KEY (id_magasin, id_produits),
     CONSTRAINT fk_ProduitsMagasin_id_magasin FOREIGN KEY (id_magasin) REFERENCES Magasin(id_magasin),
-    CONSTRAINT fk_ProduitsMagasin_id_produits FOREIGN KEY (id_produits) REFERENCES Produits(id_produit)
+    CONSTRAINT fk_ProduitsMagasin_id_produits FOREIGN KEY (id_produits) REFERENCES Produits(id_produits)
 );
 
 CREATE TABLE Magasin (
-    id_magasin   NUMBER(10) PRIMARY KEY,
-    nom          VARCHAR2(25),
-    id_adresse   NUMBER(10),
+    id_magasin   INT(10) PRIMARY KEY,
+    nom          VARCHAR(25),
+    id_adresse   INT(10),
     CONSTRAINT fk_Magasin_id_adresse FOREIGN KEY (id_adresse) REFERENCES Adresse(id_adresse)
 );
 
 CREATE TABLE Promotion (
-    code        VARCHAR2(25) PRIMARY KEY,
-    description VARCHAR2(500),
-    reduction   NUMBER(10,2),
+    code        VARCHAR(25) PRIMARY KEY,
+    description VARCHAR(500),
+    reduction   DECIMAL(10,2),
     expiration  DATE,
-    id_produits NUMBER(10),
+    id_produits INT(10),
     CONSTRAINT fk_Promotion_id_produits FOREIGN KEY (id_produits) REFERENCES Produits(id_produits)
 );
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
