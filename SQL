@@ -79,10 +79,8 @@ CREATE TABLE Magasin (
     id_magasin   NUMBER(10),
     nom          VARCHAR2(25),
     id_adresse   NUMBER(10),
-    CONSTRAINT fk_Magasin_id_adresse FOREIGN KEY (id_adresse) REFERENCES Magasin(id_magasin),
-
-
-
+    CONSTRAINT fk_Magasin_id_adresse FOREIGN KEY (id_adresse) REFERENCES Magasin(id_magasin)
+);
 
 
 
