@@ -11,7 +11,7 @@ Script de test pour simuler la création et le suivi d'une commande.
 """
 import requests, time
 
-base_url = "https://issue-volleyball-versus-scroll.trycloudflare.com/"
+base_url = "http://localhost:5000/"
 url_inscription = base_url + "inscription"
 url_connexion = base_url + "connexion"
 url_commande = base_url + "commande"

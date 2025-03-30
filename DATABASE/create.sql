@@ -17,7 +17,7 @@ CREATE TABLE UserAccount (
     first_name       VARCHAR(255) NOT NULL,
     phone_number     VARCHAR(15),
     user_type        ENUM('customer', 'deliverer', 'admin') NOT NULL,
-    license_plate    VARCHAR(25) NOT NULL
+    license_plate    VARCHAR(25)
 );
 
 CREATE TABLE CustomerAddress (
