@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ajouter un magasin SAQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #F4F6F9;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      height: 80px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      border-bottom: 1px solid #E0E6ED;
+      background-color: #ffffff;
+    }
+
+    header h1 {
+      font-size: 30px;
+      font-weight: 600;
+      color: #1F2937;
+      margin: 0;
+    }
+
+    .container {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 40px;
+      gap: 40px;
+    }
+
+    .form-box {
+      background: white;
+      padding: 40px;
+      border-radius: 14px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .form-box h2 {
+      margin-bottom: 30px;
+      font-size: 24px;
+      color: #2F3E46;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 500;
+      color: #34495E;
+    }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #1F2937;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #111827;
+    }
+
+    .store-list-box {
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .store-entry {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .store-entry p {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .delete-btn {
+      background: none;
+      color: darkred;
+      border: none;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    footer {
+      height: 80px;
+      background-color: #ffffff;
+      border-top: 1px solid #E0E6ED;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 500;
+      color: #6B6B6B;
+    }
+
+    .back-button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #1F2937;
+      font-weight: 500;
+      font-size: 16px;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .back-button:hover {
+      color: #2563EB;
+      transform: translateX(-5px);
+    }
+
+    .back-button img {
+      width: 24px;
+      height: 24px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex: 1;
+    }
+    .lang-btn {
+      font-size: 14px;
+      background: transparent;
+      border: 1.5px solid #1F2937;
+      color: #1F2937;
+      border-radius: 5px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .lang-btn:hover {
+      background-color: #1F2937;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Ajouter un magasin SAQ</h1>
+    <div class="header-right" style="gap: 20px;">
+      <button onclick="switchLanguage()" class="lang-btn">EN</button>
+      <a href="dashboard.html" class="back-button">
+        <img src="assets/image/Frame 218.png" alt="Retour">
+        <span>Retourner</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="form-box">
+      <h2>Informations du magasin</h2>
+      <form onsubmit="addStore(event)">
+        <label for="nom">Nom du magasin</label>
+        <input type="text" id="nom" name="nom" placeholder="SAQ Centre-Ville" required>
+
+        <label for="id_adresse">ID de l'adresse associée</label>
+        <input type="number" id="id_adresse" name="id_adresse" placeholder="ex: 1" required>
+
+        <button type="submit">Ajouter le magasin</button>
+      </form>
+    </div>
+
+    <div class="store-list-box" id="storeList"></div>
+  </div>
+
+  <footer>
+    Si vous avez besoin d'aide, contactez-nous au 514-652-3145
+  </footer>
+
+  <script>
+    function addStore(event) {
+  event.preventDefault();
+  const nom = document.getElementById("nom").value;
+  const id_adresse = document.getElementById("id_adresse").value;
+
+  if (!nom || !id_adresse) return;
+
+  const storeList = document.getElementById("storeList");
+
+  const div = document.createElement("div");
+  div.className = "store-entry";
+  div.innerHTML = `
+    <div>
+      <p><strong>Nom:</strong> ${nom}</p>
+      <p><strong>ID Adresse:</strong> ${id_adresse}</p>
+    </div>
+    <button class="delete-btn" onclick="this.parentElement.remove()">&times;</button>
+  `;
+
+  storeList.appendChild(div);
+
+  document.getElementById("nom").value = "";
+  document.getElementById("id_adresse").value = "";
+}
+
+    function switchLanguage() {
+      window.location.href = "stores_en.html";
+    }
+  </script>
+</body>
+</html>
