@@ -1,0 +1,21 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Thème principal de l'application -->
+    <style name="Theme.Boozy" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Couleurs principales -->
+        <item name="android:colorBackground">#FFFFFF</item>
+        <item name="colorSurface">#FFFFFF</item>
+
+        <!-- Barre de statut -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!-- Barre de navigation -->
+        <item name="android:navigationBarColor">#5C3A2E</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <!-- Style de la BottomNavigationView (désactive le mauve) -->
+        <item name="bottomNavigationStyle">@style/CustomBottomNavigationView</item>
+    </style>
+
+</resources>

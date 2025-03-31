@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Base.Theme.Boozy" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Couleur de la barre de statut (haut) -->
+        <item name="android:statusBarColor">#FFFFFF</item>
+        <!-- Couleur des icônes de la barre de statut (texte, heure, batterie) -->
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!-- Couleur de la barre de navigation (bas) -->
+        <item name="android:navigationBarColor">#FFFFFF</item>
+        <!-- Couleur des icônes de la barre de navigation -->
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>
