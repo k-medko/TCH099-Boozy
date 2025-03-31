@@ -97,3 +97,6 @@ CREATE TABLE PromotionalOffer (
     product_id    INT(10) NOT NULL,
     CONSTRAINT fk_promotionaloffer_product_id FOREIGN KEY (product_id) REFERENCES Product(product_id)
 );
+
+ALTER TABLE Product ADD COLUMN image_nom VARCHAR(500) NOT NULL DEFAULT 'placeholder';
+ALTER TABLE StoreLocation ADD COLUMN image_nom VARCHAR(500) NOT NULL DEFAULT 'placeholder';
