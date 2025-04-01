@@ -1,0 +1,27 @@
+services:
+  app:
+    build: REST_API/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_USER=BOOZY_SERVER
+      - MYSQL_PASSWORD=admin
+      - MYSQL_DB=boozy_database
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: boozy_server
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: boozy_database
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:
