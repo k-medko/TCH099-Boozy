@@ -1,16 +1,18 @@
 -- SQLBook: Code
+
 -- First drop all tables in the correct order (respecting foreign key constraints)
-DROP TABLE OrderItems;
-DROP TABLE ProductInventory;
-DROP TABLE PromotionalOffer;
-DROP TABLE PaymentTransaction;
-DROP TABLE CustomerOrder;
-DROP TABLE Product;
-DROP TABLE StoreLocation;
-DROP TABLE CustomerAddress;
-DROP TABLE UserAccount;
+DROP TABLE IF EXISTS OrderItems;
+DROP TABLE IF EXISTS ProductInventory;
+DROP TABLE IF EXISTS PromotionalOffer;
+DROP TABLE IF EXISTS PaymentTransaction;
+DROP TABLE IF EXISTS CustomerOrder;
+DROP TABLE IF EXISTS Product;
+DROP TABLE IF EXISTS StoreLocation;
+DROP TABLE IF EXISTS CustomerAddress;
+DROP TABLE IF EXISTS UserAccount;
 
 -- Now create tables with alternative names avoiding reserved words
+
 CREATE TABLE UserAccount (
     user_id          INT(10) PRIMARY KEY,
     email            VARCHAR(255) UNIQUE,
@@ -19,7 +21,9 @@ CREATE TABLE UserAccount (
     first_name       VARCHAR(255) NOT NULL,
     phone_number     VARCHAR(15),
     user_type        ENUM('customer', 'deliverer', 'admin') NOT NULL,
-    license_plate    VARCHAR(25)
+    license_plate    VARCHAR(25),
+    license_number   INT(20) NOT NULL,
+    total_earnings   DECIMAL(10,2) NOT NULL
 );
 
 CREATE TABLE CustomerAddress (
@@ -29,6 +33,7 @@ CREATE TABLE CustomerAddress (
     postal_code   VARCHAR(25) NOT NULL,
     city          VARCHAR(255) NOT NULL,
     user_id       INT(10) NOT NULL,
+    civic_number  VARCHAR(20) NOT NULL,
     CONSTRAINT fk_address_user_id FOREIGN KEY (user_id) REFERENCES UserAccount(user_id)
 );
 
@@ -36,6 +41,7 @@ CREATE TABLE StoreLocation (
     store_id     INT(10) PRIMARY KEY,
     name         VARCHAR(255) NOT NULL,
     address_id   INT(10) NOT NULL,
+    image_nom    VARCHAR(500) NOT NULL DEFAULT 'placeholder',
     CONSTRAINT fk_store_address_id FOREIGN KEY (address_id) REFERENCES CustomerAddress(address_id)
 );
 
@@ -45,7 +51,8 @@ CREATE TABLE Product (
     description    VARCHAR(1000),
     price          DECIMAL(10,2) NOT NULL,
     category       VARCHAR(100) NOT NULL,
-    is_available   BOOLEAN  NOT NULL
+    is_available   BOOLEAN NOT NULL,
+    image_nom      VARCHAR(500) NOT NULL DEFAULT 'placeholder'
 );
 
 CREATE TABLE CustomerOrder (
@@ -79,7 +86,6 @@ CREATE TABLE ProductInventory (
     CONSTRAINT fk_productinventory_product_id FOREIGN KEY (product_id) REFERENCES Product(product_id)
 );
 
-
 CREATE TABLE PaymentTransaction (
     payment_id      INT(10) PRIMARY KEY,
     payment_method  VARCHAR(50) NOT NULL,
@@ -88,6 +94,9 @@ CREATE TABLE PaymentTransaction (
     is_completed    BOOLEAN NOT NULL,
     order_id        INT(10) NOT NULL,
     user_id         INT(10) NOT NULL,
+    card_number     VARCHAR(20) NOT NULL,
+    CVC_card        INT(3) NOT NULL,
+    expiry_date     DATE NOT NULL,
     CONSTRAINT fk_paymenttransaction_order_id FOREIGN KEY (order_id) REFERENCES CustomerOrder(order_id),
     CONSTRAINT fk_paymenttransaction_user_id FOREIGN KEY (user_id) REFERENCES UserAccount(user_id)
 );
@@ -100,12 +109,3 @@ CREATE TABLE PromotionalOffer (
     product_id    INT(10) NOT NULL,
     CONSTRAINT fk_promotionaloffer_product_id FOREIGN KEY (product_id) REFERENCES Product(product_id)
 );
-
-ALTER TABLE Product ADD COLUMN image_nom VARCHAR(500) NOT NULL DEFAULT 'placeholder';
-ALTER TABLE StoreLocation ADD COLUMN image_nom VARCHAR(500) NOT NULL DEFAULT 'placeholder';
-ALTER TABLE CustomerAddress ADD COLUMN civic_number VARCHAR(20) NOT NULL;
-ALTER TABLE PaymentTransaction ADD COLUMN card_number VARCHAR(20) NOT NULL;
-ALTER TABLE PaymentTransaction ADD COLUMN CVC_card INT(3) NOT NULL;
-ALTER TABLE PaymentTransaction ADD COLUMN expiry_date NOT NULL;
-ALTER TABLE UserAccount ADD COLUMN license_number INT(20) NOT NULL;
-ALTER TABLE UserAccount ADD COLUMN total_earnings DECIMAL(10,2) NOT NULL;
