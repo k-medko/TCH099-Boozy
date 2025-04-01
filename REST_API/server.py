@@ -31,7 +31,7 @@ def home():
 # HOME
 @app.route('/test')
 def test():
-    return jsonify("Test worked YOOO LETS GOOO")
+    return jsonify("Test worked")
 
 # STORES
 @app.route('/getStores', methods=['GET'])
