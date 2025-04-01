@@ -103,3 +103,9 @@ CREATE TABLE PromotionalOffer (
 
 ALTER TABLE Product ADD COLUMN image_nom VARCHAR(500) NOT NULL DEFAULT 'placeholder';
 ALTER TABLE StoreLocation ADD COLUMN image_nom VARCHAR(500) NOT NULL DEFAULT 'placeholder';
+ALTER TABLE CustomerAddress ADD COLUMN civic_number VARCHAR(20) NOT NULL;
+ALTER TABLE PaymentTransaction ADD COLUMN card_number VARCHAR(20) NOT NULL;
+ALTER TABLE PaymentTransaction ADD COLUMN CVC_card INT(3) NOT NULL;
+ALTER TABLE PaymentTransaction ADD COLUMN expiry_date NOT NULL;
+ALTER TABLE UserAccount ADD COLUMN license_number INT(20) NOT NULL;
+ALTER TABLE UserAccount ADD COLUMN total_earnings DECIMAL(10,2) NOT NULL;
