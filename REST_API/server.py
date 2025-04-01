@@ -30,7 +30,7 @@ def home():
 
 # HOME
 @app.route('/test')
-def home():
+def test():
     return jsonify("Yes, it updated")
 
 # STORES
