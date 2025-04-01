@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Order Dashboard</title>
+  <title>Order Table</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -14,7 +14,6 @@
       flex-direction: column;
       min-height: 100vh;
     }
-
     header, footer {
       height: 80px;
       background-color: #ffffff;
@@ -24,27 +23,17 @@
       padding: 0 40px;
       border-bottom: 1px solid #E0E6ED;
     }
-
     footer {
       border-top: 1px solid #E0E6ED;
       justify-content: center;
       font-size: 16px;
       color: #333;
     }
-
-    .main {
-      display: flex;
-      padding: 40px;
-      flex: 1;
-      gap: 40px;
-    }
-
     main {
       flex: 1;
       padding: 40px;
       background-color: #F4F6F9;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
@@ -54,7 +43,6 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       font-size: 14px;
     }
-
     th {
       background-color: #E5EAF2;
       color: #1F2937;
@@ -63,24 +51,29 @@
       padding: 16px;
       border-bottom: 1px solid #dfe4ea;
     }
-
     td {
       padding: 16px;
       border-bottom: 1px solid #f1f3f5;
       color: #4B5563;
     }
-
-    td:last-child a {
+    td:last-child button {
       margin-right: 10px;
-      text-decoration: none;
+      background: none;
+      border: none;
+      cursor: pointer;
       color: #2563EB;
       font-weight: 500;
     }
-
-    td:last-child a:hover {
+    td:last-child button:hover {
       text-decoration: underline;
     }
-
+    .search-input {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      width: 250px;
+    }
     .lang-btn {
       font-size: 14px;
       background: transparent;
@@ -91,12 +84,10 @@
       cursor: pointer;
       transition: 0.3s;
     }
-
     .lang-btn:hover {
       background-color: #1F2937;
       color: white;
     }
-
     .back-button {
       display: flex;
       align-items: center;
@@ -107,36 +98,32 @@
       font-size: 16px;
       transition: color 0.3s;
     }
-
     .back-button:hover {
       color: #2563EB;
     }
-
     .back-button img {
       width: 24px;
       height: 24px;
     }
-
     .header-right {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
-      flex: 1;
+      gap: 20px;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Order Dashboard</h1>
-    <div class="header-right" style="gap: 20px;">
+    <h1>Order Table</h1>
+    <input type="text" id="searchBar" placeholder="Search..." class="search-input">
+    <div class="header-right">
       <button onclick="switchLanguage()" class="lang-btn">FR</button>
-      <a href="dashboard_en.html" class="back-button">
+      <a href="dashboard.html" class="back-button">
         <img src="assets/image/Frame 218.png" alt="Back">
         <span>Back</span>
       </a>
     </div>
   </header>
-
   <main>
     <table>
       <thead>
@@ -146,6 +133,7 @@
           <th>Product</th>
           <th>Status</th>
           <th>Date</th>
+          <th>Price</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -154,24 +142,28 @@
           <td>1001</td>
           <td>Jean Dupont</td>
           <td>Red Wine</td>
-          <td>In Progress</td>
+          <td>In progress</td>
           <td>03/18/2025</td>
+          <td>$25.99</td>
           <td>
-            <a href="#">View</a>
-            <a href="#">Edit</a>
+            <button onclick="annulerCommande(this)">Cancel</button>
           </td>
         </tr>
       </tbody>
     </table>
   </main>
-
   <footer>
     If you need help, contact us at 514-652-3145
   </footer>
-
   <script>
     function switchLanguage() {
       window.location.href = "orders.html";
+    }
+
+    function annulerCommande(btn) {
+      if (confirm("Are you sure you want to cancel this order?")) {
+        btn.closest("tr").remove();
+      }
     }
   </script>
 </body>

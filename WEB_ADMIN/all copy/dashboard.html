@@ -185,12 +185,21 @@
       background-color: #34495e;
       color: white;
     }
+
+    .search-input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 250px;
+    }
   </style>
 </head>
 <body>
 <div class="wrapper">
   <header>
     <h1><img src="assets/image/LOGO 1.png" alt="Logo" style="height: 120px;width: 120px;"> Gestionnaire</h1>
+    <input type="text" id="searchBar" placeholder="Rechercher..." class="search-input">
     <div style="display: flex; align-items: center; gap: 20px;">
       <button onclick="switchLanguage()" class="lang-btn" style="padding: 3px 8px;">EN</button>
       <button class="logout" id="btn-logout">Déconnexion</button>

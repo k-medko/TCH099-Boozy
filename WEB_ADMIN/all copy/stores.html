@@ -18,11 +18,12 @@
     header {
       height: 80px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       padding: 0 40px;
       border-bottom: 1px solid #E0E6ED;
       background-color: #ffffff;
+      gap: 20px;
     }
 
     header h1 {
@@ -30,6 +31,20 @@
       font-weight: 600;
       color: #1F2937;
       margin: 0;
+    }
+
+    .search-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+    }
+
+    .search-input {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      width: 300px;
     }
 
     .container {
@@ -109,13 +124,33 @@
       font-size: 16px;
     }
 
-    .delete-btn {
-      background: none;
-      color: darkred;
+    .entry-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .delete-btn, .edit-btn {
+      background: darkred;
+      color: white;
       border: none;
-      font-size: 22px;
-      font-weight: bold;
+      padding: 6px 12px;
+      font-size: 16px;
+      border-radius: 6px;
       cursor: pointer;
+    }
+
+    .edit-btn {
+      background: #6f7279;
+    }
+
+    .edit-popup input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
     }
 
     footer {
@@ -140,9 +175,9 @@
       font-size: 16px;
       transition: transform 0.2s ease, color 0.2s ease;
     }
+
     .back-button:hover {
       color: #2563EB;
-      transform: translateX(-5px);
     }
 
     .back-button img {
@@ -155,7 +190,9 @@
       align-items: center;
       justify-content: flex-end;
       flex: 1;
+      gap: 20px;
     }
+
     .lang-btn {
       font-size: 14px;
       background: transparent;
@@ -174,67 +211,111 @@
   </style>
 </head>
 <body>
-  <header>
-    <h1>Ajouter un magasin SAQ</h1>
-    <div class="header-right" style="gap: 20px;">
-      <button onclick="switchLanguage()" class="lang-btn">EN</button>
-      <a href="dashboard.html" class="back-button">
-        <img src="assets/image/Frame 218.png" alt="Retour">
-        <span>Retourner</span>
-      </a>
-    </div>
-  </header>
+<header>
+  <h1>Ajouter un magasin SAQ</h1>
+  <div class="search-wrapper">
+    <input type="text" id="searchBar" placeholder="Rechercher..." class="search-input" style="margin-bottom: 0px !important; width: 200px !important; margin-left: 100px !important;">
+  </div>
+  <div class="header-right">
+    <button onclick="switchLanguage()" class="lang-btn">EN</button>
+    <a href="dashboard.html" class="back-button">
+      <img src="assets/image/Frame 218.png" alt="Retour">
+      <span>Retourner</span>
+    </a>
+  </div>
+</header>
 
-  <div class="container">
-    <div class="form-box">
-      <h2>Informations du magasin</h2>
-      <form onsubmit="addStore(event)">
-        <label for="nom">Nom du magasin</label>
-        <input type="text" id="nom" name="nom" placeholder="SAQ Centre-Ville" required>
+<div class="container">
+  <div class="form-box">
+    <h2>Informations du magasin</h2>
+    <form onsubmit="addStore(event)">
+      <label for="nom">Nom du magasin</label>
+      <input type="text" id="nom" name="nom" placeholder="SAQ Centre-Ville" required>
 
-        <label for="id_adresse">ID de l'adresse associée</label>
-        <input type="number" id="id_adresse" name="id_adresse" placeholder="ex: 1" required>
+      <label for="id_adresse">ID de l'adresse associée</label>
+      <input type="number" id="id_adresse" name="id_adresse" placeholder="ex: 1" required>
 
-        <button type="submit">Ajouter le magasin</button>
-      </form>
-    </div>
-
-    <div class="store-list-box" id="storeList"></div>
+      <button type="submit">Ajouter le magasin</button>
+    </form>
   </div>
 
-  <footer>
-    Si vous avez besoin d'aide, contactez-nous au 514-652-3145
-  </footer>
+  <div class="store-list-box" id="storeList"></div>
+</div>
 
-  <script>
-    function addStore(event) {
-  event.preventDefault();
-  const nom = document.getElementById("nom").value;
-  const id_adresse = document.getElementById("id_adresse").value;
+<footer>
+  Si vous avez besoin d'aide, contactez-nous au 514-652-3145
+</footer>
 
-  if (!nom || !id_adresse) return;
+<script>
+  function switchLanguage() {
+    window.location.href = "stores_en.html";
+  }
 
-  const storeList = document.getElementById("storeList");
+  function addStore(event) {
+    event.preventDefault();
+    const nom = document.getElementById("nom").value;
+    const id_adresse = document.getElementById("id_adresse").value;
 
-  const div = document.createElement("div");
-  div.className = "store-entry";
-  div.innerHTML = `
-    <div>
-      <p><strong>Nom:</strong> ${nom}</p>
-      <p><strong>ID Adresse:</strong> ${id_adresse}</p>
-    </div>
-    <button class="delete-btn" onclick="this.parentElement.remove()">&times;</button>
-  `;
+    if (!nom || !id_adresse) return;
 
-  storeList.appendChild(div);
+    const storeList = document.getElementById("storeList");
 
-  document.getElementById("nom").value = "";
-  document.getElementById("id_adresse").value = "";
-}
+    const div = document.createElement("div");
+    div.className = "store-entry";
+    div.innerHTML = `
+      <div>
+        <p><strong>Nom:</strong> <span class="store-nom">${nom}</span></p>
+        <p><strong>ID Adresse:</strong> <span class="store-id">${id_adresse}</span></p>
+      </div>
+      <div class="entry-actions">
+        <button class="edit-btn" onclick="modifierMagasin(this)">✏️</button>
+        <button class="delete-btn" onclick="this.closest('.store-entry').remove()">&times;</button>
+      </div>
+    `;
 
-    function switchLanguage() {
-      window.location.href = "stores_en.html";
-    }
-  </script>
+    storeList.appendChild(div);
+
+    document.getElementById("nom").value = "";
+    document.getElementById("id_adresse").value = "";
+  }
+
+  function modifierMagasin(btn) {
+    const storeDiv = btn.closest(".store-entry");
+    const nom = storeDiv.querySelector(".store-nom").textContent;
+    const id = storeDiv.querySelector(".store-id").textContent;
+
+    storeDiv.innerHTML = `
+      <div class="user-info">
+        <input type="text" class="edit-nom" value="${nom}">
+        <input type="number" class="edit-id" value="${id}">
+      </div>
+      <div class="entry-actions">
+        <button class="edit-btn" onclick="sauvegarderMagasin(this)">💾</button>
+        <button class="delete-btn" onclick="this.closest('.store-entry').remove()">&times;</button>
+      </div>
+    `;
+  }
+
+  function sauvegarderMagasin(btn) {
+    const storeDiv = btn.closest(".store-entry");
+    const nom = storeDiv.querySelector(".edit-nom").value;
+    const id = storeDiv.querySelector(".edit-id").value;
+
+    storeDiv.innerHTML = `
+      <div>
+        <p><strong>Nom:</strong> <span class="store-nom">${nom}</span></p>
+        <p><strong>ID Adresse:</strong> <span class="store-id">${id}</span></p>
+      </div>
+      <div class="entry-actions">
+        <button class="edit-btn" onclick="modifierMagasin(this)">✏️</button>
+        <button class="delete-btn" onclick="this.closest('.store-entry').remove()">&times;</button>
+      </div>
+    `;
+  }
+</script>
 </body>
 </html>
+
+
+
+

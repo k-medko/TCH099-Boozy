@@ -189,12 +189,21 @@
     .lang-btn:hover {
       background-color: #1F2937;
       color: white;
+    }   
+    
+    .search-input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 250px;
     }
   </style>
 </head>
 <body>
 <header>
   <h1>Produits SAQ</h1>
+  <input type="text" id="searchBar" placeholder="Rechercher..." class="search-input" style="border-left-width: 1px !important; margin-left: 300px !important;">
   <div class="header-right" style="gap: 20px;">
     <button onclick="switchLanguage()" class="lang-btn">EN</button>
     <a href="dashboard.html" class="back-button">

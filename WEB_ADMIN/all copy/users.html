@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Utilisateurs</title>
+  <title>Gestion des utilisateurs</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/style.css">
   <style>
@@ -62,9 +62,9 @@
       color: #34495E;
     }
 
-    .form-group input {
+    .form-group input, .form-group select {
       width: 100%;
-      padding: 6px;
+      padding: 8px;
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 14px;
@@ -84,7 +84,6 @@
       flex: 2;
       max-height: 500px;
       overflow-y: auto;
-      padding-right: 10px;
     }
 
     .user {
@@ -113,7 +112,12 @@
       color: #666;
     }
 
-    .delete-btn {
+    .user-role {
+      font-size: 14px;
+      color: #444;
+    }
+
+    .delete-btn, .edit-btn {
       background: darkred;
       color: white;
       border: none;
@@ -121,6 +125,42 @@
       font-size: 16px;
       border-radius: 50%;
       cursor: pointer;
+      margin-left: 5px;
+    }
+
+    .edit-btn {
+      background: #6f7279;
+      border-radius: 6px;
+    }
+
+    .search-input {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      width: 220px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .lang-btn {
+      font-size: 14px;
+      background: transparent;
+      border: 1.5px solid #1F2937;
+      color: #1F2937;
+      border-radius: 5px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .lang-btn:hover {
+      background-color: #1F2937;
+      color: white;
     }
 
     .back-button {
@@ -142,35 +182,13 @@
       width: 24px;
       height: 24px;
     }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      flex: 1;
-    }
-
-    .lang-btn {
-      font-size: 14px;
-      background: transparent;
-      border: 1.5px solid #1F2937;
-      color: #1F2937;
-      border-radius: 5px;
-      padding: 6px 12px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .lang-btn:hover {
-      background-color: #1F2937;
-      color: white;
-    }
   </style>
 </head>
 <body>
 <header>
   <h1>Utilisateurs</h1>
-  <div class="header-right" style="gap: 20px;">
+  <input type="text" id="searchBar" placeholder="Rechercher..." class="search-input">
+  <div class="header-right">
     <button onclick="switchLanguage()" class="lang-btn">EN</button>
     <a href="dashboard.html" class="back-button">
       <img src="assets/image/Frame 218.png" alt="Retour">
@@ -184,19 +202,23 @@
     <h2>Ajouter un utilisateur</h2>
     <div class="form-group">
       <label>Nom</label>
-      <input type="text" placeholder="ex: Jean">
+      <input type="text" id="nom" placeholder="ex: Jean">
     </div>
     <div class="form-group">
       <label>Prénom</label>
-      <input type="text" placeholder="ex: Dupont">
+      <input type="text" id="prenom" placeholder="ex: Dupont">
     </div>
     <div class="form-group">
       <label>Email</label>
-      <input type="email" placeholder="ex: jean.dupont@email.com">
+      <input type="email" id="email" placeholder="ex: jean.dupont@email.com">
     </div>
     <div class="form-group">
-      <label>Numéro de téléphone</label>
-      <input type="tel" placeholder="ex: 514-123-4567">
+      <label>Rôle</label>
+      <select id="role">
+        <option value="client">Client</option>
+        <option value="livreur">Livreur</option>
+        <option value="admin">Admin</option>
+      </select>
     </div>
     <div class="form-group">
       <button onclick="ajouterUtilisateur()">Ajouter l'utilisateur</button>
@@ -209,35 +231,85 @@
 <footer>
   Si vous avez besoin d'aide, contactez-nous au 514-652-3145
 </footer>
+
 <script>
   function switchLanguage() {
     window.location.href = "users_en.html";
   }
 
   function ajouterUtilisateur() {
-    const inputs = document.querySelectorAll('.form-group input');
-    const nom = inputs[0].value.trim();
-    const prenom = inputs[1].value.trim();
-    const email = inputs[2].value.trim();
-    const tel = inputs[3].value.trim();
+    const nom = document.getElementById("nom").value.trim();
+    const prenom = document.getElementById("prenom").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const role = document.getElementById("role").value;
 
-    if (!nom || !prenom || !email || !tel) return;
+    if (!nom || !prenom || !email) return;
 
-    const userList = document.getElementById('userList');
-    const div = document.createElement('div');
-    div.className = 'user';
+    const userList = document.getElementById("userList");
+    const div = document.createElement("div");
+    div.className = "user";
     div.innerHTML = `
       <div class="user-info">
         <span class="user-name">${nom} ${prenom}</span>
         <span class="user-email">${email}</span>
-        <span class="user-phone">${tel}</span>
+        <span class="user-role"><strong>Rôle :</strong> ${role}</span>
       </div>
-      <button class="delete-btn" onclick="this.parentElement.remove()">&times;</button>
+      <div>
+        <button class="edit-btn" onclick="modifierUtilisateur(this)">✏️</button>
+        <button class="delete-btn" onclick="this.parentElement.parentElement.remove()">&times;</button>
+      </div>
     `;
 
     userList.appendChild(div);
 
-    inputs.forEach(input => input.value = '');
+    document.getElementById("nom").value = "";
+    document.getElementById("prenom").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("role").value = "client";
+  }
+
+  function modifierUtilisateur(btn) {
+    const userDiv = btn.parentElement.parentElement;
+    const name = userDiv.querySelector(".user-name").textContent.split(" ");
+    const email = userDiv.querySelector(".user-email").textContent;
+    const role = userDiv.querySelector(".user-role").textContent.split(": ")[1];
+
+    userDiv.innerHTML = `
+      <div class="user-info">
+        <input type="text" class="edit-nom" value="${name[0]}">
+        <input type="text" class="edit-prenom" value="${name[1]}">
+        <input type="email" class="edit-email" value="${email}">
+        <select class="edit-role">
+          <option value="client" ${role === "client" ? "selected" : ""}>Client</option>
+          <option value="livreur" ${role === "livreur" ? "selected" : ""}>Livreur</option>
+          <option value="admin" ${role === "admin" ? "selected" : ""}>Admin</option>
+        </select>
+      </div>
+      <div>
+        <button class="edit-btn" onclick="sauvegarderUtilisateur(this)">💾</button>
+        <button class="delete-btn" onclick="this.parentElement.parentElement.remove()">&times;</button>
+      </div>
+    `;
+  }
+
+  function sauvegarderUtilisateur(btn) {
+    const userDiv = btn.parentElement.parentElement;
+    const nom = userDiv.querySelector(".edit-nom").value;
+    const prenom = userDiv.querySelector(".edit-prenom").value;
+    const email = userDiv.querySelector(".edit-email").value;
+    const role = userDiv.querySelector(".edit-role").value;
+
+    userDiv.innerHTML = `
+      <div class="user-info">
+        <span class="user-name">${nom} ${prenom}</span>
+        <span class="user-email">${email}</span>
+        <span class="user-role"><strong>Rôle :</strong> ${role}</span>
+      </div>
+      <div>
+        <button class="edit-btn" onclick="modifierUtilisateur(this)">✏️</button>
+        <button class="delete-btn" onclick="this.parentElement.parentElement.remove()">&times;</button>
+      </div>
+    `;
   }
 </script>
 </body>
