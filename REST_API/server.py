@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_mysqldb import MySQL
 from flask_cors import CORS
 import typer
 import rich
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -114,7 +115,10 @@ def connectUser():
         return jsonify(userData)
     return jsonify({})
 
-
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+        'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0",debug=True)
