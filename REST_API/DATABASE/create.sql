@@ -1,14 +1,14 @@
 -- SQLBook: Code
 -- First drop all tables in the correct order (respecting foreign key constraints)
-DROP TABLE IF EXISTS OrderItems;
-DROP TABLE IF EXISTS ProductInventory;
-DROP TABLE IF EXISTS PromotionalOffer;
-DROP TABLE IF EXISTS PaymentTransaction;
-DROP TABLE IF EXISTS CustomerOrder;
-DROP TABLE IF EXISTS Product;
-DROP TABLE IF EXISTS StoreLocation;
-DROP TABLE IF EXISTS CustomerAddress;
-DROP TABLE IF EXISTS UserAccount;
+--DROP TABLE IF EXISTS OrderItems;
+--DROP TABLE IF EXISTS ProductInventory;
+--DROP TABLE IF EXISTS PromotionalOffer;
+--DROP TABLE IF EXISTS PaymentTransaction;
+--DROP TABLE IF EXISTS CustomerOrder;
+--DROP TABLE IF EXISTS Product;
+--DROP TABLE IF EXISTS StoreLocation;
+--DROP TABLE IF EXISTS CustomerAddress;
+--DROP TABLE IF EXISTS UserAccount;
 
 -- Now create tables with alternative names avoiding reserved words
 CREATE TABLE UserAccount (
