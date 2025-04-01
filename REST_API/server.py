@@ -11,7 +11,7 @@ CORS(app)
 # Configure MySQL connection
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'BOOZY_SERVER'
-app.config['MYSQL_PASSWORD'] = 'admin'
+app.config['MYSQL_PASSWORD'] = 'Boozyadmin1234'
 app.config['MYSQL_DB'] = 'boozy_database'
 mysql = MySQL(app)
 
