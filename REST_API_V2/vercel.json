@@ -1,0 +1,18 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "REST_API/server.py",
+        "use": "@vercel/python",
+        "config": {
+          "buildCommand": "pip install -r requirements.txt && REST_API/server.py"
+        }
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "REST_API/server.py"
+      }
+    ]
+  }

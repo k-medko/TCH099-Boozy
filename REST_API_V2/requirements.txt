@@ -1,0 +1,13 @@
+Flask
+flask-cors
+flask-mysqldb
+typer
+rich
+flasgger
+python-dotenv
+
+# diffusers 
+# transformers 
+# accelerate
+# torch
+# huggingface_hub 

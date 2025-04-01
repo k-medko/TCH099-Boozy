@@ -1,3 +1,4 @@
+-- SQLBook: Code
 
 -- 1) Insert into UserAccount (10 accounts)
 INSERT INTO UserAccount (user_id, email, last_name, first_name, phone_number, user_type, license_plate)

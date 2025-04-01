@@ -1,3 +1,4 @@
+-- SQLBook: Code
 -- First drop all tables in the correct order (respecting foreign key constraints)
 DROP TABLE IF EXISTS OrderItems;
 DROP TABLE IF EXISTS ProductInventory;
@@ -13,6 +14,7 @@ DROP TABLE IF EXISTS UserAccount;
 CREATE TABLE UserAccount (
     user_id          INT(10) PRIMARY KEY,
     email            VARCHAR(255) UNIQUE,
+    password         VARCHAR(255) NOT NULL,
     last_name        VARCHAR(255) NOT NULL,
     first_name       VARCHAR(255) NOT NULL,
     phone_number     VARCHAR(15),
@@ -69,13 +71,14 @@ CREATE TABLE OrderItems (
 );
 
 CREATE TABLE ProductInventory (
-    store_id       INT(10) NOT NULL,
-    product_id     INT(10) NOT NULL,
-    quantity       INT(5) NOT NULL,
-    CONSTRAINT pk_productinventory_primary_keys PRIMARY KEY (store_id, product_id),
+    store_id   INT(10) NOT NULL,
+    product_id INT(10) NOT NULL,
+    quantity   INT(5) NOT NULL,
+    PRIMARY KEY (store_id, product_id),
     CONSTRAINT fk_productinventory_store_id FOREIGN KEY (store_id) REFERENCES StoreLocation(store_id),
     CONSTRAINT fk_productinventory_product_id FOREIGN KEY (product_id) REFERENCES Product(product_id)
 );
+
 
 CREATE TABLE PaymentTransaction (
     payment_id      INT(10) PRIMARY KEY,
