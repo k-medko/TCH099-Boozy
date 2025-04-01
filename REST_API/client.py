@@ -1,6 +1,6 @@
 import requests
 
-BASE_URL = "https://attitude-queen-striking-bookmark.trycloudflare.com/createUser"
+BASE_URL = "http://4.172.255.120:5000/"
 
 # USERS - Create a new user
 def create_user(email, password, lastName, firstName, phoneNumber, userType, licensePlate=None):

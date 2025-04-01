@@ -28,6 +28,11 @@ def requestSQL(sqlQuery, params=None):
 def home():
     return jsonify("Bienvenu dans l'API.")
 
+# HOME
+@app.route('/test')
+def home():
+    return jsonify("Yes, it updated")
+
 # STORES
 @app.route('/getStores', methods=['GET'])
 def getStores():
