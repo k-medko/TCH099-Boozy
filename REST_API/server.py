@@ -26,7 +26,7 @@ def requestSQL(sqlQuery, params=None):
 # HOME
 @app.route('/')
 def home():
-    return jsonify("Bienvenu dans l'API")
+    return jsonify("Bienvenu dans l'API.")
 
 # STORES
 @app.route('/getStores', methods=['GET'])
