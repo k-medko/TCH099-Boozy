@@ -1,3 +1,7 @@
 # TCH099-Boozy
-
-#CLOUDFLARE CMD LINE> cloudflared tunnel --url http://localhost:5000
+# Serverstart commands:
+#Kill all existing commands: 
+# sudo fuser -k 5000/tcp 
+#Deploy the server on top & silenced: 
+# /home/azureuser/deploy.sh
+# nohup /home/azureuser/deploy.sh > deploy.log 2>&1 &
