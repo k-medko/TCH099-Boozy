@@ -1,47 +1,45 @@
--- SQLBook: Code
-
 -- 1) Insert into UserAccount (10 accounts)
-INSERT INTO UserAccount (user_id, email, last_name, first_name, phone_number, user_type, license_plate)
+INSERT INTO UserAccount (user_id, email, last_name, first_name, phone_number, user_type, license_plate, license_number, total_earnings)
 VALUES
-(1, 'john.doe@example.com',    'Doe',    'John',   '514-555-0101', 'customer',   NULL),
-(2, 'jane.smith@example.com',  'Smith',  'Jane',   '514-555-0102', 'customer',   NULL),
-(3, 'mark.rider@example.com',  'Rider',  'Mark',   '438-555-0103', 'deliverer',  'ABC-1234'),
-(4, 'lucy.driver@example.com', 'Driver', 'Lucy',   '438-555-0104', 'deliverer',  'XYZ-9876'),
-(5, 'admin.one@example.com',   'Admin',  'One',    '514-555-0105', 'admin',      NULL),
-(6, 'alice.jones@example.com', 'Jones',  'Alice',  '514-555-0106', 'customer',   NULL),
-(7, 'bob.martin@example.com',  'Martin', 'Bob',    '514-555-0107', 'customer',   NULL),
-(8, 'admin.two@example.com',   'Manager','Julie',  '514-555-0108', 'admin',      NULL),
-(9, 'sam.green@example.com',   'Green',  'Sam',    '514-555-0109', 'customer',   NULL),
-(10, 'lisa.brown@example.com',  'Brown',  'Lisa',   '514-555-0110', 'customer',   NULL);
+(1, 'john.doe@example.com',    'Doe',    'John',   '514-555-0101', 'customer',   NULL, 0, 0.00),
+(2, 'jane.smith@example.com',  'Smith',  'Jane',   '514-555-0102', 'customer',   NULL, 0, 0.00),
+(3, 'mark.rider@example.com',  'Rider',  'Mark',   '438-555-0103', 'deliverer',  'ABC-1234', 0, 0.00),
+(4, 'lucy.driver@example.com', 'Driver', 'Lucy',   '438-555-0104', 'deliverer',  'XYZ-9876', 0, 0.00),
+(5, 'admin.one@example.com',   'Admin',  'One',    '514-555-0105', 'admin',      NULL, 0, 0.00),
+(6, 'alice.jones@example.com', 'Jones',  'Alice',  '514-555-0106', 'customer',   NULL, 0, 0.00),
+(7, 'bob.martin@example.com',  'Martin', 'Bob',    '514-555-0107', 'customer',   NULL, 0, 0.00),
+(8, 'admin.two@example.com',   'Manager','Julie',  '514-555-0108', 'admin',      NULL, 0, 0.00),
+(9, 'sam.green@example.com',   'Green',  'Sam',    '514-555-0109', 'customer',   NULL, 0, 0.00),
+(10, 'lisa.brown@example.com',  'Brown',  'Lisa',   '514-555-0110', 'customer',   NULL, 0, 0.00);
 
 -- 2) Insert into CustomerAddress for user accounts (10 rows)
-INSERT INTO CustomerAddress (address_id, house_number, street, postal_code, city, user_id)
+INSERT INTO CustomerAddress (address_id, house_number, street, postal_code, city, user_id, civic_number)
 VALUES
-(1, 123, 'Maple Street',    'H2A 1B1', 'Montreal', 1),
-(2, 456, 'Oak Avenue',      'H2B 2C2', 'Montreal', 2),
-(3, 789, 'Pine Road',       'H2C 3D3', 'Laval',    3),
-(4, 321, 'Birch Lane',      'H2E 5G8', 'Longueuil',4),
-(5, 100, 'Admin Blvd',      'H2G 9Y1', 'Montreal', 5),
-(6, 55,  'Rider Place',     'H2H 1J1', 'Montreal', 6),
-(7, 22,  'Driver Path',     'H2Q 7P2', 'Montreal', 7),
-(8, 999, 'Manager Way',     'H2X 8Z2', 'Montreal', 8),
-(9, 77,  'Sunset Boulevard','H3Z 2K1', 'Montreal', 9),
-(10, 88, 'Lakeside Drive',  'H4B 3C5', 'Quebec',   10);
+(1, 123, 'Maple Street',    'H2A 1B1', 'Montreal', 1, '123'),
+(2, 456, 'Oak Avenue',      'H2B 2C2', 'Montreal', 2, '456'),
+(3, 789, 'Pine Road',       'H2C 3D3', 'Laval',    3, '789'),
+(4, 321, 'Birch Lane',      'H2E 5G8', 'Longueuil',4, '321'),
+(5, 100, 'Admin Blvd',      'H2G 9Y1', 'Montreal', 5, '100'),
+(6, 55,  'Rider Place',     'H2H 1J1', 'Montreal', 6, '55'),
+(7, 22,  'Driver Path',     'H2Q 7P2', 'Montreal', 7, '22'),
+(8, 999, 'Manager Way',     'H2X 8Z2', 'Montreal', 8, '999'),
+(9, 77,  'Sunset Boulevard','H3Z 2K1', 'Montreal', 9, '77'),
+(10, 88, 'Lakeside Drive',  'H4B 3C5', 'Quebec',   10, '88');
 
 -- 3) Insert additional CustomerAddress rows for store locations (10 rows)
 -- We assign these addresses to the admin (user_id = 5) for simplicity.
-INSERT INTO CustomerAddress (address_id, house_number, street, postal_code, city, user_id)
+INSERT INTO CustomerAddress (address_id, house_number, street, postal_code, city, user_id, civic_number)
 VALUES
-(11, 10, 'Central Street',  'H1A 2B3', 'Montreal', 5),
-(12, 20, 'North Avenue',    'H1B 3C4', 'Montreal', 5),
-(13, 30, 'South Road',      'H1C 4D5', 'Montreal', 5),
-(14, 40, 'East Boulevard',  'H1D 5E6', 'Montreal', 5),
-(15, 50, 'West Lane',       'H1E 6F7', 'Montreal', 5),
-(16, 60, 'Uptown Street',   'H1F 7G8', 'Montreal', 5),
-(17, 70, 'Downtown Ave',    'H1G 8H9', 'Montreal', 5),
-(18, 80, 'Market Road',     'H1H 9I0', 'Montreal', 5),
-(19, 90, 'Garden Path',     'H1I 0J1', 'Montreal', 5),
-(20, 100,'Harbor Way',      'H1J 1K2', 'Montreal', 5);
+(11, 10, 'Central Street',  'H1A 2B3', 'Montreal', 5, '10'),
+(12, 20, 'North Avenue',    'H1B 3C4', 'Montreal', 5, '20'),
+(13, 30, 'South Road',      'H1C 4D5', 'Montreal', 5, '30'),
+(14, 40, 'East Boulevard',  'H1D 5E6', 'Montreal', 5, '40'),
+(15, 50, 'West Lane',       'H1E 6F7', 'Montreal', 5, '50'),
+(16, 60, 'Uptown Street',   'H1F 7G8', 'Montreal', 5, '60'),
+(17, 70, 'Downtown Ave',    'H1G 8H9', 'Montreal', 5, '70'),
+(18, 80, 'Market Road',     'H1H 9I0', 'Montreal', 5, '80'),
+(19, 90, 'Garden Path',     'H1I 0J1', 'Montreal', 5, '90'),
+(20, 100,'Harbor Way',      'H1J 1K2', 'Montreal', 5, '100');
 
 -- 4) Insert into StoreLocation (10 stores)
 INSERT INTO StoreLocation (store_id, name, address_id)
