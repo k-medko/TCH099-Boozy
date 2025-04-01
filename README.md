@@ -1,4 +1,6 @@
 # TCH099-Boozy
+# Remote access server:
+#ssh azureuser@4.172.255.120
 # Serverstart commands:
 #Kill all existing commands: 
 # sudo fuser -k 5000/tcp 
