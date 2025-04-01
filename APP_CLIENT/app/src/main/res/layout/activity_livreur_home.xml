@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:paddingTop="16dp">
+
+    <!-- Scroll horizontal pour les boutons -->
+    <HorizontalScrollView
+        android:id="@+id/horizontalScroll"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:overScrollMode="never"
+        android:scrollbars="none"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:id="@+id/buttonSection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:layout_marginTop="8dp">
+
+            <!-- Bouton Commande en cours -->
+            <LinearLayout
+                android:id="@+id/buttonCommandesEnCours"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:orientation="horizontal"
+                android:background="@drawable/button_outline"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:gravity="center"
+                android:layout_marginEnd="8dp"
+                android:elevation="2dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_notifications"
+                    android:layout_marginEnd="6dp"
+                    android:contentDescription="Icône notification"
+                    app:tint="#000000" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/commande_en_cours"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000" />
+            </LinearLayout>
+
+            <!-- Bouton Historique -->
+            <LinearLayout
+                android:id="@+id/buttonHistorique"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:orientation="horizontal"
+                android:background="@drawable/button_outline"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:gravity="center"
+                android:layout_marginEnd="8dp"
+                android:elevation="2dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_clock"
+                    android:layout_marginEnd="6dp"
+                    android:contentDescription="Icône horloge"
+                    app:tint="#000000" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/historique"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000" />
+            </LinearLayout>
+
+            <!-- Bouton Profil -->
+            <LinearLayout
+                android:id="@+id/buttonProfil"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:orientation="horizontal"
+                android:background="@drawable/button_outline"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:gravity="center"
+                android:elevation="2dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@string/ic_profil"
+                    android:src="@drawable/ic_profile"
+                    android:layout_marginEnd="6dp"
+                    app:tint="#000000" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profil"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000" />
+            </LinearLayout>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Titre section commande + flèche -->
+    <LinearLayout
+        android:id="@+id/commandeTitleRow"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/horizontalScroll"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp"
+        android:paddingHorizontal="16dp"
+        android:gravity="center_vertical"
+        android:weightSum="1">
+
+        <TextView
+            android:id="@+id/labelCommandes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/commande_attente"
+            android:textColor="#474747"
+            android:textStyle="bold"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <!-- RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerCommandes"
+        android:layout_width="413dp"
+        android:layout_height="598dp"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/commandeTitleRow"
+        app:layout_constraintVertical_bias="0.111" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

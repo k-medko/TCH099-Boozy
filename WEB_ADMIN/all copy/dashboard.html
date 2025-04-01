@@ -1,0 +1,285 @@
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f6f8;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0px 40px;
+      border-bottom: 1px solid #d0d7de;
+      height: 80px;
+      background-color: #ffffff;
+    }
+
+    header h1 {
+      font-size: 40px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    header h1 img {
+      height: 50px;
+      object-fit: contain;
+    }
+
+    .logout {
+      font-size: 20px;
+      font-weight: 500;
+      color: #555;
+      background: transparent;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    .main {
+      display: flex;
+    }
+
+    nav {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 20px 10px;
+      width: 180px;
+      background: #ffffff;
+      border-right: 1px solid #e5e5e5;
+    }
+
+    nav a {
+      font-size: 18px;
+      font-weight: 500;
+      color: #34495e;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      transition: background-color 0.3s;
+    }
+
+    nav a:hover {
+      background-color: #ecf0f1;
+    }
+
+    nav a img {
+      width: 24px;
+      height: 24px;
+    }
+
+    .content {
+      flex: 1;
+      padding: 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .card-icon {
+      width: 85px;
+      height: 85px;
+      background: #dce6f1;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-icon img {
+      width: 60px;
+      height: 60px;
+    }
+
+    .card-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-title {
+      font-family: 'Barlow', sans-serif;
+      font-size: 16px;
+      color: #2c3e50;
+      font-weight: 400;
+    }
+
+    .card-value {
+      font-family: 'Barlow', sans-serif;
+      font-size: 46px;
+      font-weight: 700;
+      color: #34495e;
+    }
+
+    .card-change {
+      font-family: 'Barlow', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      color: #95a5a6;
+      line-height: 18px;
+    }
+
+    footer {
+      height: 80px;
+      background-color: #ffffff;
+      border-top: 1px solid #d0d7de;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 500;
+      color: #7f8c8d;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    .wrapper {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main {
+      flex: 1;
+    }
+
+    .lang-btn {
+      font-size: 16px;
+      background: transparent;
+      border: 2px solid #34495e;
+      color: #34495e;
+      border-radius: 6px;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .lang-btn:hover {
+      background-color: #34495e;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <h1><img src="assets/image/LOGO 1.png" alt="Logo" style="height: 120px;width: 120px;"> Gestionnaire</h1>
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <button onclick="switchLanguage()" class="lang-btn" style="padding: 3px 8px;">EN</button>
+      <button class="logout" id="btn-logout">Déconnexion</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <nav>
+      <a href="#" id="btn-home"><img src="assets/image/Frame 218.png" alt="Home"> Accueil</a>
+      <a href="#" id="btn-stores"><img src="assets/image/store-alt.png" alt="Stores"> Magasins</a>
+      <a href="#" id="btn-orders"><img src="assets/image/border-all.png" alt="Orders"> Commandes</a>
+      <a href="#" id="btn-menu"><img src="assets/image/wine-bottle.png" alt="Menu"> Produits</a>
+      <a href="#" id="btn-users"><img src="assets/image/users.png" alt="Users"> Utilisateurs</a>
+    </nav>
+
+    <section class="content">
+      <div class="card">
+        <div class="card-icon">
+          <img src="assets/image/Group 148.png" alt="Revenue">
+        </div>
+        <div class="card-info">
+          <div class="card-value"></div>
+          <div class="card-title">Revenus totaux</div>
+          <div class="card-change"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <img src="assets/image/Icon_Order.png" alt="Orders">
+        </div>
+        <div class="card-info">
+          <div class="card-value"></div>
+          <div class="card-title">Commandes totales</div>
+          <div class="card-change"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <img src="assets/image/icon Delivered.png" alt="Delivered">
+        </div>
+        <div class="card-info">
+          <div class="card-value"></div>
+          <div class="card-title">Livraisons totales</div>
+          <div class="card-change"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <img src="assets/image/Icon_Order-2.png" alt="Canceled">
+        </div>
+        <div class="card-info">
+          <div class="card-value"></div>
+          <div class="card-title">Commandes annulées</div>
+          <div class="card-change"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p>Si vous avez besoin d'aide, contactez-nous au 514-652-3145</p>
+  </footer>
+</div>
+<script>
+  const redirectMap = {
+    "btn-home": "dashboard.html",
+    "btn-stores": "stores.html",
+    "btn-orders": "orders.html",
+    "btn-menu": "products.html",
+    "btn-users": "users.html",
+    "btn-logout": "accueil.html"
+  };
+
+  Object.entries(redirectMap).forEach(([id, url]) => {
+    const link = document.getElementById(id);
+    if (link) {
+      link.addEventListener("click", () => {
+        window.location.href = url;
+      });
+    }
+  });
+</script>
+<script>
+  function switchLanguage() {
+    window.location.href = "dashboard_en.html";
+  }
+</script>
+</body>
+</html>

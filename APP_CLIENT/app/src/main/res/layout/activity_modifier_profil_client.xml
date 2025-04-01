@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:stripe="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Titre -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/modifier_le_profil"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:padding="24dp"
+            android:gravity="center"
+            style="@style/TextStyle" />
+
+        <!-- SECTION INFOS AVEC LIGNES -->
+        <!-- Chaque champ est dans un bloc séparé avec ligne grise dessous -->
+
+        <!-- Nom -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="12dp">
+
+            <TextView
+                android:text="@string/nom"
+                android:textStyle="bold"
+                style="@style/TextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/editNom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/nom"
+                android:background="@null"
+                android:minHeight="48dp" />
+        </LinearLayout>
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#DDDDDD"/>
+
+        <!-- Prénom -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="12dp">
+
+            <TextView
+                android:text="@string/prenom"
+                android:textStyle="bold"
+                style="@style/TextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/editPrenom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/prenom"
+                android:background="@null"
+                android:minHeight="48dp" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"/>
+
+        <!-- Numéro civique -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="12dp">
+
+            <TextView
+                android:text="@string/numero_civique"
+                android:textStyle="bold"
+                style="@style/TextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/editNumeroCivique"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/numero_civique"
+                android:background="@null"
+                android:minHeight="48dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"/>
+
+        <!-- Rue -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="12dp">
+
+            <TextView
+                android:text="@string/rue"
+                android:textStyle="bold"
+                style="@style/TextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/editRue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/rue"
+                android:background="@null"
+                android:minHeight="48dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"/>
+
+        <!-- Code postal -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="12dp">
+
+            <TextView
+                android:text="@string/code_postal"
+                android:textStyle="bold"
+                style="@style/TextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/editCodePostal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/code_postal"
+                android:background="@null"
+                android:minHeight="48dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"/>
+
+        <!-- Ville -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="12dp">
+
+            <TextView
+                android:text="@string/ville"
+                android:textStyle="bold"
+                style="@style/TextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/editVille"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/ville"
+                android:background="@null"
+                android:minHeight="48dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"/>
+
+        <!-- Courriel -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="12dp">
+
+            <TextView
+                android:text="@string/courriel"
+                android:textStyle="bold"
+                style="@style/TextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/editEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/courriel"
+                android:inputType="textEmailAddress"
+                android:background="@null"
+                android:minHeight="48dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"/>
+
+        <!-- Mot de passe -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="12dp">
+
+            <TextView
+                android:text="@string/mot_de_passe"
+                android:textStyle="bold"
+                style="@style/TextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <EditText
+                android:id="@+id/editPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/mdp"
+                android:inputType="textPassword"
+                android:background="@null"
+                android:minHeight="48dp" />
+        </LinearLayout>
+
+        <View android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"/>
+
+        <!-- Carte -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="24dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/carte_bancaire"
+                android:textStyle="bold"
+                android:paddingBottom="4dp"
+                style="@style/TextStyle"/>
+
+            <com.stripe.android.view.CardInputWidget
+                android:id="@+id/cardInputWidget"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!-- Bouton -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnEnregistrerProfil"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/enregistrer_les_modifications"
+            android:backgroundTint="#5D3A1A"
+            android:textColor="#FFFFFF"
+            android:minHeight="48dp"
+            android:layout_margin="24dp"
+            android:background="@drawable/button_square" />
+    </LinearLayout>
+</ScrollView>

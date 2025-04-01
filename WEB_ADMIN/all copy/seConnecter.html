@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Connexion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #F4F6F9;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .top-bar {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-circle {
+      background-color: #ffffff;
+      border-radius: 50%;
+      padding: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 60px;
+      width: 60px;
+      text-decoration: none;
+    }
+
+    .logo-circle img {
+      height: 40px;
+      width: auto;
+    }
+
+    .lang-btn {
+      font-size: 14px;
+      background: transparent;
+      border: 1.5px solid #1F2937;
+      color: #1F2937;
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .lang-btn:hover {
+      background-color: #1F2937;
+      color: white;
+    }
+
+    .login-container {
+      background: white;
+      padding: 40px;
+      border-radius: 14px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 400px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #1F2937;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #34495E;
+    }
+
+    input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background-color: #1F2937;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #111827;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .link a {
+      color: #1F2937;
+      text-decoration: none;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="top-bar" style="top: 5px;">
+    <a href="accueil.html" class="logo-circle">
+      <img src="assets/image/LOGO 1.png" alt="Logo Boozy" style="
+      width: 100px;
+      height: 100px;
+  ">
+    </a>
+    <button class="lang-btn" onclick="switchLanguage()">EN</button>
+  </div>
+
+  <div class="login-container">
+    <h1>Connexion</h1>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <button type="submit">Se connecter</button>
+    </form>
+    <div class="link">
+      <p>Pas encore de compte ? <a href="inscription.html">Créer un compte</a></p>
+    </div>
+  </div>
+
+  <script>
+    // Redirection après la connexion
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      window.location.href = 'dashboard.html';
+    });
+
+    // Redirection langue
+    function switchLanguage() {
+      window.location.href = 'seConnecter_en.html'; // Version anglaise
+    }
+  </script>
+</body>
+</html>
