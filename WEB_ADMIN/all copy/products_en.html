@@ -189,15 +189,24 @@
  .lang-btn:hover {
    background-color: #1F2937;
    color: white;
+ }   
+ 
+ .search-input {
+padding: 8px 12px;
+border: 1px solid #ccc;
+border-radius: 6px;
+font-size: 14px;
+width: 250px;
  }
 </style>
 </head>
 <body>
 <header>
   <h1>SAQ Products</h1>
+  <input type="text" id="searchBar" placeholder="Search..." class="search-input" style="border-left-width: 1px !important; margin-left: 300px !important;">
   <div class="header-right" style="gap: 20px;">
     <button onclick="switchLanguage()" class="lang-btn">FR</button>
-    <a href="dashboard_en.html" class="back-button">
+    <a href="dashboard.html" class="back-button">
       <img src="assets/image/Frame 218.png" alt="Back">
       <span>Back</span>
     </a>
@@ -211,9 +220,9 @@
       <li onclick="filterCategory('Wine')">Wine</li>
       <li onclick="filterCategory('Spirits')">Spirits</li>
       <li onclick="filterCategory('Champagne & Sparkling')">Champagne & Sparkling</li>
-      <li onclick="filterCategory('Cooler & Premixed')">Cooler & Premixed</li>
+      <li onclick="filterCategory('Coolers & Premixed Cocktails')">Coolers & Premixed Cocktails</li>
       <li onclick="filterCategory('Cider')">Cider</li>
-      <li onclick="filterCategory('Port & Fortified')">Port & Fortified</li>
+      <li onclick="filterCategory('Port & Fortified Wine')">Port & Fortified Wine</li>
       <li onclick="filterCategory('Beer')">Beer</li>
       <li onclick="filterCategory('Sake')">Sake</li>
       <li onclick="filterCategory('Dessert Wine')">Dessert Wine</li>
@@ -229,15 +238,15 @@
       <h2>Add a Product</h2>
       <div class="form-group">
         <label>Product Code (ID)</label>
-        <input type="text" id="productCode" placeholder="e.g. 15200291">
+        <input type="text" id="productCode" placeholder="ex: 15200291">
       </div>
       <div class="form-group">
         <label>Name</label>
-        <input type="text" id="productName" placeholder="e.g. 1800 Blanco">
+        <input type="text" id="productName" placeholder="ex: 1800 Blanco">
       </div>
       <div class="form-group">
         <label>Description</label>
-        <input type="text" id="productDesc" placeholder="100% Agave White Tequila...">
+        <input type="text" id="productDesc" placeholder="100% agave white tequila...">
       </div>
       <div class="form-group">
         <label>Category</label>
@@ -245,9 +254,9 @@
           <option>Wine</option>
           <option>Spirits</option>
           <option>Champagne & Sparkling</option>
-          <option>Cooler & Premixed</option>
+          <option>Coolers & Premixed Cocktails</option>
           <option>Cider</option>
-          <option>Port & Fortified</option>
+          <option>Port & Fortified Wine</option>
           <option>Beer</option>
           <option>Sake</option>
           <option>Dessert Wine</option>
@@ -259,7 +268,7 @@
       </div>
       <div class="form-group">
         <label>Price</label>
-        <input type="text" id="productPrice" placeholder="e.g. $18.00">
+        <input type="text" id="productPrice" placeholder="ex: $18.00">
       </div>
       <div class="form-group">
         <label>Availability</label>
@@ -269,7 +278,7 @@
       <h2>Promotion</h2>
       <div class="form-group">
         <label>Promo Code</label>
-        <input type="text" id="promoCode" placeholder="e.g. BOOZY10">
+        <input type="text" id="promoCode" placeholder="ex: BOOZY10">
       </div>
       <div class="form-group">
         <label>Promo Description</label>
@@ -277,7 +286,7 @@
       </div>
       <div class="form-group">
         <label>Discount (%)</label>
-        <input type="text" id="promoReduction" placeholder="e.g. 10">
+        <input type="text" id="promoReduction" placeholder="ex: 10">
       </div>
       <div class="form-group">
         <label>Expiration Date</label>
@@ -360,7 +369,7 @@
           <h3>${product.name}</h3>
           <p>${product.description}</p>
           <p><strong>${product.price}</strong> - ${product.availability}</p>
-          ${product.promo ? `<p><em>Promo: ${product.promo.code} - ${product.promo.reduction}% until ${product.promo.expiration}</em></p>` : ''}
+          ${product.promo ? `<p><em>Promo: ${product.promo.code} - ${product.promo.reduction}% jusqu'au ${product.promo.expiration}</em></p>` : ''}
         </div>
         <button class="delete-btn" onclick="deleteProduct('${category}', ${index})">×</button>
       `;
