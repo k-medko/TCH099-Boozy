@@ -27,14 +27,12 @@ public class PanierManager {
         return instance;
     }
 
-    // Ajouter un produit au panier
     public void addProduct(Produit product) {
         List<Produit> panier = getCart();
         panier.add(product);
         saveCart(panier);
     }
 
-    // Supprimer un produit du panier
     public void removeProduct(Produit product) {
         List<Produit> panier = getCart();
         panier.remove(product);
@@ -42,7 +40,6 @@ public class PanierManager {
 
     }
 
-    // Récupérer le panier depuis les préférences
     public List<Produit> getCart() {
         String json = prefs.getString(CART_KEY, null);
         if (json == null) return new ArrayList<>();
@@ -50,12 +47,10 @@ public class PanierManager {
         return new Gson().fromJson(json, type);
     }
 
-    // Vider complètement le panier
     public void clearCart() {
         prefs.edit().remove(CART_KEY).apply();
     }
 
-    // Sauvegarder le panier localement
     private void saveCart(List<Produit> panier) {
         String json = new Gson().toJson(panier);
         prefs.edit().putString(CART_KEY, json).apply();

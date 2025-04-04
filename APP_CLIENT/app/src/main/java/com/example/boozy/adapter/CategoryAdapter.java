@@ -17,6 +17,10 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     private List<String> categories;
     private OnCategoryClickListener listener;
 
+    public interface OnCategoryClickListener {
+        void onCategoryClick(String category);
+    }
+
     public CategoryAdapter(List<String> categories, OnCategoryClickListener listener) {
         this.categories = categories;
         this.listener = listener;
@@ -34,11 +38,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         String category = categories.get(position);
         holder.categoryNameText.setText(category);
 
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onCategoryClick(category);
-            }
-        });
+        holder.itemView.setOnClickListener(v -> listener.onCategoryClick(category));
     }
 
     @Override
@@ -53,9 +53,5 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
             super(itemView);
             categoryNameText = itemView.findViewById(R.id.categoryNameText);
         }
-    }
-
-    public interface OnCategoryClickListener {
-        void onCategoryClick(String category);
     }
 }
