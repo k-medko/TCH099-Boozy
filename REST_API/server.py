@@ -92,6 +92,41 @@ def get_store_image(store_id):
     # Return placeholder if no image found or store doesn't exist
     return send_from_directory(os.path.join(app.root_path, 'static'),
         'placeholder.jpg')
+# STORE ENDPOINTS
+@app.route('/getStores', methods=['GET'])
+def get_stores():
+    store_id = request.args.get('storeId')
+    proximity = request.args.get('proximity')  # Not implemented yet, would need geolocation
+    
+    if store_id:
+        query = """
+            SELECT s.store_id, s.name, s.image_nom, a.house_number, 
+                   a.street, a.postal_code, a.city, a.civic_number
+            FROM StoreLocation s
+            JOIN CustomerAddress a ON s.address_id = a.address_id
+            WHERE s.store_id = %s
+        """
+        stores = execute_query(query, (store_id,))
+    else:
+        query = """
+            SELECT s.store_id, s.name, s.image_nom, a.house_number, 
+                   a.street, a.postal_code, a.city, a.civic_number
+            FROM StoreLocation s
+            JOIN CustomerAddress a ON s.address_id = a.address_id
+        """
+        stores = execute_query(query)
+    
+    # Format store data - removed address_id from the response
+    formatted_stores = []
+    for store in stores:
+        formatted_stores.append({
+            "store_id": store[0],
+            "name": store[1],
+            "image_nom": store[2],
+            "address": f"{store[3]} {store[4]}, {store[6]}, {store[5]}"
+        })
+    
+    return jsonify(formatted_stores)
 
 # PRODUCT ENDPOINTS
 @app.route('/getProducts', methods=['GET'])
