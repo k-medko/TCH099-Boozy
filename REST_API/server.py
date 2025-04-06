@@ -49,10 +49,6 @@ def get_address_string(address_id):
 def home():
     return jsonify({"message": "Welcome to the Boozy API"})
 
-@app.route('/test')
-def test():
-    return jsonify({"message": "Test successful"})
-
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
@@ -841,3 +837,8 @@ def admin_delete_product():
         return jsonify({"status": "success", "message": "Product deleted successfully"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+
+#TODO:
+#Fix Create script to allow cascade delete and remove imagePath
+#Add images for each products
