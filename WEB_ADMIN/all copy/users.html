@@ -4,312 +4,303 @@
   <meta charset="UTF-8">
   <title>Gestion des utilisateurs</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/style.css">
   <style>
-    body {
-      margin: 0;
-      padding: 0;
+    :root {
+      --primary: #34495e;
+      --primary-hover: #2c3e50;
+      --danger: #DC2626;
+      --white: #ffffff;
+      --gray-dark: #2c3e50;
+      --gray-border: #d0d7de;
+      --gray-light: #f4f6f9;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body, html {
       font-family: 'Poppins', sans-serif;
-      background-color: #F4F6F9;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
+      background-color: var(--gray-light);
+      height: 100%;
     }
-
-    header, footer {
-      height: 80px;
-      background-color: #ffffff;
+    .wrapper { display: flex; flex-direction: column; min-height: 100vh; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background-color: var(--white);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .logo-container {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 40px;
-      border-bottom: 1px solid #E0E6ED;
+      gap: 12px;
+      margin-left: 40px;
     }
-
-    footer {
-      border-top: 1px solid #E0E6ED;
-      justify-content: center;
-      font-size: 16px;
-      color: #333;
-    }
-
-    .main {
-      display: flex;
-      padding: 40px;
-      flex: 1;
-      gap: 40px;
-    }
-
-    .form-section {
-      flex: 1;
-      max-width: 300px;
-    }
-
-    .form-section h2 {
+    header h1 {
       font-size: 24px;
-      margin-bottom: 20px;
-      color: #2F3E46;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 500;
-      color: #34495E;
-    }
-
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
-    .form-group button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      background-color: #1F2937;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .user-list {
-      flex: 2;
-      max-height: 500px;
-      overflow-y: auto;
-    }
-
-    .user {
+      font-weight: 600;
+      color: var(--gray-dark);
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      background: white;
-      padding: 12px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      gap: 12px;
     }
-
-    .user-info {
+    .main { flex: 1; padding: 24px; display: flex; gap: 24px; }
+    nav {
+      width: 300px;
+      max-width: 80%;
+      background-color: var(--white);
+      position: fixed;
+      top: 0;
+      left: -100%;
+      height: 100vh;
+      padding: 40px 24px;
       display: flex;
       flex-direction: column;
+      gap: 28px;
+      z-index: 100;
+      box-shadow: 4px 0 12px rgba(0,0,0,0.2);
+      transition: left 0.3s ease;
     }
-
-    .user-name {
-      font-weight: 600;
-      font-size: 16px;
-    }
-
-    .user-email {
-      font-size: 14px;
-      color: #666;
-    }
-
-    .user-role {
-      font-size: 14px;
-      color: #444;
-    }
-
-    .delete-btn, .edit-btn {
-      background: darkred;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      font-size: 16px;
-      border-radius: 50%;
-      cursor: pointer;
-      margin-left: 5px;
-    }
-
-    .edit-btn {
-      background: #6f7279;
-      border-radius: 6px;
-    }
-
-    .search-input {
-      padding: 8px 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-      width: 220px;
-    }
-
-    .header-right {
+    nav.show { left: 0; }
+    nav a {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 14px;
+      padding: 14px 20px;
+      font-size: 16px;
+      color: var(--gray-dark);
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all 0.3s;
+      font-weight: 500;
     }
-
-    .lang-btn {
-      font-size: 14px;
-      background: transparent;
-      border: 1.5px solid #1F2937;
-      color: #1F2937;
-      border-radius: 5px;
-      padding: 6px 12px;
+    nav a:hover, nav a.active { background-color: var(--gray-light); }
+    nav a img { width: 20px; height: 20px; }
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 98;
+      display: none;
+    }
+    .sidebar-overlay.show { display: block; }
+    .sidebar-toggle {
+      position: fixed;
+      top: 28px;
+      left: 16px;
+      z-index: 99;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
       cursor: pointer;
+    }
+    .lang-btn, .logout {
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .lang-btn {
+      background: transparent;
+      border: 1.5px solid var(--gray-dark);
+      color: var(--gray-dark);
       transition: 0.3s;
     }
-
     .lang-btn:hover {
-      background-color: #1F2937;
+      background-color: var(--gray-dark);
       color: white;
     }
-
-    .back-button {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .logout {
+      background-color: var(--primary);
+      color: white;
       text-decoration: none;
-      color: #1F2937;
+      padding: 8px 16px;
+      border-radius: 6px;
+    }
+    .content {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: space-between;
+    }
+    .form-container, .user-list-container {
+      background-color: var(--white);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+      width: 48%;
+    }
+    .form-container h2, .user-list-container h2 {
+      margin-bottom: 16px;
+      color: var(--gray-dark);
+    }
+    input, select {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 10px;
+      border: 1px solid var(--gray-border);
+      border-radius: 8px;
+    }
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 14px;
       font-weight: 500;
-      font-size: 16px;
-      transition: color 0.3s;
+      border-radius: 8px;
+      cursor: pointer;
     }
-
-    .back-button:hover {
-      color: #2563EB;
+    footer {
+      background-color: var(--primary);
+      color: white;
+      text-align: center;
+      padding: 16px 20px;
+      font-size: 14px;
     }
-
-    .back-button img {
-      width: 24px;
-      height: 24px;
+    footer a {
+      color: #ffc0cb;
+      text-decoration: none;
+      margin: 0 10px;
     }
+    footer a:hover { text-decoration: underline; }
+    .user-card {
+      background: var(--white);
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-bottom: 12px;
+    }
+    .user-card p { margin: 4px 0; font-size: 14px; color: var(--gray-dark); }
   </style>
 </head>
 <body>
-<header>
-  <h1>Utilisateurs</h1>
-  <input type="text" id="searchBar" placeholder="Rechercher..." class="search-input">
-  <div class="header-right">
-    <button onclick="switchLanguage()" class="lang-btn">EN</button>
-    <a href="dashboard.html" class="back-button">
-      <img src="assets/image/Frame 218.png" alt="Retour">
-      <span>Retourner</span>
-    </a>
+<div class="wrapper">
+  <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+  <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+  <nav id="sidebar">
+    <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
+    <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
+    <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
+    <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
+    <a href="users.html" class="active"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+  </nav>
+  <header>
+    <div class="logo-container">
+      <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Utilisateurs</h1>
+    </div>
+    <div class="header-controls">
+      <button onclick="switchLanguage()" class="lang-btn">🌐 EN</button>
+      <a href="dashboard.html" class="logout">← Retour</a>
+    </div>
+  </header>
+  <div class="main">
+    <div class="content">
+      <div class="form-container">
+        <h2>Créer un compte administrateur</h2>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Mot de passe" required>
+        <input type="text" id="firstName" placeholder="Prénom" required>
+        <input type="text" id="lastName" placeholder="Nom" required>
+        <input type="tel" id="phoneNumber" placeholder="Numéro de téléphone (111-111-1111)" pattern="\\d{3}-\\d{3}-\\d{4}" required>
+        <select id="userType" onchange="toggleDriverFields()">
+          <option value="customer">Client</option>
+          <option value="deliverer">Livreur</option>
+        </select>
+        <div id="driverFields" style="display: none;">
+          <input type="text" id="licensePlate" placeholder="Plaque d'immatriculation">
+          <input type="text" id="licenseNumber" placeholder="Numéro de permis">
+        </div>
+        <button onclick="creerUtilisateurAdmin()">Créer l'utilisateur</button>
+      </div>
+      <div class="user-list-container">
+        <h2>Liste des utilisateurs</h2>
+        <div id="userList"></div>
+      </div>
+    </div>
   </div>
-</header>
-
-<div class="main">
-  <div class="form-section">
-    <h2>Ajouter un utilisateur</h2>
-    <div class="form-group">
-      <label>Nom</label>
-      <input type="text" id="nom" placeholder="ex: Jean">
-    </div>
-    <div class="form-group">
-      <label>Prénom</label>
-      <input type="text" id="prenom" placeholder="ex: Dupont">
-    </div>
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" id="email" placeholder="ex: jean.dupont@email.com">
-    </div>
-    <div class="form-group">
-      <label>Rôle</label>
-      <select id="role">
-        <option value="client">Client</option>
-        <option value="livreur">Livreur</option>
-        <option value="admin">Admin</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <button onclick="ajouterUtilisateur()">Ajouter l'utilisateur</button>
-    </div>
-  </div>
-
-  <div class="user-list" id="userList"></div>
+  <footer>
+    <p>&copy; 2025 Boozy Inc. Tous droits réservés.</p>
+    <p><a href="mailto:support@boozy.com">support@boozy.com</a> | <a href="tel:+15146523145">514-652-3145</a></p>
+  </footer>
 </div>
-
-<footer>
-  Si vous avez besoin d'aide, contactez-nous au 514-652-3145
-</footer>
-
 <script>
+  function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("show");
+    document.getElementById("overlay").classList.toggle("show");
+  }
+
   function switchLanguage() {
     window.location.href = "users_en.html";
   }
 
-  function ajouterUtilisateur() {
-    const nom = document.getElementById("nom").value.trim();
-    const prenom = document.getElementById("prenom").value.trim();
+  function toggleDriverFields() {
+    const isDriver = document.getElementById('userType').value === 'deliverer';
+    document.getElementById('driverFields').style.display = isDriver ? 'block' : 'none';
+  }
+
+  async function creerUtilisateurAdmin() {
+    const adminEmail = "admin@boozy.com";
+    const adminPassword = "adminpassword";
+
     const email = document.getElementById("email").value.trim();
-    const role = document.getElementById("role").value;
+    const password = document.getElementById("password").value.trim();
+    const firstName = document.getElementById("firstName").value.trim();
+    const lastName = document.getElementById("lastName").value.trim();
+    const phoneNumber = document.getElementById("phoneNumber").value.trim();
+    const userType = document.getElementById("userType").value;
+    const licensePlate = document.getElementById("licensePlate")?.value.trim();
+    const licenseNumber = document.getElementById("licenseNumber")?.value.trim();
 
-    if (!nom || !prenom || !email) return;
+    const phonePattern = /^\d{3}-\d{3}-\d{4}$/;
+    if (!phonePattern.test(phoneNumber)) {
+      alert("Le numéro de téléphone doit être au format 514-666-7788");
+      return;
+    }
 
-    const userList = document.getElementById("userList");
-    const div = document.createElement("div");
-    div.className = "user";
-    div.innerHTML = `
-      <div class="user-info">
-        <span class="user-name">${nom} ${prenom}</span>
-        <span class="user-email">${email}</span>
-        <span class="user-role"><strong>Rôle :</strong> ${role}</span>
-      </div>
-      <div>
-        <button class="edit-btn" onclick="modifierUtilisateur(this)">✏️</button>
-        <button class="delete-btn" onclick="this.parentElement.parentElement.remove()">&times;</button>
-      </div>
-    `;
+    const data = {
+      adminEmail,
+      adminPassword,
+      email,
+      password,
+      firstName,
+      lastName,
+      phoneNumber,
+      userType,
+      licensePlate: userType === 'deliverer' ? licensePlate : undefined,
+      licenseNumber: userType === 'deliverer' ? licenseNumber : undefined
+    };
 
-    userList.appendChild(div);
+    try {
+      const response = await fetch("http://4.172.255.120:5000/admin/createUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
 
-    document.getElementById("nom").value = "";
-    document.getElementById("prenom").value = "";
-    document.getElementById("email").value = "";
-    document.getElementById("role").value = "client";
-  }
-
-  function modifierUtilisateur(btn) {
-    const userDiv = btn.parentElement.parentElement;
-    const name = userDiv.querySelector(".user-name").textContent.split(" ");
-    const email = userDiv.querySelector(".user-email").textContent;
-    const role = userDiv.querySelector(".user-role").textContent.split(": ")[1];
-
-    userDiv.innerHTML = `
-      <div class="user-info">
-        <input type="text" class="edit-nom" value="${name[0]}">
-        <input type="text" class="edit-prenom" value="${name[1]}">
-        <input type="email" class="edit-email" value="${email}">
-        <select class="edit-role">
-          <option value="client" ${role === "client" ? "selected" : ""}>Client</option>
-          <option value="livreur" ${role === "livreur" ? "selected" : ""}>Livreur</option>
-          <option value="admin" ${role === "admin" ? "selected" : ""}>Admin</option>
-        </select>
-      </div>
-      <div>
-        <button class="edit-btn" onclick="sauvegarderUtilisateur(this)">💾</button>
-        <button class="delete-btn" onclick="this.parentElement.parentElement.remove()">&times;</button>
-      </div>
-    `;
-  }
-
-  function sauvegarderUtilisateur(btn) {
-    const userDiv = btn.parentElement.parentElement;
-    const nom = userDiv.querySelector(".edit-nom").value;
-    const prenom = userDiv.querySelector(".edit-prenom").value;
-    const email = userDiv.querySelector(".edit-email").value;
-    const role = userDiv.querySelector(".edit-role").value;
-
-    userDiv.innerHTML = `
-      <div class="user-info">
-        <span class="user-name">${nom} ${prenom}</span>
-        <span class="user-email">${email}</span>
-        <span class="user-role"><strong>Rôle :</strong> ${role}</span>
-      </div>
-      <div>
-        <button class="edit-btn" onclick="modifierUtilisateur(this)">✏️</button>
-        <button class="delete-btn" onclick="this.parentElement.parentElement.remove()">&times;</button>
-      </div>
-    `;
+      if (response.ok) {
+        const result = await response.json();
+        const userCard = document.createElement("div");
+        userCard.className = "user-card";
+        userCard.innerHTML = `
+          <p><strong>Nom:</strong> ${firstName} ${lastName}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Rôle:</strong> ${userType}</p>
+        `;
+        document.getElementById("userList").appendChild(userCard);
+        alert("Utilisateur créé avec succès ! ID: " + result.userId);
+      } else {
+        alert("Erreur lors de la création de l'utilisateur.");
+      }
+    } catch (error) {
+      console.error("Erreur réseau:", error);
+      alert("Erreur de connexion au serveur");
+    }
   }
 </script>
 </body>
