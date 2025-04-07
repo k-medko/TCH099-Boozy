@@ -2,8 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tableau des Commandes</title>
+  <title>Stock du magasin</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -15,21 +14,24 @@
       --gray-border: #d0d7de;
       --danger: #dc2626;
     }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-    body, html {
+
+    body {
       font-family: 'Poppins', sans-serif;
       background-color: var(--gray-light);
-      height: 100%;
     }
+
     .wrapper {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
     }
+
     header {
       display: flex;
       justify-content: space-between;
@@ -38,12 +40,14 @@
       background-color: var(--white);
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
+
     .logo-container {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-left: 40px;
     }
+
     header h1 {
       font-size: 24px;
       font-weight: 600;
@@ -52,6 +56,7 @@
       align-items: center;
       gap: 12px;
     }
+
     .search-bar {
       display: flex;
       align-items: center;
@@ -61,6 +66,7 @@
       padding: 4px 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
+
     .search-bar input {
       border: none;
       outline: none;
@@ -69,6 +75,7 @@
       border-radius: 999px;
       width: 160px;
     }
+
     .search-bar button {
       background-color: var(--primary);
       color: white;
@@ -79,16 +86,19 @@
       font-weight: 500;
       transition: 0.3s;
     }
+
     .search-bar button:hover {
       background-color: white;
       color: var(--primary);
       border: 1px solid var(--primary);
     }
+
     .header-controls {
       display: flex;
       align-items: center;
       gap: 10px;
     }
+
     .lang-btn, .logout {
       font-size: 14px;
       padding: 8px 12px;
@@ -96,82 +106,115 @@
       cursor: pointer;
       font-weight: 500;
     }
+
     .lang-btn {
       background: transparent;
       border: 1.5px solid var(--gray-dark);
       color: var(--gray-dark);
     }
+
     .lang-btn:hover {
       background-color: var(--gray-dark);
       color: white;
     }
+
     .logout {
       background-color: var(--primary);
       color: white;
       border: none;
     }
+
     .logout:hover {
       background-color: var(--primary-hover);
     }
+
     .main {
-      flex: 1;
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
       padding: 24px;
+      flex: 1; 
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: var(--white);
+
+    .stock-box {
+      background-color: var(--white);
       border-radius: 16px;
-      overflow: hidden;
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+      flex: 1;
+      min-width: 340px;
+      padding: 30px;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: var(--gray-dark);
+    }
+
+    .product-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--gray-border);
+      font-size: 16px;
+      color: var(--gray-dark);
+    }
+
+    .quantity-select {
+      padding: 6px 8px;
+      border: 1px solid var(--gray-border);
+      border-radius: 6px;
       font-size: 14px;
     }
-    th, td {
-      padding: 16px;
-      text-align: left;
-    }
-    th {
-      background-color: #E5EAF2;
-      color: var(--gray-dark);
-      font-weight: 600;
-    }
-    td {
-      border-bottom: 1px solid #f1f3f5;
-      color: var(--gray-dark);
-    }
+
     .action-btn {
-      background-color: var(--primary);
-      color: white;
+      padding: 6px 12px;
+      margin-left: 10px;
       border: none;
-      padding: 8px 14px;
       border-radius: 6px;
-      font-size: 13px;
       cursor: pointer;
-      margin-right: 6px;
+      font-size: 14px;
+      font-weight: 500;
       transition: background-color 0.3s;
     }
-    .action-btn:hover {
+
+    .remove-btn {
+      background-color: var(--gray-dark);
+      color: white;
+    }
+
+    .remove-btn:hover {
+      background-color: #111827;
+    }
+
+    .add-btn {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .add-btn:hover {
       background-color: var(--primary-hover);
     }
+
     footer {
       background-color: var(--primary);
-      height: 90px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       color: white;
-      font-size: 14px;
-      padding: 10px;
       text-align: center;
+      padding: 16px 20px;
+      font-size: 14px;
     }
+
     footer a {
       color: #ffc0cb;
       text-decoration: none;
+      margin: 0 10px;
     }
+
     footer a:hover {
       text-decoration: underline;
     }
+
     .sidebar-overlay {
       position: fixed;
       top: 0;
@@ -242,99 +285,126 @@
   <div class="wrapper">
     <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-    <nav id="sidebar">
-      <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
-      <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
-      <a href="orders.html" class="active"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
-      <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
-      <a href="users.html"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
-    </nav>
     <header>
       <div class="logo-container">
-        <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Tableau des Commandes</h1>
+        <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> <span id="magasinNom">Stock</span></h1>
       </div>
       <div class="search-bar">
-        <input type="text" id="searchBar" placeholder="Rechercher...">
+        <input type="text" id="searchBar" placeholder="Rechercher un produit...">
         <button type="submit">Recherche</button>
       </div>
       <div class="header-controls">
         <button onclick="switchLanguage()" class="lang-btn">🌐 EN</button>
-        <a href="dashboard.html" class="logout" style="text-decoration: none;">← Retour</a>
+        <a href="stores.html" class="logout" style="text-decoration: none;">← Retour</a>
       </div>
     </header>
+
+    <nav id="sidebar">
+      <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
+      <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
+      <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
+      <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
+      <a href="users.html"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+    </nav>
+
     <div class="main">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Client</th>
-            <th>Adresse</th>
-            <th>Statut</th>
-            <th>Date</th>
-            <th>Prix</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1001</td>
-            <td>Jean Dupont</td>
-            <td>123 Rue Sainte-Catherine, Montréal</td>
-            <td><span style="background:#FEF3C7;padding:4px 8px;border-radius:6px;font-size:13px;">En cours</span></td>
-            <td>18/03/2025</td>
-            <td>38.49$</td>
-            <td>
-              <button class="action-btn" onclick="voirDetailsCommande([{ nom: 'Vin Rouge', prix: 19.99 }, { nom: 'Vin Blanc', prix: 18.50 }])">Détails</button>
-              <button class="action-btn" style="background-color: var(--danger);" onclick="annulerCommande(this)">Annuler</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="stock-box">
+        <h2>Produits vendus</h2>
+        <div id="produitsVendus"></div>
+      </div>
+
+      <div class="stock-box">
+        <h2>Produits disponibles (non vendus)</h2>
+        <div id="produitsDisponibles"></div>
+      </div>
     </div>
+
     <footer>
-      <p><strong>© 2025 Boozy Inc.</strong> Tous droits réservés.</p>
-      <p><a href="mailto:support@boozy.com">support@boozy.com</a> &nbsp; | &nbsp; 514-652-3145</p>
+      <div class="footer-content">
+        <p>&copy; 2025 Boozy Inc. Tous droits réservés.</p>
+        <p><a href="mailto:support@boozy.com">support@boozy.com</a> | <a href="tel:+15146523145">514-652-3145</a></p>
+      </div>
     </footer>
   </div>
 
-  <div class="modal" id="detailsModal" style="display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4);">
-    <div class="modal-content" style="background-color: white; padding: 30px; border-radius: 12px; width: 450px; max-width: 95%; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
-      <h2>Produits dans la commande</h2>
-      <ul id="produitsListe" style="list-style: none; padding-left: 0;"></ul>
-      <div class="modal-total" id="totalPrix" style="text-align: right; margin-top: 20px; font-weight: 600;"></div>
-      <button onclick="fermerModal()" style="margin-top: 20px; background-color: var(--gray-dark); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; float: right;">Fermer</button>
-    </div>
-  </div>
-
   <script>
-    function switchLanguage() {
-      window.location.href = "orders_en.html";
+    const urlParams = new URLSearchParams(window.location.search);
+    const magasinNom = urlParams.get("nom");
+    document.getElementById("magasinNom").textContent = `Stock – ${magasinNom}`;
+
+    const produitsTous = [
+      { id: 1, nom: "Vin Rouge" },
+      { id: 2, nom: "Tequila" },
+      { id: 3, nom: "Whisky" },
+      { id: 4, nom: "Cidre de glace" },
+      { id: 5, nom: "Gin" }
+    ];
+
+    const produitsVendables = [
+      { id: 1, nom: "Vin Rouge", quantite: 12 },
+      { id: 3, nom: "Whisky", quantite: 7 }
+    ];
+
+    function afficherProduits() {
+      const divVendables = document.getElementById("produitsVendus");
+      const divDisponibles = document.getElementById("produitsDisponibles");
+      divVendables.innerHTML = "";
+      divDisponibles.innerHTML = "";
+
+      produitsVendables.forEach(prod => {
+        const ligne = document.createElement("div");
+        ligne.className = "product-row";
+        ligne.innerHTML = `
+          <span>${prod.nom}</span>
+          <div>
+            <input type="number" value="${prod.quantite}" min="0" class="quantity-select">
+            <button class="action-btn remove-btn" onclick="retirerDuStock(${prod.id})">Retirer</button>
+          </div>
+        `;
+        divVendables.appendChild(ligne);
+      });
+
+      const idsVendables = produitsVendables.map(p => p.id);
+      const produitsNonVendables = produitsTous.filter(p => !idsVendables.includes(p.id));
+
+      produitsNonVendables.forEach(prod => {
+        const ligne = document.createElement("div");
+        ligne.className = "product-row";
+        ligne.innerHTML = `
+          <span>${prod.nom}</span>
+          <button class="action-btn add-btn" onclick="ajouterAuStock(${prod.id})">Ajouter</button>
+        `;
+        divDisponibles.appendChild(ligne);
+      });
     }
+
+    function retirerDuStock(id) {
+      const index = produitsVendables.findIndex(p => p.id === id);
+      if (index !== -1) {
+        produitsVendables.splice(index, 1);
+        afficherProduits();
+      }
+    }
+
+    function ajouterAuStock(id) {
+      const produit = produitsTous.find(p => p.id === id);
+      if (produit) {
+        produitsVendables.push({ ...produit, quantite: 1 });
+        afficherProduits();
+      }
+    }
+
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("show");
       document.getElementById("overlay").classList.toggle("show");
     }
-    function annulerCommande(btn) {
-      if (confirm("Êtes-vous sûr de vouloir annuler cette commande ?")) {
-        btn.closest("tr").remove();
-      }
+
+    function switchLanguage() {
+      window.location.href = "stock_magasin_en.html";
     }
-    function voirDetailsCommande(produits) {
-      const liste = document.getElementById("produitsListe");
-      const totalPrix = document.getElementById("totalPrix");
-      let total = 0;
-      liste.innerHTML = produits.map(p => {
-        total += p.prix;
-        return `<li><span>${p.nom}</span><span>${p.prix.toFixed(2)} $</span></li>`;
-      }).join("");
-      totalPrix.textContent = `Total: ${total.toFixed(2)} $`;
-      document.getElementById("detailsModal").style.display = "flex";
-    }
-    function fermerModal() {
-      document.getElementById("detailsModal").style.display = "none";
-    }
+
+    window.onload = afficherProduits;
   </script>
 </body>
 </html>
-
 
