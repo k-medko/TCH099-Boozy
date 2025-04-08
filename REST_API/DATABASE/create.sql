@@ -24,11 +24,13 @@ CREATE TABLE UserAccount (
 
 CREATE TABLE AddressLine (
     address_id INT(10) AUTO_INCREMENT PRIMARY KEY,
-    house_number INT(5) NOT NULL,
+    civic INT(5) NOT NULL,
+    apartment VARCHAR(10),
     street VARCHAR(255) NOT NULL,
     city VARCHAR(255) NOT NULL,
     postal_code VARCHAR(25) NOT NULL
 );
+
 
 CREATE TABLE Shop (
     shop_id INT(10) AUTO_INCREMENT PRIMARY KEY,
@@ -55,7 +57,8 @@ CREATE TABLE ClientOrder (
     total_amount DECIMAL(10,2) NOT NULL,
     address_id INT(10) NOT NULL,
     shop_id INT(10) NOT NULL,
-    user_id INT(10) NOT NULL,
+    customer_id INT(10) NOT NULL,
+    deliverer_id INT(10) NOT NULL,
     CONSTRAINT fk_clientorder_address_id FOREIGN KEY (address_id) REFERENCES AddressLine(address_id)
         ON DELETE CASCADE,
     CONSTRAINT fk_clientorder_shop_id FOREIGN KEY (shop_id) REFERENCES Shop(shop_id)
@@ -96,7 +99,8 @@ CREATE TABLE Payment (
     user_id INT(10) NOT NULL,
     card_number VARCHAR(20) NOT NULL,
     CVC_card INT(3) NOT NULL,
-    expiry_date DATE NOT NULL,
+    expiry_date_month INT(2) NOT NULL,
+    expiry_date_year INT(2) NOT NULL,
     CONSTRAINT fk_payment_client_order_id FOREIGN KEY (client_order_id) REFERENCES ClientOrder(client_order_id)
         ON DELETE CASCADE,
     CONSTRAINT fk_payment_user_id FOREIGN KEY (user_id) REFERENCES UserAccount(user_id)
