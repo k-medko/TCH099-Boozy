@@ -1,393 +1,258 @@
-
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Produits SAQ</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
   <style>
-       body {
+    :root {
+      --primary: #34495e;
+      --primary-hover: #2c3e50;
+      --gray-light: #f4f6f8;
+      --gray-dark: #2c3e50;
+      --white: #ffffff;
+      --gray-border: #d0d7de;
+      --danger: #dc2626;
+    }
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+    body, html {
       font-family: 'Poppins', sans-serif;
-      background-color: #F4F6F9;
+      background-color: var(--gray-light);
+      height: 100%;
+    }
+    .wrapper {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
     }
-
-    header, footer {
-      height: 80px;
-      background-color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 40px;
-      border-bottom: 1px solid #E0E6ED;
-    }
-
-    footer {
-      border-top: 1px solid #E0E6ED;
-      justify-content: center;
-      font-size: 16px;
-      color: #333;
-    }
-
-    .main {
-      display: flex;
-    }
-
-    nav {
-      width: 200px;
-      background: white;
-      padding: 40px 20px;
-      border-right: 1px solid #E0E6ED;
-    }
-
-    nav h2 {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      color: #1F2937;
-    }
-
-    nav ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    nav li {
-      margin-bottom: 15px;
-      font-size: 16px;
-      color: #1F2937;
-      border-bottom: 1px solid #E0E6ED;
-      padding-bottom: 8px;
-      cursor: pointer;
-    }
-
-    .content {
-      flex: 1;
-      padding: 40px;
-      display: flex;
-      gap: 30px;
-    }
-
-    .form-section {
-      flex: 1;
-      max-width: 400px;
-    }
-
-    .form-section h2 {
-      font-size: 24px;
-      margin-bottom: 20px;
-      color: #2F3E46;
-    }
-
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 500;
-      color: #34495E;
-    }
-
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 6px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
-    .form-group button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      background-color: #1F2937;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .product-list {
-      flex: 2;
-      padding-left: 20px;
-    }
-
-    .product {
-      padding: 15px;
-      border-bottom: 1px solid #ccc;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: white;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
-
-    .product h3 {
-      margin: 0 0 5px;
-      font-size: 18px;
-    }
-
-    .product p {
-      margin: 0;
-      font-size: 14px;
-    }
-
-    .delete-btn {
-      background: darkred;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .back-button {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: #1F2937;
-      font-weight: 500;
-      font-size: 16px;
-      transition: color 0.3s;
-    }
-
-    .back-button:hover {
-      color: #2563EB;
-    }
-
-    .back-button img {
-      width: 24px;
-      height: 24px;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      flex: 1;
-    }
-
-    .lang-btn {
-      font-size: 14px;
-      background: transparent;
-      border: 1.5px solid #1F2937;
-      color: #1F2937;
-      border-radius: 5px;
-      padding: 6px 12px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .lang-btn:hover {
-      background-color: #1F2937;
-      color: white;
-    }   
-    
-    .search-input {
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  width: 250px;
-    }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background-color: var(--white); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .logo-container { display: flex; align-items: center; gap: 12px; margin-left: 40px; }
+    header h1 { font-size: 24px; font-weight: 600; color: var(--gray-dark); display: flex; align-items: center; gap: 12px; }
+    nav { width: 300px; max-width: 80%; background-color: var(--white); position: fixed; top: 0; left: -100%; height: 100vh; padding: 40px 24px; display: flex; flex-direction: column; gap: 28px; z-index: 100; box-shadow: 4px 0 12px rgba(0,0,0,0.2); transition: left 0.3s ease; }
+    nav.show { left: 0; }
+    nav a { display: flex; align-items: center; gap: 14px; padding: 14px 20px; font-size: 16px; color: var(--gray-dark); text-decoration: none; border-radius: 12px; transition: all 0.3s; font-weight: 500; }
+    nav a:hover, nav a.active { background-color: var(--gray-light); }
+    nav a img { width: 20px; height: 20px; }
+    .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.5); z-index: 98; display: none; }
+    .sidebar-overlay.show { display: block; }
+    .sidebar-toggle { position: fixed; top: 28px; left: 16px; z-index: 99; background-color: var(--primary); color: white; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+    .header-controls { display: flex; align-items: center; gap: 10px; }
+    .lang-btn, .logout { font-size: 14px; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; }
+    .lang-btn { background: transparent; border: 1.5px solid var(--gray-dark); color: var(--gray-dark); }
+    .lang-btn:hover { background-color: var(--gray-dark); color: white; }
+    .logout { background-color: var(--primary); color: white; border: none; }
+    .logout:hover { background-color: var(--primary-hover); }
+    footer { background-color: var(--primary); height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-size: 14px; padding: 10px; text-align: center; }
+    footer a { color: #ffc0cb; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .main { flex: 1; padding: 24px; display: flex; gap: 24px; }
+    .form-box { background-color: var(--white); padding: 24px; border-radius: 16px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05); max-width: 400px; width: 100%; }
+    .product-list-box { flex: 1; background-color: var(--gray-dark); border-radius: 16px; padding: 16px; max-height: 580px; overflow-y: auto; }
+    .form-box input, .form-box select { width: 100%; margin-bottom: 12px; padding: 10px; border-radius: 8px; border: 1px solid var(--gray-border); }
+    .form-box button { background-color: var(--primary); color: white; border: none; padding: 12px 20px; font-size: 14px; font-weight: 500; border-radius: 8px; cursor: pointer; }
+    .product-entry { display: flex; justify-content: space-between; align-items: center; background-color: var(--white); padding: 16px; border-radius: 12px; box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05); margin-bottom: 12px; }
+    .product-entry p { margin: 0 0 4px 0; font-size: 14px; color: var(--gray-dark); }
+    .entry-actions { display: flex; gap: 8px; }
+    .entry-actions button { padding: 8px 12px; font-size: 13px; border-radius: 6px; cursor: pointer; border: none; font-weight: 500; }
+    .edit-btn { background-color: var(--gray-dark); color: white; }
+    .delete-btn { background-color: var(--danger); color: white; }
+    .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 1000; }
+    .modal input { margin-bottom: 10px; width: 100%; padding: 8px; border: 1px solid var(--gray-border); border-radius: 6px; }
   </style>
 </head>
 <body>
-<header>
-  <h1>Produits SAQ</h1>
-  <input type="text" id="searchBar" placeholder="Rechercher..." class="search-input" style="border-left-width: 1px !important; margin-left: 300px !important;">
-  <div class="header-right" style="gap: 20px;">
-    <button onclick="switchLanguage()" class="lang-btn">EN</button>
-    <a href="dashboard.html" class="back-button">
-      <img src="assets/image/Frame 218.png" alt="Retour">
-      <span>Retourner</span>
-    </a>
-  </div>
-</header>
+  <div class="wrapper">
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    <nav id="sidebar">
+      <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
+      <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
+      <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
+      <a href="products.html" class="active"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
+      <a href="users.html"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+    </nav>
+    <header>
+      <div class="logo-container">
+        <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Produits SAQ</h1>
+      </div>
+      <div class="header-controls">
+        <button onclick="switchLanguage()" class="lang-btn">🌐 EN</button>
+        <a href="dashboard.html" class="logout" style="text-decoration: none;">← Retour</a>
+      </div>
+    </header>
 
-<div class="main">
-  <nav>
-    <h2>Catégorie</h2>
-    <ul id="categoryList">
-      <li onclick="filterCategory('Vin')">Vin</li>
-      <li onclick="filterCategory('Spiritueux')">Spiritueux</li>
-      <li onclick="filterCategory('Champagne et mousseux')">Champagne et mousseux</li>
-      <li onclick="filterCategory('Cooler et cocktail prémixé')">Cooler et cocktail prémixé</li>
-      <li onclick="filterCategory('Cidre')">Cidre</li>
-      <li onclick="filterCategory('Porto et vin fortifié')">Porto et vin fortifié</li>
-      <li onclick="filterCategory('Bière')">Bière</li>
-      <li onclick="filterCategory('Saké')">Saké</li>
-      <li onclick="filterCategory('Vin de dessert')">Vin de dessert</li>
-      <li onclick="filterCategory('Apéritif')">Apéritif</li>
-      <li onclick="filterCategory('Hydromel')">Hydromel</li>
-      <li onclick="filterCategory('Cadeaux et accessoires')">Cadeaux et accessoires</li>
-      <li onclick="filterCategory('Poiré')">Poiré</li>
-    </ul>
-  </nav>
-
-  <div class="content">
-    <div class="form-section">
-      <h2>Ajouter un produit</h2>
-      <div class="form-group">
-        <label>Code produit (ID)</label>
-        <input type="text" id="productCode" placeholder="ex: 15200291">
-      </div>
-      <div class="form-group">
-        <label>Nom</label>
-        <input type="text" id="productName" placeholder="ex: 1800 Blanco">
-      </div>
-      <div class="form-group">
-        <label>Description</label>
-        <input type="text" id="productDesc" placeholder="Tequila 100% agave blanc...">
-      </div>
-      <div class="form-group">
-        <label>Catégorie</label>
+    <div class="main">
+      <div class="form-box">
+        <h2>Ajouter un produit</h2>
+        <input type="text" id="productCode" placeholder="Code produit (ID)">
+        <input type="text" id="productName" placeholder="Nom">
+        <input type="text" id="productDesc" placeholder="Description">
         <select id="productCategory">
-          <option>Vin</option>
-          <option>Spiritueux</option>
-          <option>Champagne et mousseux</option>
-          <option>Cooler et cocktail prémixé</option>
-          <option>Cidre</option>
-          <option>Porto et vin fortifié</option>
-          <option>Bière</option>
-          <option>Saké</option>
-          <option>Vin de dessert</option>
-          <option>Apéritif</option>
-          <option>Hydromel</option>
-          <option>Cadeaux et accessoires</option>
+          <option>Vin</option><option>Spiritueux</option><option>Champagne et mousseux</option>
+          <option>Cooler et cocktail prémixé</option><option>Cidre</option><option>Porto et vin fortifié</option>
+          <option>Bière</option><option>Saké</option><option>Vin de dessert</option>
+          <option>Apéritif</option><option>Hydromel</option><option>Cadeaux et accessoires</option>
           <option>Poiré</option>
         </select>
-      </div>
-      <div class="form-group">
-        <label>Prix</label>
-        <input type="text" id="productPrice" placeholder="ex: 18,00 $">
-      </div>
-      <div class="form-group">
-        <label>Disponibilité</label>
-        <input type="text" id="productAvailability" placeholder="Disponible / Rupture">
-      </div>
-      <hr>
-      <h2>Promotion</h2>
-      <div class="form-group">
-        <label>Code promo</label>
-        <input type="text" id="promoCode" placeholder="ex: BOOZY10">
-      </div>
-      <div class="form-group">
-        <label>Description promo</label>
-        <input type="text" id="promoDesc" placeholder="10% de rabais sur tout">
-      </div>
-      <div class="form-group">
-        <label>Réduction (%)</label>
-        <input type="text" id="promoReduction" placeholder="ex: 10">
-      </div>
-      <div class="form-group">
-        <label>Date d'expiration</label>
+        <input type="text" id="productPrice" placeholder="Prix">
+        <input type="text" id="productAvailability" placeholder="Disponibilité">
+        <input type="text" id="promoCode" placeholder="Code promo">
+        <input type="text" id="promoDesc" placeholder="Description promo">
+        <input type="text" id="promoReduction" placeholder="Réduction (%)">
         <input type="date" id="promoExpiration">
+        <button onclick="addProduct()">Ajouter</button>
       </div>
-      <div class="form-group">
-        <button onclick="addProduct()">Ajouter le produit</button>
-      </div>
+
+      <div class="product-list-box" id="productList"></div>
     </div>
 
-    <div class="product-list" id="productList"></div>
+    <div class="modal" id="editModal">
+      <h3>Modifier le produit</h3>
+      <input type="text" id="editCode" placeholder="Code produit">
+      <input type="text" id="editName" placeholder="Nom">
+      <input type="text" id="editDesc" placeholder="Description">
+      <input type="text" id="editPrice" placeholder="Prix">
+      <input type="text" id="editAvailability" placeholder="Disponibilité">
+      <input type="text" id="editPromoCode" placeholder="Code promo">
+      <input type="text" id="editPromoDesc" placeholder="Description promo">
+      <input type="text" id="editPromoReduction" placeholder="Réduction (%)">
+      <input type="date" id="editPromoExpiration">
+      <button onclick="validerEditionProduit()">Valider</button>
+    </div>
+  
+
+    <footer>
+      <p><strong>© 2025 Boozy Inc.</strong> Tous droits réservés.</p>
+      <p><a href="mailto:support@boozy.com">support@boozy.com</a> &nbsp; | &nbsp; 514-652-3145</p>
+    </footer>
   </div>
-</div>
+  <script>
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("show");
+      document.getElementById("overlay").classList.toggle("show");
+    }
+    const categories = {};
+    let produitActuel = null;
 
-<footer>
-  Si vous avez besoin d'aide, contactez-nous au 514-652-3145
-</footer>
-
-<script>
-  const categories = {};
-
-  function addProduct() {
-    const id = document.getElementById('productCode').value;
-    const name = document.getElementById('productName').value;
-    const description = document.getElementById('productDesc').value;
-    const category = document.getElementById('productCategory').value;
-    const price = document.getElementById('productPrice').value;
-    const availability = document.getElementById('productAvailability').value;
-
-    const promoCode = document.getElementById('promoCode').value;
-    const promoDesc = document.getElementById('promoDesc').value;
-    const promoReduction = document.getElementById('promoReduction').value;
-    const promoExpiration = document.getElementById('promoExpiration').value;
-
-    if (!id || !name || !price || !category) return;
-
-    if (!categories[category]) {
-      categories[category] = [];
+    function fetchProductsFromAPI() {
+      fetch("http://4.172.255.120:5000/getProducts")
+        .then(res => res.json())
+        .then(data => {
+          data.forEach(product => {
+            const cat = product.category || 'Inconnu';
+            if (!categories[cat]) categories[cat] = [];
+            categories[cat].push(product);
+          });
+          renderAllProducts();
+        })
+        .catch(err => console.error("Erreur lors de la récupération des produits:", err));
     }
 
-    const product = {
-      id,
-      name,
-      description,
-      price,
-      availability,
-      promo: promoCode ? {
-        code: promoCode,
-        desc: promoDesc,
-        reduction: promoReduction,
-        expiration: promoExpiration
-      } : null
-    };
+    function renderAllProducts() {
+      const productList = document.getElementById('productList');
+      productList.innerHTML = '';
+      Object.entries(categories).forEach(([cat, products]) => {
+        products.forEach((product, index) => {
+          const div = document.createElement('div');
+          div.className = 'product-entry';
+          div.innerHTML = `
+            <div>
+              <p><strong>Nom:</strong> ${product.name}</p>
+              <p><strong>Catégorie:</strong> ${cat}</p>
+              <p><strong>Description:</strong> ${product.description}</p>
+              <p><strong>Prix:</strong> ${product.price}</p>
+              <p><strong>Disponibilité:</strong> ${product.availability}</p>
+              ${product.promo ? `<p><strong>Promo:</strong> ${product.promo.code} - ${product.promo.reduction}%</p>` : ''}
+            </div>
+            <div class="entry-actions">
+              <button class="edit-btn" onclick="editProduct('${cat}', ${index})">Modifier</button>
+              <button class="delete-btn" onclick="deleteProduct('${cat}', ${index})">Supprimer</button>
+            </div>`;
+          productList.appendChild(div);
+        });
+      });
+    }
 
-    categories[category].push(product);
-    filterCategory(category);
+    function deleteProduct(cat, index) {
+      categories[cat].splice(index, 1);
+      renderAllProducts();
+    }
 
-    document.getElementById('productCode').value = '';
-    document.getElementById('productName').value = '';
-    document.getElementById('productDesc').value = '';
-    document.getElementById('productPrice').value = '';
-    document.getElementById('productAvailability').value = '';
-    document.getElementById('promoCode').value = '';
-    document.getElementById('promoDesc').value = '';
-    document.getElementById('promoReduction').value = '';
-    document.getElementById('promoExpiration').value = '';
-  }
+    function editProduct(cat, index) {
+      produitActuel = { cat, index };
+      const produit = categories[cat][index];
+      document.getElementById('editCode').value = produit.id;
+      document.getElementById('editName').value = produit.name;
+      document.getElementById('editDesc').value = produit.description;
+      document.getElementById('editPrice').value = produit.price;
+      document.getElementById('editAvailability').value = produit.availability;
+      document.getElementById('editPromoCode').value = produit.promo?.code || '';
+      document.getElementById('editPromoDesc').value = produit.promo?.desc || '';
+      document.getElementById('editPromoReduction').value = produit.promo?.reduction || '';
+      document.getElementById('editPromoExpiration').value = produit.promo?.expiration || '';
+      document.getElementById('editModal').style.display = 'block';
+    }
 
-  function filterCategory(category) {
-    const productList = document.getElementById('productList');
-    productList.innerHTML = '';
+    function validerEditionProduit() {
+      if (!produitActuel) return;
+      const { cat, index } = produitActuel;
+      const produit = categories[cat][index];
+      produit.id = document.getElementById('editCode').value;
+      produit.name = document.getElementById('editName').value;
+      produit.description = document.getElementById('editDesc').value;
+      produit.price = document.getElementById('editPrice').value;
+      produit.availability = document.getElementById('editAvailability').value;
+      const code = document.getElementById('editPromoCode').value;
+      produit.promo = code ? {
+        code,
+        desc: document.getElementById('editPromoDesc').value,
+        reduction: document.getElementById('editPromoReduction').value,
+        expiration: document.getElementById('editPromoExpiration').value
+      } : null;
 
-    if (!categories[category]) return;
+      document.getElementById('editModal').style.display = 'none';
+      renderAllProducts();
+    }
 
-    categories[category].forEach((product, index) => {
-      const div = document.createElement('div');
-      div.className = 'product';
-      div.innerHTML = `
-        <div>
-          <h3>${product.name}</h3>
-          <p>${product.description}</p>
-          <p><strong>${product.price}</strong> - ${product.availability}</p>
-          ${product.promo ? `<p><em>Promo: ${product.promo.code} - ${product.promo.reduction}% jusqu'au ${product.promo.expiration}</em></p>` : ''}
-        </div>
-        <button class="delete-btn" onclick="deleteProduct('${category}', ${index})">×</button>
-      `;
-      productList.appendChild(div);
-    });
-  }
+    function addProduct() {
+      const id = document.getElementById('productCode').value;
+      const name = document.getElementById('productName').value;
+      const description = document.getElementById('productDesc').value;
+      const category = document.getElementById('productCategory').value;
+      const price = document.getElementById('productPrice').value;
+      const availability = document.getElementById('productAvailability').value;
+      const promoCode = document.getElementById('promoCode').value;
+      const promoDesc = document.getElementById('promoDesc').value;
+      const promoReduction = document.getElementById('promoReduction').value;
+      const promoExpiration = document.getElementById('promoExpiration').value;
 
-  function deleteProduct(category, index) {
-    categories[category].splice(index, 1);
-    filterCategory(category);
-  }
-</script>
-<script>
-  function switchLanguage() {
-    window.location.href = "products_en.html";
-  }
-</script>
+      const product = {
+        id, name, description, price, availability,
+        promo: promoCode ? {
+          code: promoCode,
+          desc: promoDesc,
+          reduction: promoReduction,
+          expiration: promoExpiration
+        } : null
+      };
+
+      if (!categories[category]) categories[category] = [];
+      categories[category].push(product);
+      renderAllProducts();
+      document.querySelectorAll('.form-box input').forEach(i => i.value = '');
+      document.getElementById('productCategory').value = 'Vin';
+    }
+
+    window.onload = fetchProductsFromAPI;
+  </script>
 </body>
 </html>
+
+
 
 
