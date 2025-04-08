@@ -20,14 +20,15 @@ CREATE TABLE AddressLine (
 -- 2. Create UserAccount; address_id is optional
 CREATE TABLE UserAccount (
     user_id INT(10) AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
     first_name VARCHAR(255) NOT NULL,
-    phone_number VARCHAR(15),
+    phone_number VARCHAR(15) NOT NULL UNIQUE,
     address_id INT(10),
     user_type ENUM('customer','deliverer','admin') NOT NULL,
-    license_plate VARCHAR(25),
+    license_plate VARCHAR(25) UNIQUE,
+    car_brand VARCHAR(25),
     total_earnings DECIMAL(10,2),
     CONSTRAINT fk_user_address_id FOREIGN KEY (address_id) REFERENCES AddressLine(address_id)
         ON DELETE SET NULL
@@ -37,7 +38,7 @@ CREATE TABLE UserAccount (
 CREATE TABLE Shop (
     shop_id INT(10) AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    address_id INT(10) NOT NULL,
+    address_id INT(10) NOT NULL UNIQUE,
     CONSTRAINT fk_shop_address_id FOREIGN KEY (address_id) REFERENCES AddressLine(address_id)
         ON DELETE CASCADE
 );
@@ -49,7 +50,6 @@ CREATE TABLE Product (
     description VARCHAR(1000),
     price DECIMAL(10,2) NOT NULL,
     category VARCHAR(100) NOT NULL,
-    is_available BOOLEAN NOT NULL,
     alcohol DECIMAL(4,2) NOT NULL
 );
 
