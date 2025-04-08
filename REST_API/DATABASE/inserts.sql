@@ -1,164 +1,152 @@
--- Insert data for UserAccount
-INSERT INTO UserAccount (user_id, email, password, last_name, first_name, phone_number, user_type, license_plate, total_earnings)
+-- Insert real Montreal addresses for the customers
+INSERT INTO AddressLine (civic, apartment, street, city, postal_code)
 VALUES 
-    (1, 'jean.tremblay@email.com', 'hashed_password_123', 'Tremblay', 'Jean', '514-555-1234', 'customer', NULL, NULL),
-    (2, 'marie.lavoie@email.com', 'hashed_password_456', 'Lavoie', 'Marie', '438-555-2345', 'customer', NULL, NULL),
-    (3, 'pierre.gagnon@email.com', 'hashed_password_789', 'Gagnon', 'Pierre', '450-555-3456', 'customer', NULL, NULL),
-    (4, 'julie.cote@email.com', 'hashed_password_101', 'Côté', 'Julie', '514-555-4567', 'customer', NULL, NULL),
-    (5, 'francois.boucher@email.com', 'hashed_password_102', 'Boucher', 'François', '438-555-5678', 'deliverer', 'ABC 123', 1250.75),
-    (6, 'sophie.bergeron@email.com', 'hashed_password_103', 'Bergeron', 'Sophie', '450-555-6789', 'deliverer', 'DEF 456', 987.50),
-    (7, 'robert.morin@email.com', 'hashed_password_104', 'Morin', 'Robert', '514-555-7890', 'admin', NULL, NULL),
-    (8, 'isabelle.roy@email.com', 'hashed_password_105', 'Roy', 'Isabelle', '438-555-8901', 'admin', NULL, NULL);
+  (123, '1A', 'Rue Sainte-Catherine Ouest', 'Montreal', 'H3B 1A7'),
+  (456, '2B', 'Avenue du Parc', 'Montreal', 'H2V 4E6');
 
--- Insert data for AddressLine
-INSERT INTO AddressLine (address_id, house_number, street, city, postal_code)
-VALUES 
-    (1, 123, 'Rue Sainte-Catherine', 'Montréal', 'H3B 1A7'),
-    (2, 456, 'Boulevard René-Lévesque', 'Montréal', 'H2Z 1Z9'),
-    (3, 789, 'Avenue du Mont-Royal', 'Montréal', 'H2J 1W8'),
-    (4, 101, 'Rue Wellington', 'Sherbrooke', 'J1H 5C5'),
-    (5, 202, 'Boulevard Laurier', 'Québec', 'G1V 2L8'),
-    (6, 303, 'Boulevard Champlain', 'Québec', 'G1K 4J1'),
-    (7, 404, 'Rue King', 'Sherbrooke', 'J1H 1P8'),
-    (8, 505, 'Chemin de la Côte-des-Neiges', 'Montréal', 'H3T 1Y6'),
-    (9, 606, 'Boulevard de Maisonneuve', 'Montréal', 'H3A 1L1'),
-    (10, 707, 'Grande Allée', 'Québec', 'G1R 2K4'),
-    (11, 808, 'Rue Saint-Jean', 'Québec', 'G1R 1P8'),
-    (12, 909, 'Boulevard Saint-Laurent', 'Montréal', 'H2X 2S6'),
-    (13, 110, 'Rue des Forges', 'Trois-Rivières', 'G9A 2G7'),
-    (14, 220, 'Rue Principale', 'Gatineau', 'J9H 6K1');
+-- Insert 6 admins (last_name = 'admin', address_id = NULL, total_earnings = NULL)
+INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, total_earnings)
+VALUES
+  ('tristan@boozy.com', 'adminpass', 'admin', 'Tristan', '1111111111', NULL, 'admin', NULL, NULL),
+  ('kahina@boozy.com', 'adminpass', 'admin', 'Kahina', '3333333333', NULL, 'admin', NULL, NULL),
+  ('shawn@boozy.com', 'adminpass', 'admin', 'Shawn', '2222222222', NULL, 'admin', NULL, NULL),
+  ('emile@boozy.com', 'adminpass', 'admin', 'Emile', '4444444444', NULL, 'admin', NULL, NULL),
+  ('edwar@boozy.com', 'adminpass', 'admin', 'Edwar', '5555555555', NULL, 'admin', NULL, NULL),
+  ('macky@boozy.com', 'adminpass', 'admin', 'Macky', '6666666666', NULL, 'admin', NULL, NULL);
 
--- Insert data for Shop (SAQ locations)
-INSERT INTO Shop (shop_id, name, address_id)
-VALUES 
-    (1, 'SAQ Signature - Montréal Centre-Ville', 1),
-    (2, 'SAQ Sélection - Quartier Latin', 3),
-    (3, 'SAQ Express - Place Ville-Marie', 2),
-    (4, 'SAQ Classique - Sherbrooke', 4),
-    (5, 'SAQ Dépôt - Québec', 5),
-    (6, 'SAQ Express - Vieux-Québec', 6);
+-- Insert 2 customers with addresses (using the newly inserted address_id 1 and 2)
+INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, total_earnings)
+VALUES
+  ('customer1@boozy.com', 'custpass', 'Smith', 'Alice', '7777777777', 1, 'customer', NULL, NULL),
+  ('customer2@boozy.com', 'custpass', 'Johnson', 'Bob', '8888888888', 2, 'customer', NULL, NULL);
 
--- Insert data for Product (Alcoholic beverages)
-INSERT INTO Product (product_id, name, description, price, category, is_available)
-VALUES 
-    (1, 'Mouton Cadet Bordeaux', 'Red wine from Bordeaux region, France. Medium-bodied with notes of red fruits.', 19.95, 'Red Wine', TRUE),
-    (2, 'Kim Crawford Sauvignon Blanc', 'White wine from Marlborough, New Zealand. Crisp with tropical fruit flavors.', 22.95, 'White Wine', TRUE),
-    (3, 'Veuve Clicquot Brut', 'Champagne from France. Full-bodied with notes of toast and citrus.', 69.95, 'Champagne', TRUE),
-    (4, 'Johnnie Walker Black Label', 'Blended Scotch whisky aged 12 years. Notes of smoke and vanilla.', 54.75, 'Whisky', TRUE),
-    (5, 'Grey Goose Vodka', 'Premium French vodka made from wheat. Smooth with subtle sweetness.', 59.95, 'Vodka', TRUE),
-    (6, 'Hendrick\'s Gin', 'Scottish gin infused with cucumber and rose petals.', 49.95, 'Gin', TRUE),
-    (7, 'Bacardi Superior White Rum', 'Light and dry Cuban-style rum. Ideal for cocktails.', 27.95, 'Rum', TRUE),
-    (8, 'Don Julio Reposado Tequila', 'Premium tequila aged in oak barrels for 8 months.', 89.95, 'Tequila', TRUE),
-    (9, 'Aperol', 'Italian aperitif with bitter orange and herb flavors.', 32.95, 'Liqueur', TRUE),
-    (10, 'La Fin du Monde', 'Triple-fermented golden ale from Quebec\'s Unibroue. 9% ABV.', 12.95, 'Beer', TRUE),
-    (11, 'Lagavulin 16 Year', 'Islay single malt Scotch with intense peat and iodine notes.', 139.95, 'Whisky', TRUE),
-    (12, 'Dom Pérignon Vintage', 'Prestigious vintage champagne with complex brioche notes.', 289.95, 'Champagne', TRUE),
-    (13, 'Château Margaux', 'Premier Grand Cru Classé Bordeaux with exceptional aging potential.', 999.95, 'Red Wine', TRUE),
-    (14, 'Belvedere Vodka', 'Polish rye vodka, quadruple-distilled for smoothness.', 64.95, 'Vodka', TRUE),
-    (15, 'Macallan 12 Year', 'Speyside single malt Scotch aged in sherry casks.', 114.95, 'Whisky', TRUE),
-    (16, 'Bombay Sapphire Gin', 'London Dry Gin with 10 exotic botanicals.', 34.95, 'Gin', TRUE),
-    (17, 'Louis Jadot Bourgogne Pinot Noir', 'Classic red Burgundy with red cherry notes.', 29.95, 'Red Wine', TRUE),
-    (18, 'Chablis William Fèvre', 'Crisp French Chardonnay with mineral character.', 34.95, 'White Wine', TRUE);
+-- Insert 2 deliverers with actual total_earnings and sample license plates (address_id = NULL)
+INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, total_earnings)
+VALUES
+  ('deliverer1@boozy.com', 'delivpass', 'Brown', 'Charlie', '9999999999', NULL, 'deliverer', 'AB-123-CD', 150.00),
+  ('deliverer2@boozy.com', 'delivpass', 'Prince', 'Diana', '1010101010', NULL, 'deliverer', 'EF-456-GH', 200.00);
 
--- Insert data for ShopProducts (inventory for each shop)
-INSERT INTO ShopProducts (shop_id, product_id, quantity)
-VALUES 
-    -- SAQ Signature - Montréal Centre-Ville (premium selection)
-    (1, 1, 45),
-    (1, 2, 38),
-    (1, 3, 25),
-    (1, 8, 18),
-    (1, 11, 12),
-    (1, 12, 5),
-    (1, 13, 3),
-    (1, 15, 10),
-    (1, 17, 22),
-    (1, 18, 27),
+-- Insert addresses for 6 SAQ stores in Montreal
+INSERT INTO AddressLine (civic, apartment, street, city, postal_code)
+VALUES
+  (100, NULL, 'Rue Sainte-Catherine Ouest', 'Montreal', 'H3B 1A9'),
+  (200, NULL, 'Rue Côte-des-Neiges', 'Montreal', 'H3S 2J4'),
+  (300, NULL, 'Boulevard Saint-Laurent', 'Montreal', 'H2W 1Z8'),
+  (400, NULL, 'Avenue Papineau', 'Montreal', 'H1X 2V3'),
+  (500, NULL, 'Rue Sherbrooke Est', 'Montreal', 'H2L 1N2'),
+  (600, NULL, 'Avenue de l''Acadie', 'Montreal', 'H1S 1T1');
 
-    -- SAQ Sélection - Quartier Latin
-    (2, 1, 32),
-    (2, 2, 29),
-    (2, 3, 15),
-    (2, 4, 19),
-    (2, 5, 24),
-    (2, 6, 21),
-    (2, 10, 48),
-    (2, 16, 16),
-    (2, 17, 29),
-    (2, 18, 31),
+-- Insert 6 SAQ stores linked to the addresses above (assuming auto-increment produces address_id 1 to 6)
+INSERT INTO Shop (name, address_id)
+VALUES
+  ('SAQ Centre-Ville', 3),
+  ('SAQ Côte-des-Neiges', 4),
+  ('SAQ Plateau', 5),
+  ('SAQ Hochelaga', 6),
+  ('SAQ Outremont', 7),
+  ('SAQ Saint-Hubert', 8);
 
-    -- SAQ Express - Place Ville-Marie (smaller selection)
-    (3, 1, 24),
-    (3, 4, 12),
-    (3, 5, 15),
-    (3, 7, 18),
-    (3, 9, 17),
-    (3, 10, 36),
-    (3, 16, 11),
+INSERT INTO Product (name, description, price, category, is_available, alcohol) VALUES
+  ('Heineken Lager Beer', 'Popular Dutch pale lager', 3.50, 'Beer', 1, 5.00),
+  ('Corona Extra Beer', 'Mexican pale lager with a light, refreshing taste', 4.00, 'Beer', 1, 4.60),
+  ('Budweiser', 'American lager with a classic taste', 3.20, 'Beer', 1, 5.00),
+  ('Guinness Draught', 'Irish dry stout with a creamy head', 5.00, 'Beer', 1, 4.20),
+  ('Stella Artois', 'Belgian pale lager known for its crisp taste', 4.50, 'Beer', 1, 5.00),
+  ('Samuel Adams Boston Lager', 'American amber lager with a rich flavor', 4.50, 'Beer', 1, 5.00),
+  ('Sapporo Premium Beer', 'Japanese lager with a smooth finish', 4.00, 'Beer', 1, 5.00),
+  ('Leffe Blonde', 'Belgian abbey beer with a fruity aroma', 4.50, 'Beer', 1, 6.60),
+  ('Chimay Blue', 'Belgian strong dark ale with complex flavors', 6.00, 'Beer', 1, 9.00),
+  ('Hoegaarden White', 'Belgian witbier with a refreshing citrus taste', 4.50, 'Beer', 1, 4.90),
+  ('Yellow Tail Shiraz', 'Australian red wine, fruity and vibrant', 10.00, 'Wine', 1, 13.50),
+  ('Barefoot Pinot Grigio', 'Light and crisp white wine with subtle flavors', 9.00, 'Wine', 1, 12.00),
+  ('Jacobs Creek Classic Cabernet Sauvignon', 'Full-bodied red wine from Australia with rich tannins', 15.00, 'Wine', 1, 14.00),
+  ('Kim Crawford Sauvignon Blanc', 'New Zealand white wine with tropical fruit notes', 16.00, 'Wine', 1, 13.00),
+  ('Cloudy Bay Pinot Noir', 'Elegant red wine with soft, velvety tannins', 30.00, 'Wine', 1, 13.50),
+  ('La Crema Chardonnay', 'California Chardonnay with a balanced oak finish', 25.00, 'Wine', 1, 14.50),
+  ('Jack Daniels Old No. 7', 'Iconic Tennessee whiskey with smooth flavors', 30.00, 'Whiskey', 1, 40.00),
+  ('Jameson Irish Whiskey', 'Smooth Irish whiskey with a gentle finish', 28.00, 'Whiskey', 1, 40.00),
+  ('Johnnie Walker Black Label', 'Premium blended Scotch whisky with a rich aroma', 45.00, 'Whiskey', 1, 40.00),
+  ('Glenfiddich 12 Year Old', 'Single malt Scotch whisky with floral and fruity notes', 50.00, 'Whiskey', 1, 40.00),
+  ('Absolut Vodka', 'Classic Swedish vodka known for its purity', 25.00, 'Vodka', 1, 40.00),
+  ('Smirnoff No. 21 Vodka', 'Widely popular Russian vodka with a crisp taste', 20.00, 'Vodka', 1, 40.00),
+  ('Grey Goose Vodka', 'Premium French vodka with a smooth finish', 45.00, 'Vodka', 1, 41.00),
+  ('Bombay Sapphire Gin', 'London dry gin infused with aromatic botanicals', 35.00, 'Gin', 1, 40.00),
+  ('Tanqueray London Dry Gin', 'Classic gin with a crisp, juniper flavor', 32.00, 'Gin', 1, 43.00),
+  ('Hendricks Gin', 'Unique gin infused with cucumber and rose petals', 38.00, 'Gin', 1, 41.00),
+  ('Bacardi Superior Rum', 'Light and refreshing white rum', 22.00, 'Rum', 1, 40.00),
+  ('Captain Morgan Spiced Rum', 'Rich, spicy rum with a smooth finish', 25.00, 'Rum', 1, 35.00),
+  ('Mount Gay Eclipse Rum', 'Classic Barbados rum with hints of spice', 28.00, 'Rum', 1, 40.00),
+  ('Jose Cuervo Especial', 'Iconic tequila with a smooth, balanced taste', 20.00, 'Tequila', 1, 38.00);
 
-    -- SAQ Classique - Sherbrooke
-    (4, 1, 35),
-    (4, 2, 28),
-    (4, 4, 22),
-    (4, 5, 18),
-    (4, 6, 14),
-    (4, 7, 25),
-    (4, 9, 19),
-    (4, 10, 42),
-    (4, 16, 15),
-    (4, 17, 23),
-    (4, 18, 19),
+INSERT INTO ShopProduct (shop_id, product_id, quantity) VALUES
+-- Store 1: Products 1, 3, 5, 7, 9, 11, 13, 15, 17, 19
+(1, 1, 12),
+(1, 3, 20),
+(1, 5, 15),
+(1, 7, 25),
+(1, 9, 30),
+(1, 11, 18),
+(1, 13, 22),
+(1, 15, 17),
+(1, 17, 27),
+(1, 19, 14),
 
-    -- SAQ Dépôt - Québec (large quantities)
-    (5, 1, 85),
-    (5, 2, 72),
-    (5, 3, 45),
-    (5, 4, 58),
-    (5, 5, 63),
-    (5, 6, 49),
-    (5, 7, 67),
-    (5, 8, 32),
-    (5, 9, 54),
-    (5, 10, 120),
-    (5, 14, 41),
-    (5, 15, 28),
-    (5, 16, 52),
-    (5, 17, 63),
-    (5, 18, 58),
+-- Store 2: Products 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+(2, 2, 13),
+(2, 4, 21),
+(2, 6, 16),
+(2, 8, 24),
+(2, 10, 31),
+(2, 12, 19),
+(2, 14, 28),
+(2, 16, 15),
+(2, 18, 33),
+(2, 20, 22),
 
-    -- SAQ Express - Vieux-Québec (smaller selection)
-    (6, 1, 20),
-    (6, 2, 18),
-    (6, 5, 15),
-    (6, 7, 22),
-    (6, 9, 14),
-    (6, 10, 38),
-    (6, 16, 12);
+-- Store 3: Products 21, 22, 23, 24, 25, 26, 27, 28, 29, 30
+(3, 21, 11),
+(3, 22, 23),
+(3, 23, 17),
+(3, 24, 29),
+(3, 25, 14),
+(3, 26, 20),
+(3, 27, 32),
+(3, 28, 18),
+(3, 29, 26),
+(3, 30, 21),
 
--- Insert data for Commands (orders)
-INSERT INTO Command (command_id, creation_date, status, total_amount, address_id, shop_id, user_id)
-VALUES 
-    (1, '2025-04-05 14:30:00', 'InRoute', 162.75, 8, 1, 1),
-    (2, '2025-04-06 10:15:00', 'Shipped', 287.65, 9, 5, 3);
+-- Store 4: Products 1, 4, 7, 10, 13, 16, 19, 22, 25, 28
+(4, 1, 19),
+(4, 4, 27),
+(4, 7, 16),
+(4, 10, 20),
+(4, 13, 24),
+(4, 16, 17),
+(4, 19, 30),
+(4, 22, 15),
+(4, 25, 21),
+(4, 28, 18),
 
--- Insert data for CommandProducts (items in each order)
-INSERT INTO CommandProducts (command_id, product_id, quantity)
-VALUES 
-    -- Command 1: Jean Tremblay's order
-    (1, 3, 1),  -- 1 Veuve Clicquot Brut (69.95)
-    (1, 4, 1),  -- 1 Johnnie Walker Black Label (54.75)
-    (1, 10, 3), -- 3 La Fin du Monde (12.95 * 3 = 38.85)
-                -- Total: 69.95 + 54.75 + 38.85 = 163.55 ≈ 162.75 (rounded)
-    
-    -- Command 2: Pierre Gagnon's order
-    (2, 5, 1),  -- 1 Grey Goose Vodka (59.95)
-    (2, 11, 1), -- 1 Lagavulin 16 Year (139.95)
-    (2, 17, 2), -- 2 Louis Jadot Bourgogne Pinot Noir (29.95 * 2 = 59.90)
-    (2, 10, 2); -- 2 La Fin du Monde (12.95 * 2 = 25.90)
-                -- Total: 59.95 + 139.95 + 59.90 + 25.90 = 285.70 ≈ 287.65 (possibly includes taxes or fees)
+-- Store 5: Products 2, 5, 8, 11, 14, 17, 20, 23, 26, 29
+(5, 2, 14),
+(5, 5, 22),
+(5, 8, 18),
+(5, 11, 26),
+(5, 14, 17),
+(5, 17, 19),
+(5, 20, 27),
+(5, 23, 21),
+(5, 26, 23),
+(5, 29, 15),
 
--- Insert data for Payment
-INSERT INTO Payment (payment_id, payment_method, amount, payment_date, is_completed, command_id, user_id, card_number, CVC_card, expiry_date)
-VALUES 
-    (1, 'Credit Card', 162.75, '2025-04-05 14:32:15', TRUE, 1, 1, '4111111111111111', 123, '2027-05-01'),
-    (2, 'Credit Card', 287.65, '2025-04-06 10:17:30', TRUE, 2, 3, '5555555555554444', 456, '2026-12-01');
+-- Store 6: Products 3, 6, 9, 12, 15, 18, 21, 24, 27, 30
+(6, 3, 16),
+(6, 6, 20),
+(6, 9, 25),
+(6, 12, 17),
+(6, 15, 23),
+(6, 18, 28),
+(6, 21, 19),
+(6, 24, 22),
+(6, 27, 15),
+(6, 30, 18);
