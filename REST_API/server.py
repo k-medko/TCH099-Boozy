@@ -47,7 +47,7 @@ def get_address_string(address_id):
 # Basic Routes
 @app.route('/')
 def home():
-    return jsonify({"message": "Welcome to the Boozy API"})
+    return jsonify({"message": "Welcome to the Boozy API!!"})
 
 @app.route('/favicon.ico')
 def favicon():
@@ -112,14 +112,21 @@ def get_stores():
         """
         stores = execute_query(query)
     
-    # Format store data - removed address_id from the response
+    # Format store data - include both full address string and individual components
     formatted_stores = []
     for store in stores:
         formatted_stores.append({
             "store_id": store[0],
             "name": store[1],
             "image_nom": store[2],
-            "address": f"{store[3]} {store[4]}, {store[6]}, {store[5]}"
+            "address": f"{store[3]} {store[4]}, {store[6]}, {store[5]}",
+            "address_components": {
+                "house_number": store[3],
+                "street": store[4],
+                "postal_code": store[5],
+                "city": store[6],
+                "civic_number": store[7]
+            }
         })
     
     return jsonify(formatted_stores)
@@ -837,7 +844,45 @@ def admin_delete_product():
         return jsonify({"status": "success", "message": "Product deleted successfully"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/admin/getUsers', methods=['POST'])
+def admin_get_users():
+    data = request.get_json()
     
+    # Verify admin credentials
+    admin_email = data.get("adminEmail")
+    admin_password = data.get("adminPassword")
+    
+    # Check if the user exists and is an admin
+    admin = execute_query(
+        "SELECT * FROM UserAccount WHERE email = %s AND password = %s AND user_type = 'admin'", 
+        (admin_email, admin_password)
+    )
+    
+    if not admin:
+        return jsonify({"status": "error", "message": "Unauthorized access"}), 401
+    
+    # Get all users from the database
+    users = execute_query("SELECT * FROM UserAccount")
+    
+    # Format user data for response
+    formatted_users = []
+    for user in users:
+        formatted_users.append({
+            "userId": user[0],
+            "email": user[1],
+            # Note: Omitting password for security reasons
+            "lastName": user[3],
+            "firstName": user[4],
+            "phoneNumber": user[5],
+            "userType": user[6],
+            "licensePlate": user[7] if user[7] else None,
+            "licenseNumber": user[8] if user[8] else None,
+            "totalEarnings": float(user[9]) if user[9] else 0.0
+        })
+    
+    return jsonify({"status": "success", "users": formatted_users})
 
 #TODO:
 #Fix Create script to allow cascade delete and remove imagePath
