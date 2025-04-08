@@ -47,7 +47,7 @@ def get_address_string(address_id):
 # Basic Routes
 @app.route('/')
 def home():
-    return jsonify({"message": "Welcome to the Boozy API!!"})
+    return jsonify({"message": "Welcome to the Boozy API!!!"})
 
 @app.route('/favicon.ico')
 def favicon():
