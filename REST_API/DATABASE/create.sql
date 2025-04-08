@@ -46,13 +46,14 @@ CREATE TABLE Product (
     description    VARCHAR(1000),
     price          DECIMAL(10,2) NOT NULL,
     category       VARCHAR(100) NOT NULL,
-    is_available   BOOLEAN NOT NULL
+    is_available   BOOLEAN NOT NULL,
+    alcohol        DECIMAL(4,2) NOT NULL
 );
 
 CREATE TABLE Command (
     command_id      INT(10) PRIMARY KEY,
     creation_date   DATETIME NOT NULL,
-    status          VARCHAR(15) NOT NULL,
+    status          ENUM('Searching','InRoute','Shipped','Cancelled','Completed') NOT NULL,
     total_amount    DECIMAL(10,2) NOT NULL,
     address_id      INT(10) NOT NULL,
     shop_id         INT(10) NOT NULL,
