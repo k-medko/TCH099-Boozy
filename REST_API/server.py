@@ -884,6 +884,10 @@ def admin_get_users():
     
     return jsonify({"status": "success", "users": formatted_users})
 
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0")
+
 #TODO:
 #Fix Create script to allow cascade delete and remove imagePath
 #Add images for each products
