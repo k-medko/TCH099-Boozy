@@ -1187,137 +1187,36 @@ def admin_modify_availability():
 ##########################################################################################
 ##########################################################################################
 ##########################################################################################
-# Define the WEB_ADMIN folder (one level up from REST_API)
-ADMIN_FOLDER = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
+import io
+import zipfile
+from flask import send_file
 
-# Public HTML files accessible without authentication.
-PUBLIC_FILES = {
-    "accueil.html",
-    "accueil_en.html",
-    "inscription.html",
-    "inscription_en.html",
-    "seConnecter.html",
-    "seConnecter_en.html"
-}
-
-def send_html_file(filename):
-    """Helper function to serve an HTML file from the WEB_ADMIN folder."""
-    file_path = os.path.join(ADMIN_FOLDER, filename)
-    if not os.path.exists(file_path):
-        # Return a JSON error response with the list of available files
-        return jsonify({
-            "error": f"File {filename} not found in WEB_ADMIN.",
-            "available_items": os.listdir(ADMIN_FOLDER)
-        }), 404
-    return send_from_directory(ADMIN_FOLDER, filename)
-
-##############################
-# 1. Public Routes (GET)
-##############################
-
-def embed_images_in_html(html_content, base_path):
-    """
-    Replace image src attributes with data URIs.
-    Looks for img tags with src attributes and, if the file exists in base_path, embeds it.
-    """
-    # Match src="something" or src='something'
-    pattern = r'<img\s+([^>]*?)src=["\']([^"\']+)["\']'
-
-    def replacer(match):
-        img_attrs = match.group(1)
-        img_src = match.group(2)
-        img_path = os.path.join(base_path, img_src)
-        if os.path.exists(img_path):
-            with open(img_path, 'rb') as f:
-                image_data = f.read()
-            encoded = base64.b64encode(image_data).decode('utf-8')
-            # Infer MIME type from file extension (default to png)
-            ext = os.path.splitext(img_src)[1].lower().lstrip('.')
-            if ext == 'jpg':
-                ext = 'jpeg'
-            mime = f"image/{ext}" if ext else "image/png"
-            data_uri = f"data:{mime};base64,{encoded}"
-            # Return tag with replaced src
-            return f'<img {img_attrs}src="{data_uri}"'
-        else:
-            return match.group(0)  # leave unchanged if file not found
-
-    return re.sub(pattern, replacer, html_content, flags=re.IGNORECASE)
-
-@app.route('/admin/web/<string:requested>', methods=['GET'])
-def public_admin_page(requested):
-    # This route serves your public HTML pages (e.g., accueil.html) with embedded images.
-    if not requested.endswith('.html'):
-        requested += '.html'
-    file_path = os.path.join(ADMIN_FOLDER, requested)
-    if not os.path.exists(file_path):
-        return jsonify({
-            "error": f"File {requested} not found in WEB_ADMIN.",
-            "available_items": os.listdir(ADMIN_FOLDER)
-        }), 404
-    # Read HTML content from file
-    with open(file_path, 'r', encoding='utf-8') as f:
-        html_content = f.read()
-    # Process HTML to embed images
-    # Assume images are referenced relative to an "assets/images" folder
-    base_images_path = os.path.join(ADMIN_FOLDER, 'assets', 'images')
-    processed_html = embed_images_in_html(html_content, base_images_path)
-    return Response(processed_html, mimetype='text/html')
-
-##############################
-# 2. Protected Routes (POST)
-##############################
-@app.route('/admin/web', methods=['POST'])
-def protected_admin_page():
-    """
-    Expects JSON in the POST body:
-      {
-        "admin_email": "email@domain.com",
-        "admin_password": "adminpass",
-        "page": "dashboard"   // or "dashboard.html", etc.
-      }
-    If credentials are valid and the requested page is not public, the corresponding HTML file is served.
-    """
-    data = request.get_json() or {}
-    admin_email = data.get("admin_email")
-    admin_password = data.get("admin_password")
-    page = data.get("page")
+@app.route('/admin', methods=['GET'])
+def admin_download():
+    # Compute the absolute path to the WEB_ADMIN folder (assumed to be one level up from REST_API)
+    admin_folder = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
     
-    # Replace this with your proper admin credential check
-    if admin_email != "tristan@boozy.com" or admin_password != "adminpass":
-        return jsonify({"status": "error", "message": "Invalid admin credentials"}), 401
+    # Create an in-memory zip archive
+    memory_file = io.BytesIO()
+    with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
+        # Walk through the entire WEB_ADMIN directory
+        for root, dirs, files in os.walk(admin_folder):
+            for file in files:
+                file_path = os.path.join(root, file)
+                # Use a relative path inside the zip file so the folder structure is preserved
+                arcname = os.path.relpath(file_path, admin_folder)
+                zf.write(file_path, arcname)
+    
+    memory_file.seek(0)
+    # Send the zipped archive as a downloadable file.
+    # The client will receive a file named "WEB_ADMIN.zip".
+    return send_file(
+        memory_file,
+        mimetype='application/zip',
+        as_attachment=True,
+        attachment_filename='WEB_ADMIN.zip'
+    )
 
-    if not page:
-        return jsonify({"status": "error", "message": "Missing page parameter"}), 400
-
-    # Ensure the filename ends with .html
-    if not page.endswith('.html'):
-        page += '.html'
-
-    # Reject public files since these have their own GET routes
-    if page in PUBLIC_FILES:
-        return jsonify({
-            "status": "error",
-            "message": "This page is publicly accessible via GET. Please use the appropriate URL."
-        }), 400
-
-    return send_html_file(page)
-
-##############################
-# 3. Assets (Images)
-##############################
-@app.route('/admin/web/assets/images/<path:filename>', methods=['GET'])
-def admin_assets_images(filename):
-    """
-    Serves static image assets from the WEB_ADMIN/assets/images directory.
-    Example:
-       /admin/web/assets/images/logo.png
-    """
-    images_folder = os.path.join(ADMIN_FOLDER, 'assets', 'images')
-    file_path = os.path.join(images_folder, filename)
-    if not os.path.exists(file_path):
-        return jsonify({"error": f"Image '{filename}' not found."}), 404
-    return send_from_directory(images_folder, filename)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0")

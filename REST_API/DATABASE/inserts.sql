@@ -47,36 +47,20 @@ VALUES
   ('SAQ Saint-Hubert', 8);
 
 INSERT INTO Product (name, description, price, category, alcohol) VALUES
-  ('Heineken Lager Beer', 'Popular Dutch pale lager', 3.50, 'Beer', 5.00),
-  ('Corona Extra Beer', 'Mexican pale lager with a light, refreshing taste', 4.00, 'Beer', 4.60),
-  ('Budweiser', 'American lager with a classic taste', 3.20, 'Beer', 5.00),
-  ('Guinness Draught', 'Irish dry stout with a creamy head', 5.00, 'Beer', 4.20),
-  ('Stella Artois', 'Belgian pale lager known for its crisp taste', 4.50, 'Beer', 5.00),
-  ('Samuel Adams Boston Lager', 'American amber lager with a rich flavor', 4.50, 'Beer', 5.00),
-  ('Sapporo Premium Beer', 'Japanese lager with a smooth finish', 4.00, 'Beer', 5.00),
-  ('Leffe Blonde', 'Belgian abbey beer with a fruity aroma', 4.50, 'Beer', 6.60),
-  ('Chimay Blue', 'Belgian strong dark ale with complex flavors', 6.00, 'Beer', 9.00),
-  ('Hoegaarden White', 'Belgian witbier with a refreshing citrus taste', 4.50, 'Beer', 4.90),
-  ('Yellow Tail Shiraz', 'Australian red wine, fruity and vibrant', 10.00, 'Wine', 13.50),
-  ('Barefoot Pinot Grigio', 'Light and crisp white wine with subtle flavors', 9.00, 'Wine', 12.00),
-  ('Jacobs Creek Classic Cabernet Sauvignon', 'Full-bodied red wine from Australia with rich tannins', 15.00, 'Wine', 14.00),
-  ('Kim Crawford Sauvignon Blanc', 'New Zealand white wine with tropical fruit notes', 16.00, 'Wine', 13.00),
-  ('Cloudy Bay Pinot Noir', 'Elegant red wine with soft, velvety tannins', 30.00, 'Wine', 13.50),
-  ('La Crema Chardonnay', 'California Chardonnay with a balanced oak finish', 25.00, 'Wine', 14.50),
-  ('Jack Daniels Old No. 7', 'Iconic Tennessee whiskey with smooth flavors', 30.00, 'Whiskey', 40.00),
-  ('Jameson Irish Whiskey', 'Smooth Irish whiskey with a gentle finish', 28.00, 'Whiskey', 40.00),
-  ('Johnnie Walker Black Label', 'Premium blended Scotch whisky with a rich aroma', 45.00, 'Whiskey', 40.00),
-  ('Glenfiddich 12 Year Old', 'Single malt Scotch whisky with floral and fruity notes', 50.00, 'Whiskey', 40.00),
-  ('Absolut Vodka', 'Classic Swedish vodka known for its purity', 25.00, 'Vodka', 40.00),
-  ('Smirnoff No. 21 Vodka', 'Widely popular Russian vodka with a crisp taste', 20.00, 'Vodka', 40.00),
-  ('Grey Goose Vodka', 'Premium French vodka with a smooth finish', 45.00, 'Vodka', 41.00),
-  ('Bombay Sapphire Gin', 'London dry gin infused with aromatic botanicals', 35.00, 'Gin', 40.00),
-  ('Tanqueray London Dry Gin', 'Classic gin with a crisp, juniper flavor', 32.00, 'Gin', 43.00),
-  ('Hendricks Gin', 'Unique gin infused with cucumber and rose petals', 38.00, 'Gin', 41.00),
-  ('Bacardi Superior Rum', 'Light and refreshing white rum', 22.00, 'Rum', 40.00),
-  ('Captain Morgan Spiced Rum', 'Rich, spicy rum with a smooth finish', 25.00, 'Rum', 35.00),
-  ('Mount Gay Eclipse Rum', 'Classic Barbados rum with hints of spice', 28.00, 'Rum', 40.00),
-  ('Jose Cuervo Especial', 'Iconic tequila with a smooth, balanced taste', 20.00, 'Tequila', 38.00);
+('Monte Real Reserva Rioja 2020', '« Puissant, ce vin profite d''une longue macération qui lui confère structure et prestance. Profitant d''un élevage en fût de chêne américain pour une période de 24 à 30 mois, voilà une cuvée qui plaira à l''amateur de vin corsés. »', 24.70, 'Vin rouge', 14),
+('Domaine Perraud Mâcon Villages 2023', '« Jean-Christophe Perraud réalise un rêve d''enfant lorsqu''en 2005, il reprend le domaine familial situé dans le sud de la Bourgogne. Avec ses arômes séduisants de pomme et d''amande, son mâcon-villages captive! »', 24.00, 'Vin blanc', 12.5),
+('Vignoble Rivière du Chêne, Gabrielle 2023', '« Cet assemblage aux accents de petits fruits rouges et pourvu d''une touche florale a été nommé par Daniel Lalande, propriétaire du domaine, en l''honneur de sa fille. Sec et vivifiant, voilà une cuvée passe-partout qui saura plaire autant à l''apéro qu''avec une salade de fruits de mer. »', 17.55, 'Vin rosé', 12.5),
+('Aberfeldy 12 Single Malt Scotch Whisky', '« Vous cherchez un whisky moelleux et suave? Vous avez trouvé! Le scotch single malt 12 ans Aberfeldy vous séduira avec ses notes mielleuses. Distillé en alambics de cuivre, il est produit de façon artisanale par la même famille depuis plus d''un siècle, puis vieilli à la perfection. »', 74.75, 'Whisky écossais', 40),
+('Aperol', '« Cet aperitivo centenaire trouve son identité dans les différentes herbes et oranges amères qui le composent. Combiné à du prosecco dans un cocktail de type spritz, il ajoutera une amertume unique équilibrée par une séduisante douceur. »', 27.70, 'Apéritif à base de gentiane', 11),
+('3 Fonteinen Cuvée Armand & Gaston Oude Geuze', '« Bière de type Oude Geuze, caractérisée par une acidité marquée, avec des notes de sésame, de zeste de citron et une touche presque saline. Le nom Cuvée Armand et Gaston rend hommage aux fondateurs de la brasserie. Elle est prisée des connaisseurs pour sa capacité à se bonifier avec le temps. »', 29.30, 'Bière dorée de type spontanée', 6),
+('Domaine de Lavoie Bulles d’Automne', '« Un cidre mousseux gourmand qui dégage des arômes de pommes caramélisées. Une pointe d''acidité vient balancer la finale. »', 16.55, 'Cidre mousseux', 8),
+('Zubrówka (Vodka à l’herbe de bison)', '« Cette vodka polonaise est faite avec de l''herbe de bison qui enveloppe les papilles avec douceur. Elle se prend bien seule et est un bon choix pour essayer quelque chose de nouveau. »', 30.50, 'Vodka aromatisée (Pologne)', 40),
+('Diplomatico Reserva Exclusiva', '« Excellent rhum doté d''un goût complexe. À déguster seul sur glace ! »', 67.75, 'Rhum (Venezuela)', 40),
+('19 Crimes Cabernet-Sauvignon', '« Très bon cabernet-sauvignon pour accompagner une viande rouge. »', 20.65, 'Vin rouge', 14.5),
+('Sortilège Original', '« Une belle liqueur au sirop d’érable du Québec, qui marie à la perfection la richesse du whisky canadien et la douceur de l’érable. Un incontournable pour les dents sucrées ! »', 34.25, 'Liqueur d’érable (whisky canadien)', 30),
+('Veuve Clicquot Ponsardin Brut', '« Élaboré selon la méthode champenoise traditionnelle, ce champagne offre des arômes briochés et fruités. Sa bouche vive et équilibrée saura égayer vos célébrations. »', 79.75, 'Champagne', 12),
+('Tanaka 1789 X Chartier Junmai Daiginjo', '« Un saké junmai daiginjo d''une grande finesse, aux notes florales et de melon, obtenu par un polissage du riz à 45 %. Idéal servi frais pour accompagner sushis et poissons. »', 39.50, 'Saké (Japon)', 15);
+
 
 
 INSERT INTO ShopProduct (shop_id, product_id, quantity) VALUES
