@@ -21,10 +21,10 @@ VALUES
   ('client2@boozy.com', 'custpass', 'Johnson', 'Bob', '8888888888', 2, 'client', NULL, NULL);
 
 -- Insert 2 carriers with actual total_earnings and sample license plates (address_id = NULL)
-INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, total_earnings)
+INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, car_brand, total_earnings)
 VALUES
-  ('carrier1@boozy.com', 'delivpass', 'Brown', 'Charlie', '9999999999', NULL, 'carrier', 'AB-123-CD', 150.00),
-  ('carrier2@boozy.com', 'delivpass', 'Prince', 'Diana', '1010101010', NULL, 'carrier', 'EF-456-GH', 200.00);
+  ('carrier1@boozy.com', 'delivpass', 'Brown', 'Charlie', '9999999999', NULL, 'carrier', 'AB-123-CD','Ford Focus', 150.00),
+  ('carrier2@boozy.com', 'delivpass', 'Prince', 'Diana', '1010101010', NULL, 'carrier', 'EF-456-GH','Honda Civic', 200.00);
 
 -- Insert addresses for 6 SAQ stores in Montreal
 INSERT INTO AddressLine (civic, street, city, postal_code)
