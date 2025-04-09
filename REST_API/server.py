@@ -540,11 +540,12 @@ def cancel_order():
 
 @app.route('/admin', methods=['GET'])
 def admin_page():
+    # Build absolute path to the WEB_ADMIN folder (one level above REST_API)
     admin_folder = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
-    index_file = os.path.join(admin_folder, 'index.html')
-    if not os.path.exists(index_file):
-        return "index.html not found in WEB_ADMIN", 404
-    return send_from_directory(admin_folder, 'index.html')
+    file_path = os.path.join(admin_folder, 'accueil.html')
+    if not os.path.exists(file_path):
+        return "accueil.html not found in WEB_ADMIN", 404
+    return send_from_directory(admin_folder, 'accueil.html')
 
 
 
