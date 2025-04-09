@@ -17,14 +17,14 @@ VALUES
 -- Insert 2 customers with addresses (using the newly inserted address_id 1 and 2)
 INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, total_earnings)
 VALUES
-  ('customer1@boozy.com', 'custpass', 'Smith', 'Alice', '7777777777', 1, 'customer', NULL, NULL),
-  ('customer2@boozy.com', 'custpass', 'Johnson', 'Bob', '8888888888', 2, 'customer', NULL, NULL);
+  ('customer1@boozy.com', 'custpass', 'Smith', 'Alice', '7777777777', 1, 'client', NULL, NULL),
+  ('customer2@boozy.com', 'custpass', 'Johnson', 'Bob', '8888888888', 2, 'client', NULL, NULL);
 
 -- Insert 2 deliverers with actual total_earnings and sample license plates (address_id = NULL)
 INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, total_earnings)
 VALUES
-  ('deliverer1@boozy.com', 'delivpass', 'Brown', 'Charlie', '9999999999', NULL, 'deliverer', 'AB-123-CD', 150.00),
-  ('deliverer2@boozy.com', 'delivpass', 'Prince', 'Diana', '1010101010', NULL, 'deliverer', 'EF-456-GH', 200.00);
+  ('deliverer1@boozy.com', 'delivpass', 'Brown', 'Charlie', '9999999999', NULL, 'carrier', 'AB-123-CD', 150.00),
+  ('deliverer2@boozy.com', 'delivpass', 'Prince', 'Diana', '1010101010', NULL, 'carrier', 'EF-456-GH', 200.00);
 
 -- Insert addresses for 6 SAQ stores in Montreal
 INSERT INTO AddressLine (civic, apartment, street, city, postal_code)
