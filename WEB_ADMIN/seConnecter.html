@@ -152,29 +152,35 @@
     async function switchLanguage() {
       window.location.href = 'seConnecter_en.html';
     }
-
+  
     document.getElementById('login-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-
+  
       try {
         const response = await fetch('https://issue-volleyball-versus-scroll.trycloudflare.com/connectUser', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
         });
-
+  
         if (!response.ok) throw new Error("Échec de la connexion.");
-
+  
         const data = await response.json();
-        localStorage.setItem("user", JSON.stringify(data));
-        window.location.href = "dashboard.html";
+  
+        if (data.status === "success" && data.user && data.user.userType === "admin") {
+          localStorage.setItem("user", JSON.stringify(data));
+          window.location.href = "dashboard.html";
+        } else {
+          alert("Ce login est réservé aux administrateurs.");
+        }
       } catch (error) {
         alert("Échec de la connexion. Veuillez vérifier vos identifiants.");
         console.error(error);
       }
     });
   </script>
+  
 </body>
 </html>
