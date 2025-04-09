@@ -1238,7 +1238,7 @@ def public_admin_pages(requested):
 ##############################
 # 2. Protected Routes (POST)
 ##############################
-@app.route('/admin', methods=['POST'])
+@app.route('/admin/path', methods=['POST'])
 def protected_admin_page():
     """
     Expects JSON in the POST body with:
@@ -1296,6 +1296,8 @@ def admin_assets_images(filename):
     if not os.path.exists(file_path):
         return jsonify({"error": f"Image '{filename}' not found."}), 404
     return send_from_directory(images_folder, filename)
+
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0")
