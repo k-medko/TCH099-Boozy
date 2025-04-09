@@ -1187,71 +1187,19 @@ def admin_modify_availability():
 ##########################################################################################
 ##########################################################################################
 ##########################################################################################
-# Absolute path to the WEB_ADMIN folder (one level up from REST_API)
+# Absolute path to the WEB_ADMIN folder (assumed to be one level above the REST_API folder)
 ADMIN_FOLDER = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
 
-# List of public HTML files that can be accessed without admin credentials.
-PUBLIC_FILES = {
-    "accueil.html",
-    "accueil_en.html",
-    "inscription.html",
-    "inscription_en.html",
-    "seConnecter.html",
-    "seConnecter_en.html"
-}
+# When someone accesses /admin/web or /admin/web/ they are served accueil.html automatically.
+@app.route('/admin/web')
+@app.route('/admin/web/')
+def admin_index():
+    return send_from_directory(ADMIN_FOLDER, 'accueil.html')
 
-def send_html_file(filename):
-    """Helper function that sends an HTML file from the WEB_ADMIN folder."""
-    file_path = os.path.join(ADMIN_FOLDER, filename)
-    if not os.path.exists(file_path):
-        return jsonify({
-            "error": f"File {filename} not found in WEB_ADMIN.",
-            "available_items": os.listdir(ADMIN_FOLDER)
-        }), 404
+# Catch-all route to serve any other file under /admin/web/ (HTML, CSS, JavaScript, images, etc.)
+@app.route('/admin/web/<path:filename>')
+def admin_static(filename):
     return send_from_directory(ADMIN_FOLDER, filename)
-
-@app.route('/admin/web', methods=['GET'])
-def admin_web():
-    """
-    Single route to serve both public and protected admin pages.
-    
-    Query parameters:
-      page: (optional) The requested HTML file (e.g., 'dashboard' or 'dashboard.html').
-            Defaults to accueil based on language if not provided.
-      lang: (optional) If 'en', returns English version of accueil (accueil_en.html); defaults to 'fr'.
-      admin_email and admin_password: Required if requested page is NOT one of the public pages.
-    
-    Public pages: accueil, inscription, seConnecter (and their _en versions) can be requested without credentials.
-    For any other page, valid admin credentials are required.
-    """
-    # Read query parameters
-    page = request.args.get('page')
-    admin_email = request.args.get('admin_email')
-    admin_password = request.args.get('admin_password')
-    lang = request.args.get('lang', 'fr').lower()
-
-    # If no page is specified, default to the accueil page (language based)
-    if not page:
-        page = "accueil_en.html" if lang == 'en' else "accueil.html"
-    else:
-        # Append .html extension if not already present.
-        if not page.endswith('.html'):
-            page += '.html'
-    
-    # If the requested file is public, serve it without checking credentials.
-    if page in PUBLIC_FILES:
-        return send_html_file(page)
-
-    # For protected pages, require admin credentials.
-    if not admin_email or not admin_password:
-        return jsonify({"status": "error", "message": "Admin credentials required for this page"}), 401
-
-    # (For demonstration purposes only - replace with your proper authentication mechanism.)
-    if admin_email != "tristan@boozy.com" or admin_password != "adminpass":
-        return jsonify({"status": "error", "message": "Invalid admin credentials"}), 401
-
-    # Serve the requested protected page.
-    return send_html_file(page)
 
 
 
