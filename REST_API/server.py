@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, redirect, request, jsonify, send_from_directory
 from flask_mysqldb import MySQL
 from flask_cors import CORS
 import os
