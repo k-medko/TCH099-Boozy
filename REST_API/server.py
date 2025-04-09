@@ -536,63 +536,7 @@ def cancel_order():
     )
     
     return jsonify({"status": "success", "message": "Order cancelled successfully"})
-########################################################
 
-import os
-from flask import request, jsonify, send_from_directory
-
-# GET /admin route serving accueil.html or accueil_en.html
-@app.route('/admin', methods=['GET'])
-def admin_landing():
-    # Get language parameter from query string; default is French
-    lang = request.args.get('lang', 'fr').lower()
-    admin_folder = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
-    file_to_serve = 'accueil_en.html' if lang == 'en' else 'accueil.html'
-    file_path = os.path.join(admin_folder, file_to_serve)
-    if not os.path.exists(file_path):
-        return f"{file_to_serve} not found in WEB_ADMIN!?", 404
-    return send_from_directory(admin_folder, file_to_serve)
-
-# POST /admin/load route for returning dashboard pages upon valid admin credentials
-@app.route('/admin/load', methods=['POST'])
-def admin_load_page():
-    data = request.get_json() or {}
-    admin_email = data.get('admin_email')
-    admin_password = data.get('admin_password')
-    # The requested page name; expected values: "dashboard", "dashboard_en" (or other valid html filenames)
-    page = data.get('page')
-    # Replace these with your proper admin authentication logic:
-    if admin_email != "tristan@boozy.com" or admin_password != "adminpass":
-        return jsonify({"status": "error", "message": "Invalid admin credentials"}), 401
-
-    admin_folder = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
-    # Determine file name: If page is provided and ends with .html, use it;
-    # Otherwise, default to "dashboard.html" for French and "dashboard_en.html" for English.
-    if page and isinstance(page, str) and page.endswith(".html"):
-        file_to_serve = page
-    else:
-        file_to_serve = "dashboard_en.html" if data.get('lang', '').lower() == 'en' else "dashboard.html"
-
-    file_path = os.path.join(admin_folder, file_to_serve)
-    if not os.path.exists(file_path):
-        return jsonify({"status": "error", "message": f"Requested page {file_to_serve} not found"}), 404
-
-    # Optionally, you could also return admin user data with the response, e.g.:
-    # admin_info = {"email": admin_email, "name": "Admin Name", "role": "admin"}
-    # For simplicity, we just send back the HTML file.
-    return send_from_directory(admin_folder, file_to_serve)
-
-# Route to serve static assets (images) publicly from WEB_ADMIN/assets/images
-@app.route('/assets/images/<path:filename>', methods=['GET'])
-def serve_images(filename):
-    admin_folder = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
-    images_folder = os.path.join(admin_folder, 'assets', 'images')
-    if not os.path.exists(os.path.join(images_folder, filename)):
-        return "Image not found", 404
-    return send_from_directory(images_folder, filename)
-
-
-#########################################################
 @app.route('/admin/createUser', methods=['POST'])
 def admin_create_user():
     data = request.get_json()
@@ -1239,6 +1183,119 @@ def admin_modify_availability():
             )
     
     return jsonify({"status": "success", "message": "Shop inventory updated successfully"})
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
+# Folder where WEB_ADMIN resides (one level up from REST_API)
+ADMIN_FOLDER = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
+
+# Public HTML files (names with extension) that are accessible without authentication.
+PUBLIC_FILES = {
+    "accueil.html",
+    "accueil_en.html",
+    "inscription.html",
+    "inscription_en.html",
+    "seConnecter.html",
+    "seConnecter_en.html"
+}
+
+def send_html_file(filename):
+    """Helper function to serve an HTML file from ADMIN_FOLDER."""
+    file_path = os.path.join(ADMIN_FOLDER, filename)
+    if not os.path.exists(file_path):
+        # Return error with available files for debugging
+        return jsonify({
+            "error": f"File {filename} not found in WEB_ADMIN.",
+            "available_items": os.listdir(ADMIN_FOLDER)
+        }), 404
+    return send_from_directory(ADMIN_FOLDER, filename)
+
+##############################
+# 1. Public Routes (GET)
+##############################
+@app.route('/admin/path/<string:requested>', methods=['GET'])
+def public_admin_pages(requested):
+    """
+    Expects a filename (with or without .html) and if it is one of the public pages,
+    it returns the corresponding HTML page.
+    Example URLs:
+      /admin/path/accueil    --> serves accueil.html
+      /admin/path/accueil_en --> serves accueil_en.html
+    """
+    # Ensure the requested name ends with .html
+    if not requested.endswith('.html'):
+        requested += '.html'
+    
+    if requested not in PUBLIC_FILES:
+        return jsonify({
+            "status": "error",
+            "message": "This page is protected. Use a POST with valid credentials to access it."
+        }), 401
+
+    return send_html_file(requested)
+
+##############################
+# 2. Protected Routes (POST)
+##############################
+@app.route('/admin', methods=['POST'])
+def protected_admin_page():
+    """
+    Expects JSON in the POST body with:
+      {
+         "admin_email": "email@domain.com",
+         "admin_password": "adminpass",
+         "page": "dashboard"   // or "dashboard.html", etc.
+      }
+    If credentials are valid and the requested page is not a public page,
+    the corresponding HTML file (with .html appended if necessary) is sent.
+    """
+    data = request.get_json() or {}
+    admin_email = data.get("admin_email")
+    admin_password = data.get("admin_password")
+    page = data.get("page")
+    
+    # Replace this with your proper admin credential check
+    if admin_email != "tristan@boozy.com" or admin_password != "adminpass":
+        return jsonify({
+            "status": "error",
+            "message": "Invalid admin credentials"
+        }), 401
+
+    if not page:
+        return jsonify({
+            "status": "error",
+            "message": "Missing page parameter"
+        }), 400
+
+    # Ensure the filename ends with .html
+    if not page.endswith('.html'):
+        page += '.html'
+
+    # Block access if the requested page is one of the public pages:
+    if page in PUBLIC_FILES:
+        return jsonify({
+            "status": "error",
+            "message": "This page is publicly accessible via GET. Use the appropriate URL."
+        }), 400
+
+    return send_html_file(page)
+
+##############################
+# 3. Assets (Images)
+##############################
+@app.route('/admin/path/assets/images/<path:filename>', methods=['GET'])
+def admin_assets_images(filename):
+    """
+    Serves files from the WEB_ADMIN/assets/images directory.
+    Example:
+       /admin/path/assets/images/logo.png
+    """
+    images_folder = os.path.join(ADMIN_FOLDER, 'assets', 'images')
+    file_path = os.path.join(images_folder, filename)
+    if not os.path.exists(file_path):
+        return jsonify({"error": f"Image '{filename}' not found."}), 404
+    return send_from_directory(images_folder, filename)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0")
