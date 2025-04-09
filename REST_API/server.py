@@ -1214,8 +1214,9 @@ def admin_download():
         memory_file,
         mimetype='application/zip',
         as_attachment=True,
-        attachment_filename='WEB_ADMIN.zip'
+        download_name='WEB_ADMIN.zip'
     )
+
 
 
 if __name__ == '__main__':
