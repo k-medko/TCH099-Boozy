@@ -540,8 +540,12 @@ def cancel_order():
 
 @app.route('/admin', methods=['GET'])
 def admin_page():
-    admin_folder = os.path.join(app.root_path, '..', 'WEB_ADMIN')
+    admin_folder = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
+    index_file = os.path.join(admin_folder, 'index.html')
+    if not os.path.exists(index_file):
+        return "index.html not found in WEB_ADMIN", 404
     return send_from_directory(admin_folder, 'index.html')
+
 
 
 
