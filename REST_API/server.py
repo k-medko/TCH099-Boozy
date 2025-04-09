@@ -203,43 +203,32 @@ def create_user():
     for field in required_fields:
         if field not in data:
             return jsonify({"status": "error", "message": f"Missing required field: {field}"}), 400
-    
+
     email = data["email"]
     password = data["password"]
     last_name = data["lastName"]
     first_name = data["firstName"]
     phone_number = data["phoneNumber"]
     user_type = data["userType"]
-    
-    # Map user_type to match database ENUM values
-    user_type_mapping = {
-        "customer": "client",
-        "deliverer": "carrier",
-        "admin": "admin"
-    }
-    
-    if user_type not in user_type_mapping:
-        return jsonify({"status": "error", "message": "Invalid userType"}), 400
-    
-    db_user_type = user_type_mapping[user_type]
-    
-    # Check if deliverer info is provided when needed
+
+    # Accept only "client" and "carrier"
+    if user_type not in ["client", "carrier"]:
+        return jsonify({"status": "error", "message": "Invalid userType, must be 'client' or 'carrier'"}), 400
+
     license_plate = None
     car_brand = None
-    if user_type == "deliverer":
+    if user_type == "carrier":
         if "licensePlate" not in data:
-            return jsonify({"status": "error", "message": "Deliverer requires licensePlate"}), 400
+            return jsonify({"status": "error", "message": "Carrier requires licensePlate"}), 400
         license_plate = data["licensePlate"]
-        car_brand = data.get("carBrand")  # Optional in new schema
-    
+        car_brand = data.get("carBrand")  # Optional
+
     existing = execute_query("SELECT * FROM UserAccount WHERE email = %s", (email,))
     if existing:
         return jsonify({"status": "error", "message": "Email already exists"}), 400
-    
+
     address_id = None
-    # Handle address based on provided data formats
     if "address" in data and isinstance(data["address"], dict):
-        # Handle address as dictionary
         address = data["address"]
         new_address_id = get_next_id("AddressLine", "address_id")
         
@@ -253,7 +242,6 @@ def create_user():
         )
         address_id = new_address_id
     elif all(key in data for key in ["civic", "street", "city"]):
-        # Handle flat structure with address fields
         new_address_id = get_next_id("AddressLine", "address_id")
         
         execute_query(
@@ -265,7 +253,7 @@ def create_user():
             fetch=False
         )
         address_id = new_address_id
-    
+
     new_user_id = get_next_id("UserAccount", "user_id")
     
     execute_query(
@@ -273,12 +261,13 @@ def create_user():
            (user_id, email, password, last_name, first_name, phone_number, address_id, user_type, 
             license_plate, car_brand, total_earnings) 
            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-        (new_user_id, email, password, last_name, first_name, phone_number, address_id, db_user_type, 
+        (new_user_id, email, password, last_name, first_name, phone_number, address_id, user_type, 
          license_plate, car_brand, 0.0),
         fetch=False
     )
     
     return jsonify({"status": "success", "userId": new_user_id})
+
 
 @app.route('/connectUser', methods=['POST'])
 def connect_user():
