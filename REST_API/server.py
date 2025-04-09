@@ -536,35 +536,63 @@ def cancel_order():
     )
     
     return jsonify({"status": "success", "message": "Order cancelled successfully"})
-
+########################################################
 
 import os
-from flask import jsonify, send_from_directory
+from flask import request, jsonify, send_from_directory
 
-# Debug route to show key paths
-@app.route('/debug/path', methods=['GET'])
-def debug_path():
-    paths = {
-        "app_root": os.path.abspath(app.root_path),
-        "current_working_directory": os.path.abspath(os.getcwd()),
-        "server_file": os.path.abspath(__file__)
-    }
-    return jsonify(paths)
-
-# Admin route serving "accueil.html" from WEB_ADMIN folder
+# GET /admin route serving accueil.html or accueil_en.html
 @app.route('/admin', methods=['GET'])
-def admin_page():
-    # Build absolute path to the WEB_ADMIN folder (one level above REST_API)
+def admin_landing():
+    # Get language parameter from query string; default is French
+    lang = request.args.get('lang', 'fr').lower()
     admin_folder = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
-    file_path = os.path.join(admin_folder, 'accueil.html')
+    file_to_serve = 'accueil_en.html' if lang == 'en' else 'accueil.html'
+    file_path = os.path.join(admin_folder, file_to_serve)
     if not os.path.exists(file_path):
-        return "accueil.html not found in WEB_ADMIN", 404
-    return send_from_directory(admin_folder, 'accueil.html')
+        return f"{file_to_serve} not found in WEB_ADMIN", 404
+    return send_from_directory(admin_folder, file_to_serve)
+
+# POST /admin/load route for returning dashboard pages upon valid admin credentials
+@app.route('/admin/load', methods=['POST'])
+def admin_load_page():
+    data = request.get_json() or {}
+    admin_email = data.get('admin_email')
+    admin_password = data.get('admin_password')
+    # The requested page name; expected values: "dashboard", "dashboard_en" (or other valid html filenames)
+    page = data.get('page')
+    # Replace these with your proper admin authentication logic:
+    if admin_email != "tristan@boozy.com" or admin_password != "adminpass":
+        return jsonify({"status": "error", "message": "Invalid admin credentials"}), 401
+
+    admin_folder = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
+    # Determine file name: If page is provided and ends with .html, use it;
+    # Otherwise, default to "dashboard.html" for French and "dashboard_en.html" for English.
+    if page and isinstance(page, str) and page.endswith(".html"):
+        file_to_serve = page
+    else:
+        file_to_serve = "dashboard_en.html" if data.get('lang', '').lower() == 'en' else "dashboard.html"
+
+    file_path = os.path.join(admin_folder, file_to_serve)
+    if not os.path.exists(file_path):
+        return jsonify({"status": "error", "message": f"Requested page {file_to_serve} not found"}), 404
+
+    # Optionally, you could also return admin user data with the response, e.g.:
+    # admin_info = {"email": admin_email, "name": "Admin Name", "role": "admin"}
+    # For simplicity, we just send back the HTML file.
+    return send_from_directory(admin_folder, file_to_serve)
+
+# Route to serve static assets (images) publicly from WEB_ADMIN/assets/images
+@app.route('/assets/images/<path:filename>', methods=['GET'])
+def serve_images(filename):
+    admin_folder = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
+    images_folder = os.path.join(admin_folder, 'assets', 'images')
+    if not os.path.exists(os.path.join(images_folder, filename)):
+        return "Image not found", 404
+    return send_from_directory(images_folder, filename)
 
 
-
-
-
+#########################################################
 @app.route('/admin/createUser', methods=['POST'])
 def admin_create_user():
     data = request.get_json()
