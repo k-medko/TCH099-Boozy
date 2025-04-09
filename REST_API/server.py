@@ -63,7 +63,7 @@ def get_shop_image(shop_id):
     return send_from_directory(os.path.join(app.root_path, 'static'),
         'placeholder.jpg')
 
-@app.route('/getshops', methods=['GET'])
+@app.route('/getShops', methods=['GET'])
 def get_shops():
     shop_id = request.args.get('shopId')
     proximity = request.args.get('proximity')
