@@ -544,19 +544,14 @@ from flask import request, jsonify, send_from_directory
 # GET /admin route serving accueil.html or accueil_en.html
 @app.route('/admin', methods=['GET'])
 def admin_landing():
+    # Get language parameter from query string; default is French
     lang = request.args.get('lang', 'fr').lower()
     admin_folder = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
     file_to_serve = 'accueil_en.html' if lang == 'en' else 'accueil.html'
     file_path = os.path.join(admin_folder, file_to_serve)
     if not os.path.exists(file_path):
-        # Return list of all children in WEB_ADMIN if file not found
-        child_items = os.listdir(admin_folder)
-        return jsonify({
-            "error": f"{file_to_serve} not found in WEB_ADMIN",
-            "available_items": child_items
-        }), 404
+        return f"{file_to_serve} not found in WEB_ADMIN!?", 404
     return send_from_directory(admin_folder, file_to_serve)
-
 
 # POST /admin/load route for returning dashboard pages upon valid admin credentials
 @app.route('/admin/load', methods=['POST'])
