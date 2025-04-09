@@ -537,6 +537,14 @@ def cancel_order():
     
     return jsonify({"status": "success", "message": "Order cancelled successfully"})
 
+
+@app.route('/admin', methods=['GET'])
+def admin_page():
+    admin_folder = os.path.join(app.root_path, '..', 'WEB_ADMIN')
+    return send_from_directory(admin_folder, 'index.html')
+
+
+
 @app.route('/admin/createUser', methods=['POST'])
 def admin_create_user():
     data = request.get_json()
