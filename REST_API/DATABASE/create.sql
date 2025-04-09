@@ -53,7 +53,7 @@ CREATE TABLE Product (
     alcohol DECIMAL(4,2) NOT NULL
 );
 
--- 5. Create ClientOrder with separate customer and deliverer references
+-- 5. Create ClientOrder with separate client and carrier references
 CREATE TABLE ClientOrder (
     client_order_id INT(10) AUTO_INCREMENT PRIMARY KEY,
     creation_date DATETIME NOT NULL,
@@ -61,15 +61,15 @@ CREATE TABLE ClientOrder (
     total_amount DECIMAL(10,2) NOT NULL,
     address_id INT(10) NOT NULL,
     shop_id INT(10) NOT NULL,
-    customer_id INT(10) NOT NULL,
-    deliverer_id INT(10) NOT NULL,
+    client_id INT(10) NOT NULL,
+    carrier_id INT(10) NOT NULL,
     CONSTRAINT fk_clientorder_address_id FOREIGN KEY (address_id) REFERENCES AddressLine(address_id)
         ON DELETE CASCADE,
     CONSTRAINT fk_clientorder_shop_id FOREIGN KEY (shop_id) REFERENCES Shop(shop_id)
         ON DELETE CASCADE,
-    CONSTRAINT fk_clientorder_customer_id FOREIGN KEY (customer_id) REFERENCES UserAccount(user_id)
+    CONSTRAINT fk_clientorder_client_id FOREIGN KEY (client_id) REFERENCES UserAccount(user_id)
         ON DELETE CASCADE,
-    CONSTRAINT fk_clientorder_deliverer_id FOREIGN KEY (deliverer_id) REFERENCES UserAccount(user_id)
+    CONSTRAINT fk_clientorder_carrier_id FOREIGN KEY (carrier_id) REFERENCES UserAccount(user_id)
         ON DELETE CASCADE
 );
 

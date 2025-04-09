@@ -1,8 +1,8 @@
--- Insert real Montreal addresses for the customers
+-- Insert real Montreal addresses for the clients
 INSERT INTO AddressLine (civic, apartment, street, city, postal_code)
 VALUES 
-  (123, '1A', 'Rue Sainte-Catherine Ouest', 'Montreal', 'H3B 1A7'),
-  (456, '2B', 'Avenue du Parc', 'Montreal', 'H2V 4E6');
+  (123, '1A', 'Rue Sainte-Catherine Ouest', 'Montreal', 'H3B 1A7'),--1
+  (456, '2B', 'Avenue du Parc', 'Montreal', 'H2V 4E6');--2
 
 -- Insert 6 admins (last_name = 'admin', address_id = NULL, total_earnings = NULL)
 INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, total_earnings)
@@ -14,37 +14,37 @@ VALUES
   ('edwar@boozy.com', 'adminpass', 'admin', 'Edwar', '5555555555', NULL, 'admin', NULL, NULL),
   ('macky@boozy.com', 'adminpass', 'admin', 'Macky', '6666666666', NULL, 'admin', NULL, NULL);
 
--- Insert 2 customers with addresses (using the newly inserted address_id 1 and 2)
+-- Insert 2 clients with addresses (using the newly inserted address_id 1 and 2)
 INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, total_earnings)
 VALUES
-  ('customer1@boozy.com', 'custpass', 'Smith', 'Alice', '7777777777', 1, 'client', NULL, NULL),
-  ('customer2@boozy.com', 'custpass', 'Johnson', 'Bob', '8888888888', 2, 'client', NULL, NULL);
+  ('client1@boozy.com', 'custpass', 'Smith', 'Alice', '7777777777', 1, 'client', NULL, NULL),
+  ('client2@boozy.com', 'custpass', 'Johnson', 'Bob', '8888888888', 2, 'client', NULL, NULL);
 
--- Insert 2 deliverers with actual total_earnings and sample license plates (address_id = NULL)
+-- Insert 2 carriers with actual total_earnings and sample license plates (address_id = NULL)
 INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, total_earnings)
 VALUES
-  ('deliverer1@boozy.com', 'delivpass', 'Brown', 'Charlie', '9999999999', NULL, 'carrier', 'AB-123-CD', 150.00),
-  ('deliverer2@boozy.com', 'delivpass', 'Prince', 'Diana', '1010101010', NULL, 'carrier', 'EF-456-GH', 200.00);
+  ('carrier1@boozy.com', 'delivpass', 'Brown', 'Charlie', '9999999999', NULL, 'carrier', 'AB-123-CD', 150.00),
+  ('carrier2@boozy.com', 'delivpass', 'Prince', 'Diana', '1010101010', NULL, 'carrier', 'EF-456-GH', 200.00);
 
 -- Insert addresses for 6 SAQ stores in Montreal
-INSERT INTO AddressLine (civic, apartment, street, city, postal_code)
+INSERT INTO AddressLine (civic, street, city, postal_code)
 VALUES
-  (100, NULL, 'Rue Sainte-Catherine Ouest', 'Montreal', 'H3B 1A9'),
-  (200, NULL, 'Rue Côte-des-Neiges', 'Montreal', 'H3S 2J4'),
-  (300, NULL, 'Boulevard Saint-Laurent', 'Montreal', 'H2W 1Z8'),
-  (400, NULL, 'Avenue Papineau', 'Montreal', 'H1X 2V3'),
-  (500, NULL, 'Rue Sherbrooke Est', 'Montreal', 'H2L 1N2'),
-  (600, NULL, 'Avenue de l''Acadie', 'Montreal', 'H1S 1T1');
+  (155, 'Av. Atwater', 'Montreal', 'H3J 2J4'),--3
+  (1176, 'Sainte-Catherine', 'Montreal', 'H3B 1K1'),--4
+  (1450, 'De la Montagne', 'Montreal', 'HH3G 1Z5'),--5
+  (677, 'Saint-Catherine', 'Montreal', 'H3B 5K4'),--6
+  (425, 'Blvd. De Maisonneuve Ouest', 'Montreal', 'H3A 3G5'),--7
+  (231, 'Peel', 'Montreal', 'H3C 2G6');--8
 
 -- Insert 6 SAQ stores linked to the addresses above (assuming auto-increment produces address_id 1 to 6)
 INSERT INTO Shop (name, address_id)
 VALUES
-  ('SAQ Centre-Ville', 3),
-  ('SAQ Côte-des-Neiges', 4),
-  ('SAQ Plateau', 5),
-  ('SAQ Hochelaga', 6),
-  ('SAQ Outremont', 7),
-  ('SAQ Saint-Hubert', 8);
+  ('SAQ Sélection-Marché Atwater', 3),
+  ('SAQ Express', 4),
+  ('SAQ Sélection-De la Montagne', 5),
+  ('SAQ-Centre Eaton', 6),
+  ('SAQ Sélection', 7),
+  ('SAQ', 8);
 
 INSERT INTO Product (name, description, price, category, alcohol) VALUES
 ('Monte Real Reserva Rioja 2020', '« Puissant, ce vin profite d''une longue macération qui lui confère structure et prestance. Profitant d''un élevage en fût de chêne américain pour une période de 24 à 30 mois, voilà une cuvée qui plaira à l''amateur de vin corsés. »', 24.70, 'Vin rouge', 14),
@@ -60,8 +60,6 @@ INSERT INTO Product (name, description, price, category, alcohol) VALUES
 ('Sortilège Original', '« Une belle liqueur au sirop d’érable du Québec, qui marie à la perfection la richesse du whisky canadien et la douceur de l’érable. Un incontournable pour les dents sucrées ! »', 34.25, 'Liqueur d’érable (whisky canadien)', 30),
 ('Veuve Clicquot Ponsardin Brut', '« Élaboré selon la méthode champenoise traditionnelle, ce champagne offre des arômes briochés et fruités. Sa bouche vive et équilibrée saura égayer vos célébrations. »', 79.75, 'Champagne', 12),
 ('Tanaka 1789 X Chartier Junmai Daiginjo', '« Un saké junmai daiginjo d''une grande finesse, aux notes florales et de melon, obtenu par un polissage du riz à 45 %. Idéal servi frais pour accompagner sushis et poissons. »', 39.50, 'Saké (Japon)', 15);
-
-
 
 INSERT INTO ShopProduct (shop_id, product_id, quantity) VALUES
 -- Store 1 (original product_ids: 1, 3, 5, 7, 9, 11, 13, 15, 17, 19)
