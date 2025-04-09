@@ -26,7 +26,7 @@ CREATE TABLE UserAccount (
     first_name VARCHAR(255) NOT NULL,
     phone_number VARCHAR(15) NOT NULL UNIQUE,
     address_id INT(10),
-    user_type ENUM('customer','deliverer','admin') NOT NULL,
+    user_type ENUM('client','carrier','admin') NOT NULL,
     license_plate VARCHAR(25) UNIQUE,
     car_brand VARCHAR(25),
     total_earnings DECIMAL(10,2),
