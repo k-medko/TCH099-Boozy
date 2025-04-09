@@ -7,16 +7,13 @@ from datetime import datetime
 app = Flask(__name__)
 CORS(app)
 
-# Configuration
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'BOOZY_SERVER'
 app.config['MYSQL_PASSWORD'] = 'Boozyadmin1234'
 app.config['MYSQL_DB'] = 'boozy_database'
 mysql = MySQL(app)
 
-# Database Helper Functions
 def execute_query(query, params=None, fetch=True):
-    """Execute SQL query and return results if applicable"""
     cursor = mysql.connection.cursor()
     cursor.execute(query, params)
     
@@ -30,101 +27,83 @@ def execute_query(query, params=None, fetch=True):
     return results
 
 def get_next_id(table_name, id_column):
-    """Get the next available ID for a table"""
     max_id = execute_query(f"SELECT MAX({id_column}) FROM {table_name}")
     return (max_id[0][0] + 1) if max_id and max_id[0][0] else 1
 
 def get_address_string(address_id):
-    """Convert address_id to a full address string"""
     address = execute_query(
-        "SELECT house_number, street, postal_code, city FROM CustomerAddress WHERE address_id = %s", 
+        "SELECT civic, apartment, street, city, postal_code FROM AddressLine WHERE address_id = %s", 
         (address_id,)
     )
     if address:
-        return f"{address[0][0]} {address[0][1]}, {address[0][3]}, {address[0][2]}"
+        apt_str = f" apt {address[0][1]}" if address[0][1] else ""
+        return f"{address[0][0]}{apt_str} {address[0][2]}, {address[0][3]}, {address[0][4]}"
     return None
 
-# Basic Routes
 @app.route('/')
 def home():
-    return jsonify({"message": "Welcome to the Boozy API"})
+    return jsonify({"message": "Welcome to the Boozy API!!!"})
 
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
         'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-# IMAGE ENDPOINTS
+# Fallback image for products - using placeholder since Product table doesn't have image fields
 @app.route('/getImages/product/<product_id>', methods=['GET'])
 def get_product_image(product_id):
-    # Get the image name from the product table
-    query = "SELECT image_nom FROM Product WHERE product_id = %s"
-    result = execute_query(query, (product_id,))
-    
-    if result and result[0][0]:
-        # Try to serve the specific product image
-        image_path = os.path.join(app.root_path, 'static', 'productImages', result[0][0])
-        if os.path.exists(image_path):
-            return send_from_directory(os.path.join(app.root_path, 'static', 'productImages'),
-                result[0][0])
-    
-    # Return placeholder if no image found or product doesn't exist
+    # Since Product table doesn't have image fields in schema, serve default placeholder
     return send_from_directory(os.path.join(app.root_path, 'static'),
         'placeholder.jpg')
 
+# Fallback image for stores - using placeholder since Shop table doesn't have image fields
 @app.route('/getImages/store/<store_id>', methods=['GET'])
 def get_store_image(store_id):
-    # Get the image name from the store table
-    query = "SELECT image_nom FROM StoreLocation WHERE store_id = %s"
-    result = execute_query(query, (store_id,))
-    
-    if result and result[0][0]:
-        # Try to serve the specific store image
-        image_path = os.path.join(app.root_path, 'static', 'storeImages', result[0][0])
-        if os.path.exists(image_path):
-            return send_from_directory(os.path.join(app.root_path, 'static', 'storeImages'),
-                result[0][0])
-    
-    # Return placeholder if no image found or store doesn't exist
+    # Since Shop table doesn't have image fields in schema, serve default placeholder
     return send_from_directory(os.path.join(app.root_path, 'static'),
         'placeholder.jpg')
-# STORE ENDPOINTS
+
 @app.route('/getStores', methods=['GET'])
 def get_stores():
     store_id = request.args.get('storeId')
-    proximity = request.args.get('proximity')  # Not implemented yet, would need geolocation
+    proximity = request.args.get('proximity')
     
     if store_id:
         query = """
-            SELECT s.store_id, s.name, s.image_nom, a.house_number, 
-                   a.street, a.postal_code, a.city, a.civic_number
-            FROM StoreLocation s
-            JOIN CustomerAddress a ON s.address_id = a.address_id
-            WHERE s.store_id = %s
+            SELECT s.shop_id, s.name, a.civic, a.apartment,
+                   a.street, a.postal_code, a.city
+            FROM Shop s
+            JOIN AddressLine a ON s.address_id = a.address_id
+            WHERE s.shop_id = %s
         """
         stores = execute_query(query, (store_id,))
     else:
         query = """
-            SELECT s.store_id, s.name, s.image_nom, a.house_number, 
-                   a.street, a.postal_code, a.city, a.civic_number
-            FROM StoreLocation s
-            JOIN CustomerAddress a ON s.address_id = a.address_id
+            SELECT s.shop_id, s.name, a.civic, a.apartment,
+                   a.street, a.postal_code, a.city
+            FROM Shop s
+            JOIN AddressLine a ON s.address_id = a.address_id
         """
         stores = execute_query(query)
     
-    # Format store data - removed address_id from the response
     formatted_stores = []
     for store in stores:
+        apt_str = f" apt {store[3]}" if store[3] else ""
         formatted_stores.append({
-            "store_id": store[0],
+            "shop_id": store[0],
             "name": store[1],
-            "image_nom": store[2],
-            "address": f"{store[3]} {store[4]}, {store[6]}, {store[5]}"
+            "address": f"{store[2]}{apt_str} {store[4]}, {store[6]}, {store[5]}",
+            "address_components": {
+                "civic": store[2],
+                "apartment": store[3],
+                "street": store[4],
+                "postal_code": store[5],
+                "city": store[6]
+            }
         })
     
     return jsonify(formatted_stores)
 
-# PRODUCT ENDPOINTS
 @app.route('/getProducts', methods=['GET'])
 def get_products():
     product_id = request.args.get('productId')
@@ -145,43 +124,44 @@ def get_products():
             "price": float(product[3]),
             "category": product[4],
             "is_available": bool(product[5]),
-            "image_nom": product[6]
+            "alcohol": float(product[6])
         })
     
     return jsonify(formatted_products)
 
-# INVENTORY ENDPOINTS
 @app.route('/getAvailability', methods=['GET'])
 def get_availability():
-    store_id = request.args.get('storeId')
+    shop_id = request.args.get('shopId')
     product_id = request.args.get('productId')
     in_stock = request.args.get('inStock')
     
     params = []
     conditions = []
     
-    if store_id:
-        conditions.append("pi.store_id = %s")
-        params.append(store_id)
+    if shop_id:
+        conditions.append("sp.shop_id = %s")
+        params.append(shop_id)
     
     if product_id:
-        conditions.append("pi.product_id = %s")
+        conditions.append("sp.product_id = %s")
         params.append(product_id)
     
     if in_stock:
         try:
             in_stock_value = int(in_stock)
-            conditions.append("pi.quantity >= %s")
+            conditions.append("sp.quantity >= %s")
             params.append(in_stock_value)
         except ValueError:
             pass
     
     query = """
-        SELECT pi.store_id, pi.product_id, pi.quantity, 
-               p.name as product_name, p.price, s.name as store_name
-        FROM ProductInventory pi
-        JOIN Product p ON pi.product_id = p.product_id
-        JOIN StoreLocation s ON pi.store_id = s.store_id
+        SELECT sp.shop_id, sp.product_id, sp.quantity, 
+               p.name as product_name, p.price, p.category, p.is_available, p.alcohol,
+               s.name as shop_name, a.civic, a.street, a.city, a.postal_code
+        FROM ShopProduct sp
+        JOIN Product p ON sp.product_id = p.product_id
+        JOIN Shop s ON sp.shop_id = s.shop_id
+        JOIN AddressLine a ON s.address_id = a.address_id
     """
     
     if conditions:
@@ -192,17 +172,24 @@ def get_availability():
     formatted_inventory = []
     for item in inventory:
         formatted_inventory.append({
-            "store_id": item[0],
+            "shop_id": item[0],
             "product_id": item[1],
             "quantity": item[2],
-            "product_name": item[3],
-            "price": float(item[4]),
-            "store_name": item[5]
+            "product": {
+                "name": item[3],
+                "price": float(item[4]),
+                "category": item[5],
+                "is_available": bool(item[6]),
+                "alcohol": float(item[7])
+            },
+            "store": {
+                "name": item[8],
+                "address": f"{item[9]} {item[10]}, {item[11]}, {item[12]}"
+            }
         })
     
     return jsonify(formatted_inventory)
 
-# USER ENDPOINTS
 @app.route('/createUser', methods=['POST'])
 def create_user():
     data = request.get_json()
@@ -223,31 +210,44 @@ def create_user():
         return jsonify({"status": "error", "message": "Invalid userType"}), 400
     
     if user_type == "deliverer":
-        if "licensePlate" not in data or "licenseNumber" not in data:
-            return jsonify({"status": "error", "message": "Deliverer requires licensePlate and licenseNumber"}), 400
+        if "licensePlate" not in data:
+            return jsonify({"status": "error", "message": "Deliverer requires licensePlate"}), 400
         license_plate = data["licensePlate"]
-        license_number = data["licenseNumber"]
     else:
         license_plate = None
-        license_number = 0
     
     existing = execute_query("SELECT * FROM UserAccount WHERE email = %s", (email,))
     if existing:
         return jsonify({"status": "error", "message": "Email already exists"}), 400
     
+    address_id = None
+    if "address" in data:
+        address = data["address"]
+        new_address_id = get_next_id("AddressLine", "address_id")
+        
+        execute_query(
+            """INSERT INTO AddressLine 
+               (address_id, civic, apartment, street, city, postal_code) 
+               VALUES (%s, %s, %s, %s, %s, %s)""",
+            (new_address_id, address.get("civic"), address.get("apartment"), 
+             address.get("street"), address.get("city"), address.get("postalCode")),
+            fetch=False
+        )
+        address_id = new_address_id
+    
     new_user_id = get_next_id("UserAccount", "user_id")
     
     execute_query(
         """INSERT INTO UserAccount 
-           (user_id, email, password, last_name, first_name, phone_number, user_type, 
-            license_plate, license_number, total_earnings) 
+           (user_id, email, password, last_name, first_name, phone_number, address_id, user_type, 
+            license_plate, total_earnings) 
            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-        (new_user_id, email, password, last_name, first_name, phone_number, user_type, 
-         license_plate, license_number, 0.0),
+        (new_user_id, email, password, last_name, first_name, phone_number, address_id, user_type, 
+         license_plate, 0.0),
         fetch=False
     )
     
-    return jsonify({"status": "success"})
+    return jsonify({"status": "success", "userId": new_user_id})
 
 @app.route('/connectUser', methods=['POST'])
 def connect_user():
@@ -265,49 +265,83 @@ def connect_user():
     )
     
     if user:
+        address = None
+        if user[0][6]:  # address_id
+            address_data = execute_query(
+                "SELECT * FROM AddressLine WHERE address_id = %s",
+                (user[0][6],)
+            )
+            if address_data:
+                address = {
+                    "civic": address_data[0][1],
+                    "apartment": address_data[0][2],
+                    "street": address_data[0][3],
+                    "city": address_data[0][4],
+                    "postalCode": address_data[0][5]
+                }
+        
         user_data = {
+            "userId": user[0][0],
             "email": user[0][1],
             "lastName": user[0][3],
             "firstName": user[0][4],
             "phoneNumber": user[0][5],
-            "userType": user[0][6],
-            "licensePlate": user[0][7] if user[0][7] else None,
-            "licenseNumber": user[0][8] if user[0][8] else None,
-            "totalEarnings": float(user[0][9]) if user[0][9] else 0.0
+            "userType": user[0][7],
+            "licensePlate": user[0][8] if user[0][8] else None,
+            "totalEarnings": float(user[0][9]) if user[0][9] else 0.0,
+            "address": address
         }
         return jsonify({"status": "success", "user": user_data})
     
     return jsonify({"status": "error", "message": "Invalid credentials"}), 401
 
-# ORDER ENDPOINTS
 @app.route('/createOrder', methods=['POST'])
 def create_order():
     data = request.get_json()
     
-    required_fields = ["userId", "storeId", "addressId", "items", "paymentMethod"]
+    required_fields = ["userId", "shopId", "addressId", "items", "paymentMethod"]
     for field in required_fields:
         if field not in data:
             return jsonify({"status": "error", "message": f"Missing required field: {field}"}), 400
     
     user_id = data["userId"]
-    store_id = data["storeId"]
+    shop_id = data["shopId"]
     address_id = data["addressId"]
     items = data["items"]
     payment_method = data["paymentMethod"]
     
-    payment_fields = ["cardNumber", "cvcCard", "expiryDate"]
+    payment_fields = ["cardName", "cardNumber", "cvcCard", "expiryDateMonth", "expiryDateYear"]
     for field in payment_fields:
         if field not in data:
             return jsonify({"status": "error", "message": f"Missing payment field: {field}"}), 400
     
+    # Find available deliverer - improved to check for deliverers actually available
+    deliverer = execute_query(
+        """SELECT user_id FROM UserAccount 
+           WHERE user_type = 'deliverer' 
+           AND user_id NOT IN (
+               SELECT DISTINCT deliverer_id FROM ClientOrder 
+               WHERE status IN ('Searching', 'InRoute')
+           )
+           LIMIT 1"""
+    )
+    
+    if not deliverer:
+        # Fallback - get any deliverer if no "available" ones
+        deliverer = execute_query("SELECT user_id FROM UserAccount WHERE user_type = 'deliverer' LIMIT 1")
+        if not deliverer:
+            return jsonify({"status": "error", "message": "No deliverer available"}), 400
+    
+    deliverer_id = deliverer[0][0]
+    
     user = execute_query("SELECT * FROM UserAccount WHERE user_id = %s", (user_id,))
-    store = execute_query("SELECT * FROM StoreLocation WHERE store_id = %s", (store_id,))
-    address = execute_query("SELECT * FROM CustomerAddress WHERE address_id = %s", (address_id,))
+    shop = execute_query("SELECT * FROM Shop WHERE shop_id = %s", (shop_id,))
+    address = execute_query("SELECT * FROM AddressLine WHERE address_id = %s", (address_id,))
     
     if not user:
         return jsonify({"status": "error", "message": "User not found"}), 404
-    if not store:
-        return jsonify({"status": "error", "message": "Store not found"}), 404
+    if not shop:
+        return jsonify({"status": "error", "message": "Shop not found"}), 404
     if not address:
         return jsonify({"status": "error", "message": "Address not found"}), 404
     
@@ -325,8 +359,8 @@ def create_order():
             return jsonify({"status": "error", "message": f"Product {product_id} not found"}), 404
         
         inventory = execute_query(
-            "SELECT quantity FROM ProductInventory WHERE store_id = %s AND product_id = %s",
-            (store_id, product_id)
+            "SELECT quantity FROM ShopProduct WHERE shop_id = %s AND product_id = %s",
+            (shop_id, product_id)
         )
         
         if not inventory or inventory[0][0] < quantity:
@@ -334,14 +368,14 @@ def create_order():
         
         total_amount += float(product[0][0]) * quantity
     
-    order_id = get_next_id("CustomerOrder", "order_id")
+    order_id = get_next_id("ClientOrder", "client_order_id")
     creation_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
     execute_query(
-        """INSERT INTO CustomerOrder 
-           (order_id, creation_date, status, total_amount, address_id, store_id, user_id) 
-           VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-        (order_id, creation_date, "pending", total_amount, address_id, store_id, user_id),
+        """INSERT INTO ClientOrder 
+           (client_order_id, creation_date, status, total_amount, address_id, shop_id, customer_id, deliverer_id) 
+           VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+        (order_id, creation_date, "Searching", total_amount, address_id, shop_id, user_id, deliverer_id),
         fetch=False
     )
     
@@ -350,28 +384,29 @@ def create_order():
         quantity = item["quantity"]
         
         execute_query(
-            "INSERT INTO OrderItems (order_id, product_id, quantity) VALUES (%s, %s, %s)",
+            "INSERT INTO ClientOrderProduct (client_order_id, product_id, quantity) VALUES (%s, %s, %s)",
             (order_id, product_id, quantity),
             fetch=False
         )
         
         execute_query(
-            """UPDATE ProductInventory 
+            """UPDATE ShopProduct 
                SET quantity = quantity - %s 
-               WHERE store_id = %s AND product_id = %s""",
-            (quantity, store_id, product_id),
+               WHERE shop_id = %s AND product_id = %s""",
+            (quantity, shop_id, product_id),
             fetch=False
         )
     
-    payment_id = get_next_id("PaymentTransaction", "payment_id")
+    payment_id = get_next_id("Payment", "payment_id")
     
     execute_query(
-        """INSERT INTO PaymentTransaction 
+        """INSERT INTO Payment 
            (payment_id, payment_method, amount, payment_date, is_completed, 
-            order_id, user_id, card_number, CVC_card, expiry_date) 
-           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            client_order_id, user_id, card_name, card_number, CVC_card, expiry_date_month, expiry_date_year) 
+           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
         (payment_id, payment_method, total_amount, creation_date, True,
-         order_id, user_id, data["cardNumber"], data["cvcCard"], data["expiryDate"]),
+         order_id, user_id, data["cardName"], data["cardNumber"], data["cvcCard"], 
+         data["expiryDateMonth"], data["expiryDateYear"]),
         fetch=False
     )
     
@@ -387,43 +422,42 @@ def cancel_order():
     order_id = data["orderId"]
     
     order = execute_query(
-        "SELECT * FROM CustomerOrder WHERE order_id = %s", 
+        "SELECT * FROM ClientOrder WHERE client_order_id = %s", 
         (order_id,)
     )
     
     if not order:
         return jsonify({"status": "error", "message": "Order not found"}), 404
     
-    if order[0][2] == "cancelled":
+    if order[0][2] == "Cancelled":
         return jsonify({"status": "error", "message": "Order is already cancelled"}), 400
     
     items = execute_query(
-        "SELECT product_id, quantity FROM OrderItems WHERE order_id = %s", 
+        "SELECT product_id, quantity FROM ClientOrderProduct WHERE client_order_id = %s", 
         (order_id,)
     )
     
     for item in items:
         product_id = item[0]
         quantity = item[1]
-        store_id = order[0][5]
+        shop_id = order[0][5]
         
         execute_query(
-            """UPDATE ProductInventory 
+            """UPDATE ShopProduct 
                SET quantity = quantity + %s 
-               WHERE store_id = %s AND product_id = %s""",
-            (quantity, store_id, product_id),
+               WHERE shop_id = %s AND product_id = %s""",
+            (quantity, shop_id, product_id),
             fetch=False
         )
     
     execute_query(
-        "UPDATE CustomerOrder SET status = 'cancelled' WHERE order_id = %s",
+        "UPDATE ClientOrder SET status = 'Cancelled' WHERE client_order_id = %s",
         (order_id,),
         fetch=False
     )
     
     return jsonify({"status": "success", "message": "Order cancelled successfully"})
 
-# ADMIN ENDPOINTS - USER MANAGEMENT
 @app.route('/admin/createUser', methods=['POST'])
 def admin_create_user():
     data = request.get_json()
@@ -447,42 +481,39 @@ def admin_create_user():
         if field not in data:
             return jsonify({"status": "error", "message": f"Missing required field: {field}"}), 400
     
-    email = data["email"]
-    password = data["password"]
-    last_name = data["lastName"]
-    first_name = data["firstName"]
-    phone_number = data["phoneNumber"]
     user_type = data["userType"]
+    if user_type == "deliverer" and "licensePlate" not in data:
+        return jsonify({"status": "error", "message": "Deliverer requires licensePlate"}), 400
     
-    if user_type not in ["customer", "deliverer", "admin"]:
-        return jsonify({"status": "error", "message": "Invalid userType"}), 400
-    
-    if user_type == "deliverer":
-        if "licensePlate" not in data or "licenseNumber" not in data:
-            return jsonify({"status": "error", "message": "Deliverer requires licensePlate and licenseNumber"}), 400
-        license_plate = data["licensePlate"]
-        license_number = data["licenseNumber"]
-    else:
-        license_plate = None
-        license_number = 0
-    
-    existing = execute_query("SELECT * FROM UserAccount WHERE email = %s", (email,))
-    if existing:
-        return jsonify({"status": "error", "message": "Email already exists"}), 400
+    address_id = None
+    if "address" in data:
+        address = data["address"]
+        new_address_id = get_next_id("AddressLine", "address_id")
+        
+        execute_query(
+            """INSERT INTO AddressLine 
+               (address_id, civic, apartment, street, city, postal_code) 
+               VALUES (%s, %s, %s, %s, %s, %s)""",
+            (new_address_id, address.get("civic"), address.get("apartment"), 
+             address.get("street"), address.get("city"), address.get("postalCode")),
+            fetch=False
+        )
+        address_id = new_address_id
     
     new_user_id = get_next_id("UserAccount", "user_id")
     
     execute_query(
         """INSERT INTO UserAccount 
-           (user_id, email, password, last_name, first_name, phone_number, user_type, 
-            license_plate, license_number, total_earnings) 
+           (user_id, email, password, last_name, first_name, phone_number, address_id, user_type, 
+            license_plate, total_earnings) 
            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-        (new_user_id, email, password, last_name, first_name, phone_number, user_type, 
-         license_plate, license_number, 0.0),
+        (new_user_id, data["email"], data["password"], data["lastName"], data["firstName"], 
+         data["phoneNumber"], address_id, data["userType"], 
+         data.get("licensePlate"), data.get("totalEarnings", 0.0)),
         fetch=False
     )
     
-    return jsonify({"status": "success"})
+    return jsonify({"status": "success", "userId": new_user_id})
 
 @app.route('/admin/modifyUser', methods=['POST'])
 def admin_modify_user():
@@ -499,14 +530,10 @@ def admin_modify_user():
     if not admin:
         return jsonify({"status": "error", "message": "Unauthorized access"}), 401
     
-    data.pop("adminEmail", None)
-    data.pop("adminPassword", None)
-    
     if "userId" not in data:
         return jsonify({"status": "error", "message": "User ID is required"}), 400
     
     user_id = data["userId"]
-    
     user = execute_query("SELECT * FROM UserAccount WHERE user_id = %s", (user_id,))
     if not user:
         return jsonify({"status": "error", "message": "User not found"}), 404
@@ -522,7 +549,6 @@ def admin_modify_user():
         "phoneNumber": "phone_number",
         "userType": "user_type",
         "licensePlate": "license_plate",
-        "licenseNumber": "license_number",
         "totalEarnings": "total_earnings"
     }
     
@@ -531,13 +557,50 @@ def admin_modify_user():
             update_fields.append(f"{db_field} = %s")
             params.append(data[key])
     
-    if not update_fields:
-        return jsonify({"status": "error", "message": "No fields to update"}), 400
+    if "address" in data and data["address"]:
+        address = data["address"]
+        current_address_id = user[0][6]
+        
+        if current_address_id:
+            address_updates = []
+            address_params = []
+            
+            address_field_mapping = {
+                "civic": "civic",
+                "apartment": "apartment",
+                "street": "street",
+                "city": "city",
+                "postalCode": "postal_code"
+            }
+            
+            for key, db_field in address_field_mapping.items():
+                if key in address:
+                    address_updates.append(f"{db_field} = %s")
+                    address_params.append(address[key])
+            
+            if address_updates:
+                address_params.append(current_address_id)
+                query = f"UPDATE AddressLine SET {', '.join(address_updates)} WHERE address_id = %s"
+                execute_query(query, tuple(address_params), fetch=False)
+        else:
+            new_address_id = get_next_id("AddressLine", "address_id")
+            
+            execute_query(
+                """INSERT INTO AddressLine 
+                   (address_id, civic, apartment, street, city, postal_code) 
+                   VALUES (%s, %s, %s, %s, %s, %s)""",
+                (new_address_id, address.get("civic"), address.get("apartment"), 
+                 address.get("street"), address.get("city"), address.get("postalCode")),
+                fetch=False
+            )
+            
+            update_fields.append("address_id = %s")
+            params.append(new_address_id)
     
-    params.append(user_id)
-    
-    query = f"UPDATE UserAccount SET {', '.join(update_fields)} WHERE user_id = %s"
-    execute_query(query, tuple(params), fetch=False)
+    if update_fields:
+        params.append(user_id)
+        query = f"UPDATE UserAccount SET {', '.join(update_fields)} WHERE user_id = %s"
+        execute_query(query, tuple(params), fetch=False)
     
     return jsonify({"status": "success", "message": "User updated successfully"})
 
@@ -560,8 +623,8 @@ def admin_delete_user():
         return jsonify({"status": "error", "message": "User ID is required"}), 400
     
     user_id = data["userId"]
-    
     user = execute_query("SELECT * FROM UserAccount WHERE user_id = %s", (user_id,))
+    
     if not user:
         return jsonify({"status": "error", "message": "User not found"}), 404
     
@@ -571,7 +634,6 @@ def admin_delete_user():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# ADMIN ENDPOINTS - STORE MANAGEMENT
 @app.route('/admin/createStore', methods=['POST'])
 def admin_create_store():
     data = request.get_json()
@@ -587,32 +649,31 @@ def admin_create_store():
     if not admin:
         return jsonify({"status": "error", "message": "Unauthorized access"}), 401
     
-    required_fields = ["name", "houseNumber", "street", "postalCode", "city", "civicNumber"]
+    required_fields = ["name", "civic", "street", "postalCode", "city"]
     for field in required_fields:
         if field not in data:
             return jsonify({"status": "error", "message": f"Missing required field: {field}"}), 400
     
-    address_id = get_next_id("CustomerAddress", "address_id")
+    address_id = get_next_id("AddressLine", "address_id")
     
     execute_query(
-        """INSERT INTO CustomerAddress 
-           (address_id, house_number, street, postal_code, city, user_id, civic_number) 
-           VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-        (address_id, data["houseNumber"], data["street"], data["postalCode"], 
-         data["city"], admin[0][0], data["civicNumber"]),
+        """INSERT INTO AddressLine 
+           (address_id, civic, apartment, street, postal_code, city) 
+           VALUES (%s, %s, %s, %s, %s, %s)""",
+        (address_id, data["civic"], data.get("apartment"), data["street"], 
+         data["postalCode"], data["city"]),
         fetch=False
     )
     
-    store_id = get_next_id("StoreLocation", "store_id")
-    image_nom = data.get("imageNom", "placeholder")
+    shop_id = get_next_id("Shop", "shop_id")
     
     execute_query(
-        "INSERT INTO StoreLocation (store_id, name, address_id, image_nom) VALUES (%s, %s, %s, %s)",
-        (store_id, data["name"], address_id, image_nom),
+        "INSERT INTO Shop (shop_id, name, address_id) VALUES (%s, %s, %s)",
+        (shop_id, data["name"], address_id),
         fetch=False
     )
     
-    return jsonify({"status": "success", "storeId": store_id})
+    return jsonify({"status": "success", "shopId": shop_id})
 
 @app.route('/admin/modifyStore', methods=['POST'])
 def admin_modify_store():
@@ -629,45 +690,43 @@ def admin_modify_store():
     if not admin:
         return jsonify({"status": "error", "message": "Unauthorized access"}), 401
     
-    if "storeId" not in data:
-        return jsonify({"status": "error", "message": "Store ID is required"}), 400
+    if "shopId" not in data:
+        return jsonify({"status": "error", "message": "Shop ID is required"}), 400
     
-    store_id = data["storeId"]
+    shop_id = data["shopId"]
     
-    store = execute_query(
-        "SELECT * FROM StoreLocation WHERE store_id = %s", 
-        (store_id,)
+    shop = execute_query(
+        "SELECT * FROM Shop WHERE shop_id = %s", 
+        (shop_id,)
     )
     
-    if not store:
-        return jsonify({"status": "error", "message": "Store not found"}), 404
+    if not shop:
+        return jsonify({"status": "error", "message": "Shop not found"}), 404
     
-    store_update_fields = []
-    store_params = []
+    shop_update_fields = []
+    shop_params = []
     
     if "name" in data:
-        store_update_fields.append("name = %s")
-        store_params.append(data["name"])
+        shop_update_fields.append("name = %s")
+        shop_params.append(data["name"])
     
-    if "imageNom" in data:
-        store_update_fields.append("image_nom = %s")
-        store_params.append(data["imageNom"])
+    # Removed image_nom as it's not in the schema
     
-    if store_update_fields:
-        store_params.append(store_id)
-        query = f"UPDATE StoreLocation SET {', '.join(store_update_fields)} WHERE store_id = %s"
-        execute_query(query, tuple(store_params), fetch=False)
+    if shop_update_fields:
+        shop_params.append(shop_id)
+        query = f"UPDATE Shop SET {', '.join(shop_update_fields)} WHERE shop_id = %s"
+        execute_query(query, tuple(shop_params), fetch=False)
     
-    address_id = store[0][2]
+    address_id = shop[0][2]
     address_update_fields = []
     address_params = []
     
     address_field_mapping = {
-        "houseNumber": "house_number",
+        "civic": "civic",
+        "apartment": "apartment",
         "street": "street",
         "postalCode": "postal_code",
-        "city": "city",
-        "civicNumber": "civic_number"
+        "city": "city"
     }
     
     for key, db_field in address_field_mapping.items():
@@ -677,10 +736,10 @@ def admin_modify_store():
     
     if address_update_fields:
         address_params.append(address_id)
-        query = f"UPDATE CustomerAddress SET {', '.join(address_update_fields)} WHERE address_id = %s"
+        query = f"UPDATE AddressLine SET {', '.join(address_update_fields)} WHERE address_id = %s"
         execute_query(query, tuple(address_params), fetch=False)
     
-    return jsonify({"status": "success", "message": "Store updated successfully"})
+    return jsonify({"status": "success", "message": "Shop updated successfully"})
 
 @app.route('/admin/deleteStore', methods=['POST'])
 def admin_delete_store():
@@ -689,35 +748,33 @@ def admin_delete_store():
     admin_email = data.get("adminEmail")
     admin_password = data.get("adminPassword")
     
+    # Check admin credentials
     admin = execute_query(
         "SELECT * FROM UserAccount WHERE email = %s AND password = %s AND user_type = 'admin'", 
         (admin_email, admin_password)
     )
-    
     if not admin:
         return jsonify({"status": "error", "message": "Unauthorized access"}), 401
     
-    if "storeId" not in data:
-        return jsonify({"status": "error", "message": "Store ID is required"}), 400
+    if "shopId" not in data:
+        return jsonify({"status": "error", "message": "Shop ID is required"}), 400
     
-    store_id = data["storeId"]
+    shop_id = data["shopId"]
     
-    store = execute_query("SELECT * FROM StoreLocation WHERE store_id = %s", (store_id,))
-    if not store:
-        return jsonify({"status": "error", "message": "Store not found"}), 404
+    # Check if the shop exists
+    shop = execute_query("SELECT * FROM Shop WHERE shop_id = %s", (shop_id,))
+    if not shop:
+        return jsonify({"status": "error", "message": "Shop not found"}), 404
     
-    address_id = store[0][2]
-    
+    # Delete shop-related products, then the shop
     try:
-        execute_query("DELETE FROM ProductInventory WHERE store_id = %s", (store_id,), fetch=False)
-        execute_query("DELETE FROM StoreLocation WHERE store_id = %s", (store_id,), fetch=False)
-        execute_query("DELETE FROM CustomerAddress WHERE address_id = %s", (address_id,), fetch=False)
-        
-        return jsonify({"status": "success", "message": "Store deleted successfully"})
+        execute_query("DELETE FROM ShopProduct WHERE shop_id = %s", (shop_id,), fetch=False)
+        execute_query("DELETE FROM Shop WHERE shop_id = %s", (shop_id,), fetch=False)
+        return jsonify({"status": "success", "message": "Shop deleted successfully"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# ADMIN ENDPOINTS - PRODUCT MANAGEMENT
+
 @app.route('/admin/createProduct', methods=['POST'])
 def admin_create_product():
     data = request.get_json()
@@ -725,33 +782,41 @@ def admin_create_product():
     admin_email = data.get("adminEmail")
     admin_password = data.get("adminPassword")
     
+    # Check admin credentials
     admin = execute_query(
         "SELECT * FROM UserAccount WHERE email = %s AND password = %s AND user_type = 'admin'", 
         (admin_email, admin_password)
     )
-    
     if not admin:
         return jsonify({"status": "error", "message": "Unauthorized access"}), 401
     
-    required_fields = ["name", "price", "category", "isAvailable"]
+    required_fields = ["name", "price", "category", "isAvailable", "alcohol"]
     for field in required_fields:
         if field not in data:
             return jsonify({"status": "error", "message": f"Missing required field: {field}"}), 400
     
     product_id = get_next_id("Product", "product_id")
     description = data.get("description", "")
-    image_nom = data.get("imageNom", "placeholder")
     
     execute_query(
-        """INSERT INTO Product 
-           (product_id, name, description, price, category, is_available, image_nom) 
-           VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-        (product_id, data["name"], description, data["price"], 
-         data["category"], data["isAvailable"], image_nom),
+        """
+        INSERT INTO Product (product_id, name, description, price, category, is_available, alcohol)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """,
+        (
+            product_id,
+            data["name"],
+            description,
+            data["price"],
+            data["category"],
+            data["isAvailable"],
+            data["alcohol"]
+        ),
         fetch=False
     )
     
     return jsonify({"status": "success", "productId": product_id})
+
 
 @app.route('/admin/modifyProduct', methods=['POST'])
 def admin_modify_product():
@@ -760,11 +825,11 @@ def admin_modify_product():
     admin_email = data.get("adminEmail")
     admin_password = data.get("adminPassword")
     
+    # Check admin credentials
     admin = execute_query(
-        "SELECT * FROM UserAccount WHERE email = %s AND password = %s AND user_type = 'admin'", 
+        "SELECT * FROM UserAccount WHERE email = %s AND password = %s AND user_type = 'admin'",
         (admin_email, admin_password)
     )
-    
     if not admin:
         return jsonify({"status": "error", "message": "Unauthorized access"}), 401
     
@@ -773,6 +838,7 @@ def admin_modify_product():
     
     product_id = data["productId"]
     
+    # Check if the product exists
     product = execute_query("SELECT * FROM Product WHERE product_id = %s", (product_id,))
     if not product:
         return jsonify({"status": "error", "message": "Product not found"}), 404
@@ -786,7 +852,7 @@ def admin_modify_product():
         "price": "price",
         "category": "category",
         "isAvailable": "is_available",
-        "imageNom": "image_nom"
+        "alcohol": "alcohol"
     }
     
     for key, db_field in field_mapping.items():
@@ -797,12 +863,13 @@ def admin_modify_product():
     if not update_fields:
         return jsonify({"status": "error", "message": "No fields to update"}), 400
     
+    # Finalize query
     params.append(product_id)
-    
     query = f"UPDATE Product SET {', '.join(update_fields)} WHERE product_id = %s"
     execute_query(query, tuple(params), fetch=False)
     
     return jsonify({"status": "success", "message": "Product updated successfully"})
+
 
 @app.route('/admin/deleteProduct', methods=['POST'])
 def admin_delete_product():
@@ -811,11 +878,11 @@ def admin_delete_product():
     admin_email = data.get("adminEmail")
     admin_password = data.get("adminPassword")
     
+    # Check admin credentials
     admin = execute_query(
-        "SELECT * FROM UserAccount WHERE email = %s AND password = %s AND user_type = 'admin'", 
+        "SELECT * FROM UserAccount WHERE email = %s AND password = %s AND user_type = 'admin'",
         (admin_email, admin_password)
     )
-    
     if not admin:
         return jsonify({"status": "error", "message": "Unauthorized access"}), 401
     
@@ -824,21 +891,92 @@ def admin_delete_product():
     
     product_id = data["productId"]
     
+    # Check if product exists
     product = execute_query("SELECT * FROM Product WHERE product_id = %s", (product_id,))
     if not product:
         return jsonify({"status": "error", "message": "Product not found"}), 404
     
+    # Delete product references, then product
     try:
-        # First remove product from all inventories
-        execute_query("DELETE FROM ProductInventory WHERE product_id = %s", (product_id,), fetch=False)
-        # Then delete the product itself
+        execute_query("DELETE FROM ShopProduct WHERE product_id = %s", (product_id,), fetch=False)
         execute_query("DELETE FROM Product WHERE product_id = %s", (product_id,), fetch=False)
-        
         return jsonify({"status": "success", "message": "Product deleted successfully"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-    
 
-#TODO:
-#Fix Create script to allow cascade delete and remove imagePath
-#Add images for each products
+
+@app.route('/admin/getUsers', methods=['POST'])
+def admin_get_users():
+    data = request.get_json()
+    
+    admin_email = data.get("adminEmail")
+    admin_password = data.get("adminPassword")
+    
+    # Verify admin in UserAccount
+    admin = execute_query(
+        "SELECT * FROM UserAccount WHERE email = %s AND password = %s AND user_type = 'admin'",
+        (admin_email, admin_password)
+    )
+    if not admin:
+        return jsonify({"status": "error", "message": "Unauthorized access"}), 401
+    
+    # Get all users with their addresses
+    users = execute_query("""
+        SELECT 
+            u.user_id,
+            u.email,
+            u.password,
+            u.last_name,
+            u.first_name,
+            u.phone_number,
+            u.address_id,
+            u.user_type,
+            u.license_plate,
+            u.total_earnings,
+            a.address_id,
+            a.civic,
+            a.apartment,
+            a.street,
+            a.city,
+            a.postal_code
+        FROM UserAccount u
+        LEFT JOIN AddressLine a ON u.address_id = a.address_id
+    """)
+    
+    formatted_users = []
+    for user in users:
+        user_data = {
+            "userId": user[0],
+            "email": user[1],
+            # password = user[2] but omitting for security
+            "lastName": user[3],
+            "firstName": user[4],
+            "phoneNumber": user[5],
+            "userType": user[7],
+            "licensePlate": user[8] if user[8] else None,
+            "totalEarnings": float(user[9]) if user[9] else 0.0
+        }
+        
+        # If address_id is not null, include address details
+        if user[6]:
+            user_data["address"] = {
+                "addressId": user[10],
+                "civic": user[11],
+                "apartment": user[12] if user[12] else None,
+                "street": user[13],
+                "city": user[14],
+                "postalCode": user[15],
+                "fullAddress": (
+                    f"{user[11]} {user[13]}"
+                    + (f", {user[12]}" if user[12] else "")
+                    + f", {user[14]}, {user[15]}"
+                )
+            }
+        
+        formatted_users.append(user_data)
+    
+    return jsonify({"status": "success", "users": formatted_users})
+
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0")

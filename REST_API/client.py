@@ -170,5 +170,5 @@ if __name__ == '__main__':
 #TODO:
 #Fix Create script to allow cascade delete and remove imagePath
 #Add images for each products
-
+#KEEP THE SAME FRAMEWORK ACROSS ALL REQUESTS
 

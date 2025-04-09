@@ -1,219 +1,153 @@
--- 1) Insert into UserAccount (10 accounts)
-INSERT INTO UserAccount (user_id, email, password, last_name, first_name, phone_number, user_type, license_plate, license_number, total_earnings)
-VALUES
-(1, 'john.doe@example.com',    'password', 'Doe',    'John',   '514-555-0101', 'customer',   NULL, 0, 0.00),
-(2, 'jane.smith@example.com',  'password', 'Smith',  'Jane',   '514-555-0102', 'customer',   NULL, 0, 0.00),
-(3, 'mark.rider@example.com',  'password', 'Rider',  'Mark',   '438-555-0103', 'deliverer',  'ABC-1234', 0, 0.00),
-(4, 'lucy.driver@example.com', 'password', 'Driver', 'Lucy',   '438-555-0104', 'deliverer',  'XYZ-9876', 0, 0.00),
-(5, 'admin.one@example.com',   'password', 'Admin',  'One',    '514-555-0105', 'admin',      NULL, 0, 0.00),
-(6, 'alice.jones@example.com', 'password', 'Jones',  'Alice',  '514-555-0106', 'customer',   NULL, 0, 0.00),
-(7, 'bob.martin@example.com',  'password', 'Martin', 'Bob',    '514-555-0107', 'customer',   NULL, 0, 0.00),
-(8, 'admin.two@example.com',   'password', 'Manager','Julie',  '514-555-0108', 'admin',      NULL, 0, 0.00),
-(9, 'sam.green@example.com',   'password', 'Green',  'Sam',    '514-555-0109', 'customer',   NULL, 0, 0.00),
-(10, 'lisa.brown@example.com',  'password', 'Brown',  'Lisa',   '514-555-0110', 'customer',   NULL, 0, 0.00);
+-- Insert real Montreal addresses for the customers
+INSERT INTO AddressLine (civic, apartment, street, city, postal_code)
+VALUES 
+  (123, '1A', 'Rue Sainte-Catherine Ouest', 'Montreal', 'H3B 1A7'),
+  (456, '2B', 'Avenue du Parc', 'Montreal', 'H2V 4E6');
 
--- 2) Insert into CustomerAddress for user accounts (10 rows)
-INSERT INTO CustomerAddress (address_id, house_number, street, postal_code, city, user_id, civic_number)
+-- Insert 6 admins (last_name = 'admin', address_id = NULL, total_earnings = NULL)
+INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, total_earnings)
 VALUES
-(1, 123, 'Maple Street',    'H2A 1B1', 'Montreal', 1, '123'),
-(2, 456, 'Oak Avenue',      'H2B 2C2', 'Montreal', 2, '456'),
-(3, 789, 'Pine Road',       'H2C 3D3', 'Laval',    3, '789'),
-(4, 321, 'Birch Lane',      'H2E 5G8', 'Longueuil',4, '321'),
-(5, 100, 'Admin Blvd',      'H2G 9Y1', 'Montreal', 5, '100'),
-(6, 55,  'Rider Place',     'H2H 1J1', 'Montreal', 6, '55'),
-(7, 22,  'Driver Path',     'H2Q 7P2', 'Montreal', 7, '22'),
-(8, 999, 'Manager Way',     'H2X 8Z2', 'Montreal', 8, '999'),
-(9, 77,  'Sunset Boulevard','H3Z 2K1', 'Montreal', 9, '77'),
-(10, 88, 'Lakeside Drive',  'H4B 3C5', 'Quebec',   10, '88');
+  ('tristan@boozy.com', 'adminpass', 'admin', 'Tristan', '1111111111', NULL, 'admin', NULL, NULL),
+  ('kahina@boozy.com', 'adminpass', 'admin', 'Kahina', '3333333333', NULL, 'admin', NULL, NULL),
+  ('shawn@boozy.com', 'adminpass', 'admin', 'Shawn', '2222222222', NULL, 'admin', NULL, NULL),
+  ('emile@boozy.com', 'adminpass', 'admin', 'Emile', '4444444444', NULL, 'admin', NULL, NULL),
+  ('edwar@boozy.com', 'adminpass', 'admin', 'Edwar', '5555555555', NULL, 'admin', NULL, NULL),
+  ('macky@boozy.com', 'adminpass', 'admin', 'Macky', '6666666666', NULL, 'admin', NULL, NULL);
 
--- 3) Insert additional CustomerAddress rows for store locations (10 rows)
--- Here, for simplicity, all these addresses are assigned to user_id = 5 (the admin)
-INSERT INTO CustomerAddress (address_id, house_number, street, postal_code, city, user_id, civic_number)
+-- Insert 2 customers with addresses (using the newly inserted address_id 1 and 2)
+INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, total_earnings)
 VALUES
-(11, 10, 'Central Street',  'H1A 2B3', 'Montreal', 5, '10'),
-(12, 20, 'North Avenue',    'H1B 3C4', 'Montreal', 5, '20'),
-(13, 30, 'South Road',      'H1C 4D5', 'Montreal', 5, '30'),
-(14, 40, 'East Boulevard',  'H1D 5E6', 'Montreal', 5, '40'),
-(15, 50, 'West Lane',       'H1E 6F7', 'Montreal', 5, '50'),
-(16, 60, 'Uptown Street',   'H1F 7G8', 'Montreal', 5, '60'),
-(17, 70, 'Downtown Ave',    'H1G 8H9', 'Montreal', 5, '70'),
-(18, 80, 'Market Road',     'H1H 9I0', 'Montreal', 5, '80'),
-(19, 90, 'Garden Path',     'H1I 0J1', 'Montreal', 5, '90'),
-(20, 100, 'Harbor Way',     'H1J 1K2', 'Montreal', 5, '100');
+  ('customer1@boozy.com', 'custpass', 'Smith', 'Alice', '7777777777', 1, 'customer', NULL, NULL),
+  ('customer2@boozy.com', 'custpass', 'Johnson', 'Bob', '8888888888', 2, 'customer', NULL, NULL);
 
--- 4) Insert into StoreLocation (10 stores)
-INSERT INTO StoreLocation (store_id, name, address_id)
+-- Insert 2 deliverers with actual total_earnings and sample license plates (address_id = NULL)
+INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, total_earnings)
 VALUES
-(1, 'Downtown Store',     11),
-(2, 'Uptown Market',      12),
-(3, 'Central Store',      13),
-(4, 'Northside Grocery',  14),
-(5, 'Southside Shop',     15),
-(6, 'East End Mart',      16),
-(7, 'West End Outlet',    17),
-(8, 'Garden Store',       18),
-(9, 'Harbor Market',      19),
-(10, 'City Center Shop',  20);
+  ('deliverer1@boozy.com', 'delivpass', 'Brown', 'Charlie', '9999999999', NULL, 'deliverer', 'AB-123-CD', 150.00),
+  ('deliverer2@boozy.com', 'delivpass', 'Prince', 'Diana', '1010101010', NULL, 'deliverer', 'EF-456-GH', 200.00);
 
--- 5) Insert into Product (55 products)
-INSERT INTO Product (product_id, name, description, price, category, is_available)
+-- Insert addresses for 6 SAQ stores in Montreal
+INSERT INTO AddressLine (civic, apartment, street, city, postal_code)
 VALUES
-(1,  'Heineken Beer',           'Popular imported beer',                2.99,  'Beverage', TRUE),
-(2,  'Smirnoff Vodka',          'Vodka with 40% alcohol',               25.99, 'Spirits',  TRUE),
-(3,  'Corona Extra',            'Mexican beer',                         3.49,  'Beverage', TRUE),
-(4,  'Jack Daniels',            'Tennessee whiskey',                    29.99, 'Spirits',  TRUE),
-(5,  'Red Wine Merlot',         'Smooth red wine',                      15.49, 'Wine',     TRUE),
-(6,  'White Wine Riesling',     'Crisp white wine',                     13.99, 'Wine',     TRUE),
-(7,  'Captain Morgan Rum',      'Spiced rum',                           24.99, 'Spirits',  TRUE),
-(8,  'Baileys Irish Cream',     'Cream liqueur',                        21.99, 'Liqueur',  TRUE),
-(9,  'Gin Tonic Mix',           'Premixed gin & tonic can',             2.79,  'Beverage', TRUE),
-(10, 'Bacardi Superior',        'White rum 40% alcohol',                26.99, 'Spirits',  TRUE),
-(11, 'Budweiser',               'American lager beer',                  2.49,  'Beverage', TRUE),
-(12, 'Stella Artois',           'Belgian pilsner',                      3.29,  'Beverage', TRUE),
-(13, 'Coors Light',             'Light American beer',                  2.19,  'Beverage', TRUE),
-(14, 'Miller Lite',             'American light beer',                  2.19,  'Beverage', TRUE),
-(15, 'Chivas Regal',            'Blended Scotch whisky',                35.99, 'Spirits',  TRUE),
-(16, 'Jameson Irish Whiskey',   'Smooth Irish whiskey',                 28.99, 'Spirits',  TRUE),
-(17, 'Glenfiddich 12',          'Single malt Scotch whisky',            40.99, 'Spirits',  TRUE),
-(18, 'Moet & Chandon',          'Champagne',                            49.99, 'Wine',     TRUE),
-(19, 'Veuve Clicquot',          'Premium Champagne',                    59.99, 'Wine',     TRUE),
-(20, 'Dom Perignon',            'Luxury Champagne',                     199.99,'Wine',     TRUE),
-(21, 'Sierra Nevada Pale Ale',  'Craft beer',                           3.99,  'Beverage', TRUE),
-(22, 'Lagunitas IPA',           'American IPA beer',                    4.29,  'Beverage', TRUE),
-(23, 'Blue Moon',               'Belgian-style wheat beer',             3.59,  'Beverage', TRUE),
-(24, 'Dos Equis Lager',         'Mexican lager',                        2.99,  'Beverage', TRUE),
-(25, 'Dos Equis Amber',         'Mexican amber ale',                    3.49,  'Beverage', TRUE),
-(26, 'Guinness Draught',        'Irish stout',                          4.49,  'Beverage', TRUE),
-(27, 'Pilsner Urquell',         'Czech pilsner',                        3.19,  'Beverage', TRUE),
-(28, 'Rothschild Cabernet',     'Full-bodied red wine',                 22.99, 'Wine',     TRUE),
-(29, 'Sauvignon Blanc',         'Crisp white wine',                     18.99, 'Wine',     TRUE),
-(30, 'Merlot Reserve',          'Aged merlot wine',                     24.99, 'Wine',     TRUE),
-(31, 'Chardonnay Classic',      'Classic white wine',                   19.99, 'Wine',     TRUE),
-(32, 'Zinfandel',               'Robust red wine',                      21.49, 'Wine',     TRUE),
-(33, 'Pinot Noir',              'Elegant red wine',                     27.99, 'Wine',     TRUE),
-(34, 'Riesling Sweet',          'Sweet white wine',                     16.99, 'Wine',     TRUE),
-(35, 'Cognac VS',               'Entry-level cognac',                   34.99, 'Spirits',  TRUE),
-(36, 'Cognac VSOP',             'Premium cognac',                       44.99, 'Spirits',  TRUE),
-(37, 'Absinthe',                'Strong herbal spirit',                 39.99, 'Spirits',  TRUE),
-(38, 'Sambuca',                 'Italian anise-flavored liqueur',       29.99, 'Liqueur',  TRUE),
-(39, 'Triple Sec',              'Orange-flavored liqueur',              19.99, 'Liqueur',  TRUE),
-(40, 'Cointreau',               'Premium orange liqueur',               34.99, 'Liqueur',  TRUE),
-(41, 'Pisco',                   'South American brandy',                24.49, 'Spirits',  TRUE),
-(42, 'Mezcal',                  'Smoky agave spirit',                   31.99, 'Spirits',  TRUE),
-(43, 'Tequila Blanco',          'Unaged tequila',                       27.99, 'Spirits',  TRUE),
-(44, 'Tequila Reposado',        'Aged tequila',                         32.99, 'Spirits',  TRUE),
-(45, 'Añejo Rum',               'Aged Caribbean rum',                   28.99, 'Spirits',  TRUE),
-(46, 'Sour Apple Schnapps',     'Fruity schnapps',                      14.99, 'Liqueur',  TRUE),
-(47, 'Butterscotch Liqueur',    'Sweet butterscotch flavor',            15.99, 'Liqueur',  TRUE),
-(48, 'Coffee Liqueur',          'Rich coffee flavor',                   17.99, 'Liqueur',  TRUE),
-(49, 'Hazelnut Liqueur',        'Nutty liqueur',                        16.99, 'Liqueur',  TRUE),
-(50, 'Mint Liqueur',            'Refreshing mint flavor',               13.99, 'Liqueur',  TRUE),
-(51, 'Lemon Vodka',             'Citrus-infused vodka',                 26.49, 'Spirits',  TRUE),
-(52, 'Peach Schnapps',          'Sweet peach flavor',                   15.49, 'Liqueur',  TRUE),
-(53, 'Cranberry Juice',         'Fresh cranberry juice',                2.99,  'Beverage', TRUE),
-(54, 'Orange Juice',            'Fresh squeezed orange juice',          3.49,  'Beverage', TRUE),
-(55, 'Pineapple Juice',         'Tropical juice',                       3.99,  'Beverage', TRUE);
+  (100, NULL, 'Rue Sainte-Catherine Ouest', 'Montreal', 'H3B 1A9'),
+  (200, NULL, 'Rue Côte-des-Neiges', 'Montreal', 'H3S 2J4'),
+  (300, NULL, 'Boulevard Saint-Laurent', 'Montreal', 'H2W 1Z8'),
+  (400, NULL, 'Avenue Papineau', 'Montreal', 'H1X 2V3'),
+  (500, NULL, 'Rue Sherbrooke Est', 'Montreal', 'H2L 1N2'),
+  (600, NULL, 'Avenue de l''Acadie', 'Montreal', 'H1S 1T1');
 
--- 6) Insert into PromotionalOffer (4 offers)
-INSERT INTO PromotionalOffer (promo_code, description, discount, expiration, product_id)
+-- Insert 6 SAQ stores linked to the addresses above (assuming auto-increment produces address_id 1 to 6)
+INSERT INTO Shop (name, address_id)
 VALUES
-('SUMMER2025', 'Summer discount on Corona Extra', 0.50, '2025-12-31', 3),
-('WINE10',     '10% off on Red Wine Merlot',       1.50, '2025-10-01', 5),
-('SPIRIT5',    '5% off on Jack Daniels',           1.30, '2026-01-15', 4),
-('BEER20',     '20% off on Budweiser',             0.50, '2025-08-31', 11);
+  ('SAQ Centre-Ville', 3),
+  ('SAQ Côte-des-Neiges', 4),
+  ('SAQ Plateau', 5),
+  ('SAQ Hochelaga', 6),
+  ('SAQ Outremont', 7),
+  ('SAQ Saint-Hubert', 8);
 
--- 7) Insert into ProductInventory (Stock for each store)
--- Store 1 stocks 5 products:
-INSERT INTO ProductInventory (store_id, product_id, quantity)
-VALUES
-(1, 1, 50),
-(1, 2, 40),
-(1, 3, 60),
-(1, 4, 30),
-(1, 5, 20);
+INSERT INTO Product (name, description, price, category, alcohol) VALUES
+  ('Heineken Lager Beer', 'Popular Dutch pale lager', 3.50, 'Beer', 5.00),
+  ('Corona Extra Beer', 'Mexican pale lager with a light, refreshing taste', 4.00, 'Beer', 4.60),
+  ('Budweiser', 'American lager with a classic taste', 3.20, 'Beer', 5.00),
+  ('Guinness Draught', 'Irish dry stout with a creamy head', 5.00, 'Beer', 4.20),
+  ('Stella Artois', 'Belgian pale lager known for its crisp taste', 4.50, 'Beer', 5.00),
+  ('Samuel Adams Boston Lager', 'American amber lager with a rich flavor', 4.50, 'Beer', 5.00),
+  ('Sapporo Premium Beer', 'Japanese lager with a smooth finish', 4.00, 'Beer', 5.00),
+  ('Leffe Blonde', 'Belgian abbey beer with a fruity aroma', 4.50, 'Beer', 6.60),
+  ('Chimay Blue', 'Belgian strong dark ale with complex flavors', 6.00, 'Beer', 9.00),
+  ('Hoegaarden White', 'Belgian witbier with a refreshing citrus taste', 4.50, 'Beer', 4.90),
+  ('Yellow Tail Shiraz', 'Australian red wine, fruity and vibrant', 10.00, 'Wine', 13.50),
+  ('Barefoot Pinot Grigio', 'Light and crisp white wine with subtle flavors', 9.00, 'Wine', 12.00),
+  ('Jacobs Creek Classic Cabernet Sauvignon', 'Full-bodied red wine from Australia with rich tannins', 15.00, 'Wine', 14.00),
+  ('Kim Crawford Sauvignon Blanc', 'New Zealand white wine with tropical fruit notes', 16.00, 'Wine', 13.00),
+  ('Cloudy Bay Pinot Noir', 'Elegant red wine with soft, velvety tannins', 30.00, 'Wine', 13.50),
+  ('La Crema Chardonnay', 'California Chardonnay with a balanced oak finish', 25.00, 'Wine', 14.50),
+  ('Jack Daniels Old No. 7', 'Iconic Tennessee whiskey with smooth flavors', 30.00, 'Whiskey', 40.00),
+  ('Jameson Irish Whiskey', 'Smooth Irish whiskey with a gentle finish', 28.00, 'Whiskey', 40.00),
+  ('Johnnie Walker Black Label', 'Premium blended Scotch whisky with a rich aroma', 45.00, 'Whiskey', 40.00),
+  ('Glenfiddich 12 Year Old', 'Single malt Scotch whisky with floral and fruity notes', 50.00, 'Whiskey', 40.00),
+  ('Absolut Vodka', 'Classic Swedish vodka known for its purity', 25.00, 'Vodka', 40.00),
+  ('Smirnoff No. 21 Vodka', 'Widely popular Russian vodka with a crisp taste', 20.00, 'Vodka', 40.00),
+  ('Grey Goose Vodka', 'Premium French vodka with a smooth finish', 45.00, 'Vodka', 41.00),
+  ('Bombay Sapphire Gin', 'London dry gin infused with aromatic botanicals', 35.00, 'Gin', 40.00),
+  ('Tanqueray London Dry Gin', 'Classic gin with a crisp, juniper flavor', 32.00, 'Gin', 43.00),
+  ('Hendricks Gin', 'Unique gin infused with cucumber and rose petals', 38.00, 'Gin', 41.00),
+  ('Bacardi Superior Rum', 'Light and refreshing white rum', 22.00, 'Rum', 40.00),
+  ('Captain Morgan Spiced Rum', 'Rich, spicy rum with a smooth finish', 25.00, 'Rum', 35.00),
+  ('Mount Gay Eclipse Rum', 'Classic Barbados rum with hints of spice', 28.00, 'Rum', 40.00),
+  ('Jose Cuervo Especial', 'Iconic tequila with a smooth, balanced taste', 20.00, 'Tequila', 38.00);
 
--- Store 2 stocks 5 different products:
-INSERT INTO ProductInventory (store_id, product_id, quantity)
-VALUES
-(2, 6, 35),
-(2, 7, 25),
-(2, 8, 15),
-(2, 9, 45),
-(2, 10, 55);
 
--- Store 3 stocks 5 products:
-INSERT INTO ProductInventory (store_id, product_id, quantity)
-VALUES
-(3, 11, 100),
-(3, 12, 90),
-(3, 13, 80),
-(3, 14, 70),
-(3, 15, 60);
+INSERT INTO ShopProduct (shop_id, product_id, quantity) VALUES
+-- Store 1: Products 1, 3, 5, 7, 9, 11, 13, 15, 17, 19
+(1, 1, 12),
+(1, 3, 20),
+(1, 5, 15),
+(1, 7, 25),
+(1, 9, 30),
+(1, 11, 18),
+(1, 13, 22),
+(1, 15, 17),
+(1, 17, 27),
+(1, 19, 14),
 
--- Store 4 stocks 5 products:
-INSERT INTO ProductInventory (store_id, product_id, quantity)
-VALUES
-(4, 16, 50),
-(4, 17, 45),
-(4, 18, 40),
-(4, 19, 35),
-(4, 20, 30);
+-- Store 2: Products 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+(2, 2, 13),
+(2, 4, 21),
+(2, 6, 16),
+(2, 8, 24),
+(2, 10, 31),
+(2, 12, 19),
+(2, 14, 28),
+(2, 16, 15),
+(2, 18, 33),
+(2, 20, 22),
 
--- Store 5 stocks 5 products:
-INSERT INTO ProductInventory (store_id, product_id, quantity)
-VALUES
-(5, 21, 20),
-(5, 22, 25),
-(5, 23, 30),
-(5, 24, 35),
-(5, 25, 40);
+-- Store 3: Products 21, 22, 23, 24, 25, 26, 27, 28, 29, 30
+(3, 21, 11),
+(3, 22, 23),
+(3, 23, 17),
+(3, 24, 29),
+(3, 25, 14),
+(3, 26, 20),
+(3, 27, 32),
+(3, 28, 18),
+(3, 29, 26),
+(3, 30, 21),
 
--- Store 6 stocks 5 products:
-INSERT INTO ProductInventory (store_id, product_id, quantity)
-VALUES
-(6, 26, 50),
-(6, 27, 55),
-(6, 28, 60),
-(6, 29, 65),
-(6, 30, 70);
+-- Store 4: Products 1, 4, 7, 10, 13, 16, 19, 22, 25, 28
+(4, 1, 19),
+(4, 4, 27),
+(4, 7, 16),
+(4, 10, 20),
+(4, 13, 24),
+(4, 16, 17),
+(4, 19, 30),
+(4, 22, 15),
+(4, 25, 21),
+(4, 28, 18),
 
--- Store 7 stocks 5 products:
-INSERT INTO ProductInventory (store_id, product_id, quantity)
-VALUES
-(7, 31, 15),
-(7, 32, 20),
-(7, 33, 25),
-(7, 34, 30),
-(7, 35, 35);
+-- Store 5: Products 2, 5, 8, 11, 14, 17, 20, 23, 26, 29
+(5, 2, 14),
+(5, 5, 22),
+(5, 8, 18),
+(5, 11, 26),
+(5, 14, 17),
+(5, 17, 19),
+(5, 20, 27),
+(5, 23, 21),
+(5, 26, 23),
+(5, 29, 15),
 
--- Store 8 stocks 5 products:
-INSERT INTO ProductInventory (store_id, product_id, quantity)
-VALUES
-(8, 36, 40),
-(8, 37, 45),
-(8, 38, 50),
-(8, 39, 55),
-(8, 40, 60);
-
--- Store 9 stocks 5 products:
-INSERT INTO ProductInventory (store_id, product_id, quantity)
-VALUES
-(9, 41, 65),
-(9, 42, 70),
-(9, 43, 75),
-(9, 44, 80),
-(9, 45, 85);
-
--- Store 10 stocks 10 products:
-INSERT INTO ProductInventory (store_id, product_id, quantity)
-VALUES
-(10, 46, 20),
-(10, 47, 25),
-(10, 48, 30),
-(10, 49, 35),
-(10, 50, 40),
-(10, 51, 45),
-(10, 52, 50),
-(10, 53, 55),
-(10, 54, 60),
-(10, 55, 65);
+-- Store 6: Products 3, 6, 9, 12, 15, 18, 21, 24, 27, 30
+(6, 3, 16),
+(6, 6, 20),
+(6, 9, 25),
+(6, 12, 17),
+(6, 15, 23),
+(6, 18, 28),
+(6, 21, 19),
+(6, 24, 22),
+(6, 27, 15),
+(6, 30, 18);
