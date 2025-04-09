@@ -19,10 +19,6 @@ def execute_query(query, params=None, fetch=True):
     cursor.close()
     return results
 
-def get_next_id(table, id_column):
-    max_id = execute_query(f"SELECT MAX({id_column}) FROM {table}")
-    return (max_id[0][0] + 1) if max_id and max_id[0][0] else 1
-
 def get_address_string(address_id):
     addr = execute_query("SELECT civic, apartment, street, city, postal_code FROM AddressLine WHERE address_id = %s", (address_id,))
     if addr:
@@ -163,18 +159,15 @@ def create_user():
     address_id = None
     if "address" in data and isinstance(data["address"], dict):
         addr = data["address"]
-        new_addr_id = get_next_id("AddressLine", "address_id")
-        execute_query("INSERT INTO AddressLine (address_id, civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s, %s)",
-                      (new_addr_id, addr.get("civic"), addr.get("apartment"), addr.get("street"), addr.get("city"), addr.get("postal_code")), fetch=False)
+        new_addr_id = execute_query("INSERT INTO AddressLine (civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s)",
+                                    (addr.get("civic"), addr.get("apartment"), addr.get("street"), addr.get("city"), addr.get("postal_code")), fetch=False)
         address_id = new_addr_id
     elif all(key in data for key in ["civic", "street", "city"]):
-        new_addr_id = get_next_id("AddressLine", "address_id")
-        execute_query("INSERT INTO AddressLine (address_id, civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s, %s)",
-                      (new_addr_id, data.get("civic"), data.get("apartment"), data.get("street"), data.get("city"), data.get("postal_code", "")), fetch=False)
+        new_addr_id = execute_query("INSERT INTO AddressLine (civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s)",
+                                    (data.get("civic"), data.get("apartment"), data.get("street"), data.get("city"), data.get("postal_code", "")), fetch=False)
         address_id = new_addr_id
-    new_user_id = get_next_id("UserAccount", "user_id")
-    execute_query("INSERT INTO UserAccount (user_id, email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, car_brand, total_earnings) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                  (new_user_id, email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, car_brand, 0.0), fetch=False)
+    new_user_id = execute_query("INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, car_brand, total_earnings) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, car_brand, 0.0), fetch=False)
     return jsonify({"status": "success", "user_id": new_user_id})
 
 @app.route('/connectUser', methods=['POST'])
@@ -222,9 +215,8 @@ def create_order():
         if not addr:
             return jsonify({"status": "error", "message": "Address not found"}), 404
     elif all(key in data for key in ["civic", "street", "city", "postal_code"]):
-        new_addr_id = get_next_id("AddressLine", "address_id")
-        execute_query("INSERT INTO AddressLine (address_id, civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s, %s)",
-                      (new_addr_id, data.get("civic"), data.get("apartment"), data.get("street"), data.get("city"), data["postal_code"]), fetch=False)
+        new_addr_id = execute_query("INSERT INTO AddressLine (civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s)",
+                                    (data.get("civic"), data.get("apartment"), data.get("street"), data.get("city"), data["postal_code"]), fetch=False)
         address_id = new_addr_id
     elif user[0][6]:
         address_id = user[0][6]
@@ -251,18 +243,16 @@ def create_order():
         if not inv or inv[0][0] < qty:
             return jsonify({"status": "error", "message": f"Product {prod_id} not available in requested quantity"}), 400
         total_amount += float(prod[0][0]) * qty
-    order_id = get_next_id("ClientOrder", "client_order_id")
     creation_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    execute_query("INSERT INTO ClientOrder (client_order_id, creation_date, status, total_amount, address_id, shop_id, client_id, carrier_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                  (order_id, creation_date, "Searching", total_amount, address_id, shop_id, user_id, carrier_id), fetch=False)
+    order_id = execute_query("INSERT INTO ClientOrder (creation_date, status, total_amount, address_id, shop_id, client_id, carrier_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                             (creation_date, "Searching", total_amount, address_id, shop_id, user_id, carrier_id), fetch=False)
     for item in items:
         prod_id = item["product_id"]
         qty = item["quantity"]
         execute_query("INSERT INTO ClientOrderProduct (client_order_id, product_id, quantity) VALUES (%s, %s, %s)", (order_id, prod_id, qty), fetch=False)
         execute_query("UPDATE ShopProduct SET quantity = quantity - %s WHERE shop_id = %s AND product_id = %s", (qty, shop_id, prod_id), fetch=False)
-    new_payment_id = get_next_id("Payment", "payment_id")
-    execute_query("INSERT INTO Payment (payment_id, payment_method, amount, payment_date, is_completed, client_order_id, user_id, card_name, card_number, CVC_card, expiry_date_month, expiry_date_year) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                  (new_payment_id, payment_method, total_amount, creation_date, True, order_id, user_id, data["card_name"], data["card_number"], data["CVC_card"], data["expiry_date_month"], data["expiry_date_year"]), fetch=False)
+    new_payment_id = execute_query("INSERT INTO Payment (payment_method, amount, payment_date, is_completed, client_order_id, user_id, card_name, card_number, CVC_card, expiry_date_month, expiry_date_year) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                   (payment_method, total_amount, creation_date, True, order_id, user_id, data["card_name"], data["card_number"], data["CVC_card"], data["expiry_date_month"], data["expiry_date_year"]), fetch=False)
     return jsonify({"status": "success", "order_id": order_id})
 
 @app.route('/cancelOrder', methods=['POST'])
@@ -321,13 +311,10 @@ def admin_create_user():
     addr_id = None
     if "address" in data:
         addr = data["address"]
-        new_addr_id = get_next_id("AddressLine", "address_id")
-        execute_query("INSERT INTO AddressLine (address_id, civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s, %s)",
-                      (new_addr_id, addr.get("civic"), addr.get("apartment"), addr.get("street"), addr.get("city"), addr.get("postal_code")), fetch=False)
-        addr_id = new_addr_id
-    new_user_id = get_next_id("UserAccount", "user_id")
-    execute_query("INSERT INTO UserAccount (user_id, email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, car_brand, total_earnings) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                  (new_user_id, email, password, last_name, first_name, phone_number, addr_id, user_type, license_plate, car_brand, 0.0), fetch=False)
+        addr_id = execute_query("INSERT INTO AddressLine (civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s)",
+                                (addr.get("civic"), addr.get("apartment"), addr.get("street"), addr.get("city"), addr.get("postal_code")), fetch=False)
+    new_user_id = execute_query("INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, car_brand, total_earnings) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                (email, password, last_name, first_name, phone_number, addr_id, user_type, license_plate, car_brand, 0.0), fetch=False)
     return jsonify({"status": "success", "user_id": new_user_id})
 
 @app.route('/admin/modifyUser', methods=['POST'])
@@ -367,9 +354,8 @@ def admin_modify_user():
                 addr_params.append(current_addr)
                 execute_query(f"UPDATE AddressLine SET {', '.join(addr_updates)} WHERE address_id = %s", tuple(addr_params), fetch=False)
         else:
-            new_addr_id = get_next_id("AddressLine", "address_id")
-            execute_query("INSERT INTO AddressLine (address_id, civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s, %s)",
-                          (new_addr_id, addr.get("civic"), addr.get("apartment"), addr.get("street"), addr.get("city"), addr.get("postal_code", "")), fetch=False)
+            new_addr_id = execute_query("INSERT INTO AddressLine (civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s)",
+                                        (addr.get("civic"), addr.get("apartment"), addr.get("street"), addr.get("city"), addr.get("postal_code", "")), fetch=False)
             updates.append("address_id = %s")
             params.append(new_addr_id)
     if updates:
@@ -412,12 +398,10 @@ def admin_create_shop():
     for r in req:
         if r not in data:
             return jsonify({"status": "error", "message": f"Missing required field: {r}"}), 400
-    new_addr_id = get_next_id("AddressLine", "address_id")
-    execute_query("INSERT INTO AddressLine (address_id, civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s, %s)",
-                  (new_addr_id, data["civic"], data.get("apartment"), data["street"], data["city"], data.get("postal_code", "")), fetch=False)
-    new_shop_id = get_next_id("Shop", "shop_id")
-    execute_query("INSERT INTO Shop (shop_id, name, address_id) VALUES (%s, %s, %s)",
-                  (new_shop_id, data["name"], new_addr_id), fetch=False)
+    new_addr_id = execute_query("INSERT INTO AddressLine (civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s)",
+                                (data["civic"], data.get("apartment"), data["street"], data["city"], data.get("postal_code", "")), fetch=False)
+    new_shop_id = execute_query("INSERT INTO Shop (name, address_id) VALUES (%s, %s)",
+                                (data["name"], new_addr_id), fetch=False)
     return jsonify({"status": "success", "shop_id": new_shop_id})
 
 @app.route('/admin/modifyShop', methods=['POST'])
@@ -489,10 +473,9 @@ def admin_create_product():
     for r in req:
         if r not in data:
             return jsonify({"status": "error", "message": f"Missing required field: {r}"}), 400
-    new_prod_id = get_next_id("Product", "product_id")
     description = data.get("description", "")
-    execute_query("INSERT INTO Product (product_id, name, description, price, category, alcohol) VALUES (%s, %s, %s, %s, %s, %s)",
-                  (new_prod_id, data["name"], description, data["price"], data["category"], data["alcohol"]), fetch=False)
+    new_prod_id = execute_query("INSERT INTO Product (name, description, price, category, alcohol) VALUES (%s, %s, %s, %s, %s)",
+                                (data["name"], description, data["price"], data["category"], data["alcohol"]), fetch=False)
     return jsonify({"status": "success", "product_id": new_prod_id})
 
 @app.route('/admin/modifyProduct', methods=['POST'])

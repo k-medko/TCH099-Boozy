@@ -30,8 +30,8 @@ def test_user_routes():
     user_data = {
         "email": email,
         "password": "password123",
-        "lastName": random_name("Doe"),
-        "firstName": random_name("John"),
+        "last_name": random_name("Doe"),
+        "first_name": random_name("John"),
         "phone_number": "1234567890",
         "user_type": "client",
         "civic": "123",
@@ -39,17 +39,23 @@ def test_user_routes():
         "city": "Testville",
         "postal_code": "A1B2C3"
     }
+    # Create a new user; the id is auto generated
     r = requests.post(BASE_URL + "/createUser", json=user_data)
     print_status("POST /createUser valid", r, [200, 201])
-
-    user_data.pop("password")
-    r = requests.post(BASE_URL + "/createUser", json=user_data)
+    if r.status_code in [200, 201]:
+        returned_user = r.json()
+        created_user_id = returned_user.get("user_id")
+        print(f"Created user id: {created_user_id}")
+    # Attempt to create a user missing the password field
+    user_data_missing = user_data.copy()
+    user_data_missing.pop("password")
+    r = requests.post(BASE_URL + "/createUser", json=user_data_missing)
     print_status("POST /createUser missing password", r, [400])
-
+    # Connect with correct credentials
     login_data = {"email": email, "password": "password123"}
     r = requests.post(BASE_URL + "/connectUser", json=login_data)
     print_status("POST /connectUser valid", r, [200])
-
+    # Connect with wrong password
     login_data["password"] = "wrongpass"
     r = requests.post(BASE_URL + "/connectUser", json=login_data)
     print_status("POST /connectUser invalid password", r, [401])
@@ -58,11 +64,12 @@ def test_user_routes():
 def test_admin_routes():
     admin_auth = {"admin_email": "tristan@boozy.com", "admin_password": "adminpass"}
 
+    # Create a new user through the admin endpoint. The new id is auto-generated.
     admin_user_data = {**admin_auth,
         "email": random_email(),
         "password": "admin123",
-        "lastName": random_name("Admin"),
-        "firstName": random_name("Tester"),
+        "last_name": random_name("Admin"),
+        "first_name": random_name("Tester"),
         "phone_number": "0000000000",
         "user_type": "client",
         "address": {
@@ -74,7 +81,11 @@ def test_admin_routes():
     }
     r = requests.post(BASE_URL + "/admin/createUser", json=admin_user_data)
     print_status("POST /admin/createUser valid", r, [200, 201])
-
+    if r.status_code in [200, 201]:
+        ret = r.json()
+        print(f"New admin-created user id: {ret.get('user_id')}")
+    
+    # Create a shop through the admin endpoint
     shop_data = {**admin_auth,
         "name": random_name("Shop"),
         "civic": "10",
@@ -84,7 +95,11 @@ def test_admin_routes():
     }
     r = requests.post(BASE_URL + "/admin/createShop", json=shop_data)
     print_status("POST /admin/createShop valid", r, [200, 201])
-
+    if r.status_code in [200, 201]:
+        ret = r.json()
+        print(f"New shop id: {ret.get('shop_id')}")
+    
+    # Create a product through the admin endpoint
     product_data = {**admin_auth,
         "name": random_name("Product"),
         "price": 10.99,
@@ -94,7 +109,11 @@ def test_admin_routes():
     }
     r = requests.post(BASE_URL + "/admin/createProduct", json=product_data)
     print_status("POST /admin/createProduct valid", r, [200, 201])
-
+    if r.status_code in [200, 201]:
+        ret = r.json()
+        print(f"New product id: {ret.get('product_id')}")
+    
+    # Attempt admin modifyAvailability missing required fields
     availability_data = {**admin_auth}
     r = requests.post(BASE_URL + "/admin/modifyAvailability", json=availability_data)
     print_status("POST /admin/modifyAvailability missing fields", r, [400])
@@ -103,7 +122,6 @@ def test_admin_routes():
 def test_admin_web_routes():
     r = requests.get(BASE_URL + "/admin/web", allow_redirects=False)
     print_status("GET /admin/web redirect", r, [301, 302])
-
     r = requests.get(BASE_URL + "/admin/web/")
     print_status("GET /admin/web/", r, [200])
 
