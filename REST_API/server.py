@@ -538,6 +538,20 @@ def cancel_order():
     return jsonify({"status": "success", "message": "Order cancelled successfully"})
 
 
+import os
+from flask import jsonify, send_from_directory
+
+# Debug route to show key paths
+@app.route('/debug/path', methods=['GET'])
+def debug_path():
+    paths = {
+        "app_root": os.path.abspath(app.root_path),
+        "current_working_directory": os.path.abspath(os.getcwd()),
+        "server_file": os.path.abspath(__file__)
+    }
+    return jsonify(paths)
+
+# Admin route serving "accueil.html" from WEB_ADMIN folder
 @app.route('/admin', methods=['GET'])
 def admin_page():
     # Build absolute path to the WEB_ADMIN folder (one level above REST_API)
@@ -546,6 +560,7 @@ def admin_page():
     if not os.path.exists(file_path):
         return "accueil.html not found in WEB_ADMIN", 404
     return send_from_directory(admin_folder, 'accueil.html')
+
 
 
 
