@@ -1187,19 +1187,25 @@ def admin_modify_availability():
 ##########################################################################################
 ##########################################################################################
 ##########################################################################################
-# Absolute path to the WEB_ADMIN folder (assumed to be one level above the REST_API folder)
+# Variable for the absolute path to your WEB_ADMIN folder
 ADMIN_FOLDER = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
 
-# When someone accesses /admin/web or /admin/web/ they are served accueil.html automatically.
+# Force a redirect to ensure the URL has a trailing slash,
+# so relative links inside the HTML resolve correctly.
 @app.route('/admin/web')
+def admin_web_redirect():
+    return redirect('/admin/web/')
+
+# When someone visits /admin/web/ (with trailing slash), serve accueil.html
 @app.route('/admin/web/')
 def admin_index():
     return send_from_directory(ADMIN_FOLDER, 'accueil.html')
 
-# Catch-all route to serve any other file under /admin/web/ (HTML, CSS, JavaScript, images, etc.)
+# Catch-all route to serve any file under /admin/web/
 @app.route('/admin/web/<path:filename>')
 def admin_static(filename):
     return send_from_directory(ADMIN_FOLDER, filename)
+
 
 
 
