@@ -1,8 +1,8 @@
 -- Insert real Montreal addresses for the clients
 INSERT INTO AddressLine (civic, apartment, street, city, postal_code)
 VALUES 
-  (123, '1A', 'Rue Sainte-Catherine Ouest', 'Montreal', 'H3B 1A7'),--1
-  (456, '2B', 'Avenue du Parc', 'Montreal', 'H2V 4E6');--2
+  (123, '1A', 'Rue Sainte-Catherine Ouest', 'Montreal', 'H3B 1A7'), -- 1
+  (456, '2B', 'Avenue du Parc', 'Montreal', 'H2V 4E6'); -- 2
 
 -- Insert 6 admins (last_name = 'admin', address_id = NULL, total_earnings = NULL)
 INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, total_earnings)
@@ -29,12 +29,12 @@ VALUES
 -- Insert addresses for 6 SAQ stores in Montreal
 INSERT INTO AddressLine (civic, street, city, postal_code)
 VALUES
-  (155, 'Av. Atwater', 'Montreal', 'H3J 2J4'),--3
-  (1176, 'Sainte-Catherine', 'Montreal', 'H3B 1K1'),--4
-  (1450, 'De la Montagne', 'Montreal', 'HH3G 1Z5'),--5
-  (677, 'Saint-Catherine', 'Montreal', 'H3B 5K4'),--6
-  (425, 'Blvd. De Maisonneuve Ouest', 'Montreal', 'H3A 3G5'),--7
-  (231, 'Peel', 'Montreal', 'H3C 2G6');--8
+  (155, 'Av. Atwater', 'Montreal', 'H3J 2J4'), -- 3
+  (1176, 'Sainte-Catherine', 'Montreal', 'H3B 1K1'), -- 4
+  (1450, 'De la Montagne', 'Montreal', 'HH3G 1Z5'), -- 5
+  (677, 'Saint-Catherine', 'Montreal', 'H3B 5K4'), -- 6
+  (425, 'Blvd. De Maisonneuve Ouest', 'Montreal', 'H3A 3G5'), -- 7
+  (231, 'Peel', 'Montreal', 'H3C 2G6'); -- 8
 
 -- Insert 6 SAQ stores linked to the addresses above (assuming auto-increment produces address_id 1 to 6)
 INSERT INTO Shop (name, address_id)
