@@ -11,5 +11,5 @@ nohup /home/azureuser/deploy.sh > deploy.log 2>&1 &
 tail -f /home/azureuser/server-output.log
 
 #
-mysql -u root -pBoozyadmin1234 boozy_database < /home/azureuser/TCH099-Boozy/REST_API/DATABASE/create.sql
-mysql -u root -pBoozyadmin1234 boozy_database < /home/azureuser/TCH099-Boozy/REST_API/DATABASE/inserts.sql
+mysql -u BOOZY_SERVER -pBoozyadmin1234 boozy_database < /home/azureuser/TCH099-Boozy/REST_API/DATABASE/create.sql
+mysql -u BOOZY_SERVER -pBoozyadmin1234 boozy_database < /home/azureuser/TCH099-Boozy/REST_API/DATABASE/inserts.sql
