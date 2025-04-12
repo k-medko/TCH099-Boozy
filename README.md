@@ -1,6 +1,6 @@
 # TCH099-Boozy REPO
 # Remote access server:
-ssh azureuser@4.172.255.120
+ssh azureuser@4.172.252.189
 # Serverstart commands:
 ## Kill all existing commands:
 sudo fuser -k 5000/tcp
