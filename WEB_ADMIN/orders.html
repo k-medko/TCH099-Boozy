@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tableau des Commandes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #34495e;
+      --primary-hover: #2c3e50;
+      --gray-light: #f4f6f8;
+      --gray-dark: #2c3e50;
+      --white: #ffffff;
+      --gray-border: #d0d7de;
+      --danger: #dc2626;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body, html {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--gray-light);
+      height: 100%;
+    }
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background-color: var(--white);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: 40px;
+    }
+    header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--gray-dark);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background-color: var(--white);
+      border: 1px solid var(--gray-border);
+      border-radius: 999px;
+      padding: 4px 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .search-bar input {
+      border: none;
+      outline: none;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 999px;
+      width: 160px;
+    }
+    .search-bar button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+    .search-bar button:hover {
+      background-color: white;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .lang-btn, .logout {
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .lang-btn {
+      background: transparent;
+      border: 1.5px solid var(--gray-dark);
+      color: var(--gray-dark);
+    }
+    .lang-btn:hover {
+      background-color: var(--gray-dark);
+      color: white;
+    }
+    .logout {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+    }
+    .logout:hover {
+      background-color: var(--primary-hover);
+    }
+    .main {
+      flex: 1;
+      padding: 24px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+      font-size: 14px;
+    }
+    th, td {
+      padding: 16px;
+      text-align: left;
+    }
+    th {
+      background-color: #E5EAF2;
+      color: var(--gray-dark);
+      font-weight: 600;
+    }
+    td {
+      border-bottom: 1px solid #f1f3f5;
+      color: var(--gray-dark);
+    }
+    .action-btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-right: 6px;
+      transition: background-color 0.3s;
+    }
+    .action-btn:hover {
+      background-color: var(--primary-hover);
+    }
+    footer {
+      background-color: var(--primary);
+      height: 90px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      padding: 10px;
+      text-align: center;
+    }
+    footer a {
+      color: #ffc0cb;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 98;
+      display: none;
+    }
+    .sidebar-overlay.show {
+      display: block;
+    }
+    .sidebar-toggle {
+      position: fixed;
+      top: 28px;
+      left: 16px;
+      z-index: 99;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    nav {
+      width: 300px;
+      max-width: 80%;
+      background-color: var(--white);
+      position: fixed;
+      top: 0;
+      left: -100%;
+      height: 100vh;
+      padding: 40px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      z-index: 100;
+      box-shadow: 4px 0 12px rgba(0,0,0,0.2);
+      transition: left 0.3s ease;
+    }
+    nav.show {
+      left: 0;
+    }
+    nav a {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      font-size: 16px;
+      color: var(--gray-dark);
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all 0.3s;
+      font-weight: 500;
+    }
+    nav a:hover,
+    nav a.active {
+      background-color: var(--gray-light);
+    }
+    nav a img {
+      width: 20px;
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    <nav id="sidebar">
+      <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
+      <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
+      <a href="orders.html" class="active"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
+      <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
+      <a href="users.html"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+    </nav>
+    <header>
+      <div class="logo-container">
+        <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Tableau des Commandes</h1>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="searchBar" placeholder="Rechercher...">
+        <button type="submit">Recherche</button>
+      </div>
+      <div class="header-controls">
+        <button onclick="switchLanguage()" class="lang-btn">🌐 EN</button>
+        <a href="dashboard.html" class="logout" style="text-decoration: none;">← Retour</a>
+      </div>
+    </header>
+    <div class="main">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Client</th>
+            <th>Adresse</th>
+            <th>Statut</th>
+            <th>Date</th>
+            <th>Prix</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1001</td>
+            <td>Jean Dupont</td>
+            <td>123 Rue Sainte-Catherine, Montréal</td>
+            <td><span style="background:#FEF3C7;padding:4px 8px;border-radius:6px;font-size:13px;">En cours</span></td>
+            <td>18/03/2025</td>
+            <td>38.49$</td>
+            <td>
+              <button class="action-btn" onclick="voirDetailsCommande([{ nom: 'Vin Rouge', prix: 19.99 }, { nom: 'Vin Blanc', prix: 18.50 }])">Détails</button>
+              <button class="action-btn" style="background-color: var(--danger);" onclick="annulerCommande(this)">Annuler</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <footer>
+      <p><strong>© 2025 Boozy Inc.</strong> Tous droits réservés.</p>
+      <p><a href="mailto:support@boozy.com">support@boozy.com</a> &nbsp; | &nbsp; 514-652-3145</p>
+    </footer>
+  </div>
+
+  <div class="modal" id="detailsModal" style="display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4);">
+    <div class="modal-content" style="background-color: white; padding: 30px; border-radius: 12px; width: 450px; max-width: 95%; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
+      <h2>Produits dans la commande</h2>
+      <ul id="produitsListe" style="list-style: none; padding-left: 0;"></ul>
+      <div class="modal-total" id="totalPrix" style="text-align: right; margin-top: 20px; font-weight: 600;"></div>
+      <button onclick="fermerModal()" style="margin-top: 20px; background-color: var(--gray-dark); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; float: right;">Fermer</button>
+    </div>
+  </div>
+
+  <script>
+    function switchLanguage() {
+      window.location.href = "orders_en.html";
+    }
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("show");
+      document.getElementById("overlay").classList.toggle("show");
+    }
+    function annulerCommande(btn) {
+      if (confirm("Êtes-vous sûr de vouloir annuler cette commande ?")) {
+        btn.closest("tr").remove();
+      }
+    }
+    function voirDetailsCommande(produits) {
+      const liste = document.getElementById("produitsListe");
+      const totalPrix = document.getElementById("totalPrix");
+      let total = 0;
+      liste.innerHTML = produits.map(p => {
+        total += p.prix;
+        return `<li><span>${p.nom}</span><span>${p.prix.toFixed(2)} $</span></li>`;
+      }).join("");
+      totalPrix.textContent = `Total: ${total.toFixed(2)} $`;
+      document.getElementById("detailsModal").style.display = "flex";
+    }
+    function fermerModal() {
+      document.getElementById("detailsModal").style.display = "none";
+    }
+  </script>
+</body>
+</html>
+
+

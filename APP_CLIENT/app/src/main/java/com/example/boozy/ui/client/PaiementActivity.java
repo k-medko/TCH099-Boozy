@@ -18,13 +18,22 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.boozy.R;
 import com.example.boozy.adapter.PanierAdapter;
+import com.example.boozy.data.api.ApiService;
+import com.example.boozy.data.model.Adresse;
 import com.example.boozy.data.model.Commande;
 import com.example.boozy.data.model.PanierManager;
 import com.example.boozy.data.model.Produit;
+import com.example.boozy.data.model.Utilisateur;
 import com.example.boozy.data.model.UtilisateurManager;
 import com.example.boozy.ui.order.SuiviCommandeActivity;
 
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PaiementActivity extends AppCompatActivity {
 
@@ -39,28 +48,27 @@ public class PaiementActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_paiement);
 
-        // Effet plein écran
         setupFullScreen();
 
-        // Initialiser les vues
         initializeViews();
         initPaiement();
-        initPanier();
 
-        // Gestion du bouton retour
+        // Récupérer l'adresse de l'utilisateur connecté
+        int userId = UtilisateurManager.getInstance(getApplicationContext()).getId();
+        fetchUserAddress(userId);
+
+        // Vérifier si l'activity est appelée après ajout au panier
+        if (getIntent().getBooleanExtra("refresh", false)) {
+            initPanier();
+        }
+
         ImageButton backBtn = findViewById(R.id.buttonBack);
         backBtn.setOnClickListener(v -> onBackPressed());
 
         // Placer la commande
         buttonPlaceOrder.setOnClickListener(v -> placeOrder());
-
-        // Redirection vers ModifierProfilClientActivity
-        ImageView arrowNext = findViewById(R.id.arrow_next);
-        arrowNext.setOnClickListener(v -> navigateToProfil());
-
-        ImageView arrow = findViewById(R.id.arrow);
-        arrow.setOnClickListener(v -> navigateToProfil());
     }
+
 
     private void setupFullScreen() {
         Window window = getWindow();
@@ -72,7 +80,6 @@ public class PaiementActivity extends AppCompatActivity {
         }
     }
 
-    // Initialiser les vues
     private void initializeViews() {
         recyclerViewCommande = findViewById(R.id.recyclerViewCommande);
         sousTotalText = findViewById(R.id.sousTotalText);
@@ -93,7 +100,7 @@ public class PaiementActivity extends AppCompatActivity {
     private void updateTotals(List<Produit> panier) {
         double sousTotal = 0;
         for (Produit p : panier) {
-            sousTotal += (p.getPrice() / 100.0) * p.getQuantity();
+            sousTotal += (p.getPrice()) * p.getQuantity();
         }
 
         double taxes = sousTotal * 0.15;
@@ -123,7 +130,6 @@ public class PaiementActivity extends AppCompatActivity {
             return;
         }
 
-        // Initialiser l'adaptateur avec le panier
         panierAdapter = new PanierAdapter(this, panier, updatedList -> {
             updateCart(updatedList);
             updateTotals(updatedList);
@@ -136,7 +142,6 @@ public class PaiementActivity extends AppCompatActivity {
         updateTotals(panier);
     }
 
-    // Mettre à jour le panier après modification
     private void updateCart(List<Produit> updatedList) {
         PanierManager.getInstance(getApplicationContext()).clearCart();
         for (Produit produit : updatedList) {
@@ -147,7 +152,7 @@ public class PaiementActivity extends AppCompatActivity {
         updateTotals(updatedList);
     }
 
-    // Placer la commande
+
     private void placeOrder() {
         // Vérifier si le panier est vide avant de passer la commande
         List<Produit> panier = PanierManager.getInstance(getApplicationContext()).getCart();
@@ -185,7 +190,7 @@ public class PaiementActivity extends AppCompatActivity {
         // Vérifier si une carte est enregistrée localement
         String stripeCard = UtilisateurManager.getInstance(getApplicationContext()).getCarteStripe();
         if (stripeCard != null && !stripeCard.isEmpty()) {
-            carteText.setText("Carte: " + stripeCard);
+            carteText.setText(stripeCard);
             buttonPlaceOrder.setEnabled(true);
             buttonPlaceOrder.setBackgroundColor(getResources().getColor(R.color.brown));
         } else {
@@ -193,5 +198,41 @@ public class PaiementActivity extends AppCompatActivity {
             buttonPlaceOrder.setEnabled(false);
             buttonPlaceOrder.setBackgroundColor(Color.GRAY);
         }
+
+        // Récupérer l'adresse de l'utilisateur connecté
+        int userId = UtilisateurManager.getInstance(getApplicationContext()).getId();
+        fetchUserAddress(userId);
     }
+
+    private void fetchUserAddress(int userId) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://4.172.255.120:5000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        ApiService apiService = retrofit.create(ApiService.class);
+        Call<Adresse> call = apiService.getUserAddress(userId);
+
+        call.enqueue(new Callback<Adresse>() {
+            @Override
+            public void onResponse(Call<Adresse> call, Response<Adresse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Adresse adresse = response.body();
+                    // Afficher l'adresse complète
+                    String adresseComplete = adresse.getNumeroCivique() + " " + adresse.getRue() + ", "
+                            + adresse.getVille() + ", " + adresse.getCodePostal();
+                    adresseText.setText(adresseComplete);
+                } else {
+                    Toast.makeText(PaiementActivity.this, "Erreur : Impossible de récupérer l'adresse", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Adresse> call, Throwable t) {
+                Toast.makeText(PaiementActivity.this, "Erreur de connexion : " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
 }

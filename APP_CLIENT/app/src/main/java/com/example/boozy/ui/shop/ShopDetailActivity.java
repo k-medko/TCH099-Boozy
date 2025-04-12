@@ -8,14 +8,17 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.boozy.utils.GridSpacingItemDecoration;
 import com.example.boozy.R;
 import com.example.boozy.adapter.ProductAdapter;
 import com.example.boozy.adapter.CategoryAdapter;
+import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.Produit;
 import com.example.boozy.ui.client.ClientHomeActivity;
 import com.example.boozy.ui.client.PaiementActivity;
@@ -23,6 +26,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ShopDetailActivity extends AppCompatActivity {
 
@@ -37,34 +46,41 @@ public class ShopDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shop_detail);
 
-        // Effet plein écran
         setupFullScreen();
-
-        // Initialisation des vues
         initializeViews();
 
-        // Récupération du nom du magasin
+        // Récupération du nom du magasin et de l'ID
         String shopName = getIntent().getStringExtra("shopName");
+        int storeId = getIntent().getIntExtra("storeId", -1);
+
         displayShopName(shopName);
+
+        // Vérifie si l'ID du magasin est valide
+        if (storeId != -1) {
+            fetchProductsFromAPI(storeId);
+            fetchCategoriesFromAPI(); // Appel ici pour charger les catégories après les produits
+        }
 
         // Configuration des RecyclerViews
         configureRecyclerViews();
-
-        // Initialisation des catégories et produits
-        fetchCategoriesFromAPI();
-        fetchProductsFromAPI();
 
         // Gestion de la barre de navigation inférieure
         setupBottomNavigation();
     }
 
-    // Méthode pour configurer l'affichage plein écran
+
+    // Effet plein écran
     private void setupFullScreen() {
         Window window = getWindow();
-        window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        window.getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         window.setStatusBarColor(Color.TRANSPARENT);
-        window.setNavigationBarColor(getResources().getColor(R.color.brown));
+        window.setNavigationBarColor(Color.TRANSPARENT);
     }
+
 
     // Initialisation des vues
     private void initializeViews() {
@@ -72,21 +88,22 @@ public class ShopDetailActivity extends AppCompatActivity {
         categoryRecyclerView = findViewById(R.id.categoryRecyclerView);
     }
 
-    // Affichage du nom du magasin
+    // Affichage du nom du magasin sur une seule ligne
     private void displayShopName(String shopName) {
         TextView shopNameTextView = findViewById(R.id.magasinNomText);
-        if (shopName != null && shopName.startsWith("SAQ ")) {
-            String[] parts = shopName.split(" ", 2);
-            shopNameTextView.setText(parts.length > 1 ? parts[0] + "\n" + parts[1] : shopName);
-        } else {
+        if (shopName != null) {
             shopNameTextView.setText(shopName);
         }
     }
 
     // Configuration des RecyclerViews pour produits et catégories
     private void configureRecyclerViews() {
+
         // Configuration RecyclerView produits
-        productsRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        RecyclerView recyclerView = findViewById(R.id.productsRecyclerView);
+        int spacing = 14;
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, spacing, true));
 
         // Configuration RecyclerView catégories
         categoryRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -96,22 +113,98 @@ public class ShopDetailActivity extends AppCompatActivity {
         categoryList = new ArrayList<>();
 
         // Initialisation des adaptateurs
-        categoryAdapter = new CategoryAdapter(categoryList, this::filterProducts);
-        productsRecyclerView.setAdapter(productAdapter = new ProductAdapter(produitList));
-
+        categoryAdapter = new CategoryAdapter(categoryList, category -> filterProducts(category));
         categoryRecyclerView.setAdapter(categoryAdapter);
+
+        productsRecyclerView.setAdapter(productAdapter = new ProductAdapter(produitList));
     }
 
-    // Récupérer les catégories depuis l'API (à compléter)
+    // Récupérer les catégories depuis l'API
     private void fetchCategoriesFromAPI() {
-        // Appel API pour récupérer les catégories et mettre à jour 'categoryList'
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://4.172.255.120:5000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
+        ApiService apiService = retrofit.create(ApiService.class);
+        Call<List<List<Object>>> call = apiService.getProducts(1);
+
+        call.enqueue(new Callback<>() {
+            @Override
+            public void onResponse(@NonNull Call<List<List<Object>>> call, @NonNull Response<List<List<Object>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    categoryList.clear();
+                    List<String> uniqueCategories = new ArrayList<>();
+
+                    for (List<Object> productData : response.body()) {
+                        try {
+                            String category = (String) productData.get(4);
+                            if (!uniqueCategories.contains(category)) {
+                                uniqueCategories.add(category);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    // Ajouter "Tous" pour afficher tous les produits
+                    categoryList.add(0, "Tous");
+                    categoryList.addAll(uniqueCategories);
+
+                    categoryAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<List<Object>>> call, @NonNull Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 
-    // Récupérer les produits depuis l'API (à compléter)
-    private void fetchProductsFromAPI() {
-        // Appel API pour récupérer les produits et remplir 'produitList'
+    // Récupérer les produits depuis l'API
+    private void fetchProductsFromAPI(int storeId) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://4.172.255.120:5000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        ApiService apiService = retrofit.create(ApiService.class);
+        Call<List<List<Object>>> call = apiService.getProducts(storeId);
+
+        call.enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<List<List<Object>>> call, Response<List<List<Object>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    produitList.clear();
+
+                    for (List<Object> productData : response.body()) {
+                        try {
+                            int idProduit = ((Double) productData.get(0)).intValue();
+                            String name = (String) productData.get(1);
+                            String description = (String) productData.get(2);
+                            double price = Double.parseDouble((String) productData.get(3));
+                            String category = (String) productData.get(4);
+                            int quantity = ((Double) productData.get(5)).intValue();
+                            String imageName = (String) productData.get(6);
+
+                            Produit produit = new Produit(idProduit, name, description, price, category, quantity, imageName);
+                            produitList.add(produit);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    productAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<List<Object>>> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
+
 
     // Filtrer les produits par catégorie
     private void filterProducts(String category) {

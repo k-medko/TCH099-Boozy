@@ -13,18 +13,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
+import com.bumptech.glide.Glide;
 import com.example.boozy.R;
 import com.example.boozy.data.model.PanierManager;
 import com.example.boozy.data.model.Produit;
 import com.example.boozy.ui.client.PaiementActivity;
 
+
 public class ProductDetailActivity extends AppCompatActivity {
 
     private int quantity = 1;
     private TextView quantityText;
-    private int price = 1000;
-    private String description;
+    private TextView productNameText, productPriceText, productDescriptionText;
+    private ImageView productImageView;
+    private int productId;
+    private String productName, productDescription, productImageName, productCategory;
+    private double productPrice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,18 +38,17 @@ public class ProductDetailActivity extends AppCompatActivity {
         setupFullScreen();
 
         // Récupération des données du produit depuis l'intent
-        int id = getIntent().getIntExtra("product_id", 0);
-        String name = getIntent().getStringExtra("product_name");
-        int imageResId = getIntent().getIntExtra("product_image", R.drawable.produit);
-
-        // Appel API pour récupérer les informations du produit
-        fetchProductDataFromAPI(id);
+        productId = getIntent().getIntExtra("product_id", 0);
+        productName = getIntent().getStringExtra("product_name");
+        productDescription = getIntent().getStringExtra("product_description");
+        productPrice = getIntent().getDoubleExtra("product_price", 0.0);
+        productImageName = getIntent().getStringExtra("product_image_name");
 
         // Initialisation des vues
-        TextView productNameText = findViewById(R.id.productName);
-        TextView productPriceText = findViewById(R.id.productPrice);
-        TextView productDescriptionText = findViewById(R.id.productDescription);
-        ImageView productImageView = findViewById(R.id.productImage);
+        productNameText = findViewById(R.id.productName);
+        productPriceText = findViewById(R.id.productPrice);
+        productDescriptionText = findViewById(R.id.productDescription);
+        productImageView = findViewById(R.id.productImage);
         quantityText = findViewById(R.id.quantityText);
         ImageButton plusButton = findViewById(R.id.buttonPlus);
         ImageButton minusButton = findViewById(R.id.buttonMinus);
@@ -53,11 +56,15 @@ public class ProductDetailActivity extends AppCompatActivity {
         ImageButton backButton = findViewById(R.id.buttonBack);
 
         // Affichage des données du produit récupérées
-        productNameText.setText(name);
-        productPriceText.setText("Prix : $" + (price / 100.0));
-        productDescriptionText.setText(description);
-        productImageView.setImageResource(imageResId);
-        quantityText.setText(String.valueOf(quantity));
+        productNameText.setText(productName);
+        productPriceText.setText("Prix : $" + productPrice);
+        productDescriptionText.setText(productDescription);
+
+        // Charger l'image avec Glide
+        Glide.with(this)
+                .load("http://4.172.255.120:5000/images/" + productImageName)
+                .placeholder(R.drawable.produit)
+                .into(productImageView);
 
         // Gestion de la quantité
         plusButton.setOnClickListener(v -> {
@@ -74,16 +81,15 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         // Ajouter au panier
         addToCartButton.setOnClickListener(v -> {
-            Produit produit = new Produit(id, name, price, imageResId, description);
+            Produit produit = new Produit(productId, productName, productDescription, productPrice, productCategory, quantity, productImageName);
             produit.setQuantity(quantity);
             PanierManager.getInstance(getApplicationContext()).addProduct(produit);
 
             Toast.makeText(this, "Ajouté au panier", Toast.LENGTH_SHORT).show();
 
-            // Redirection vers la page de paiement
+            // Redirection vers la page de paiement avec mise à jour
             Intent intent = new Intent(ProductDetailActivity.this, PaiementActivity.class);
-            intent.putExtra("product_name", name);
-            intent.putExtra("product_quantity", quantity);
+            intent.putExtra("refresh", true);
             startActivity(intent);
 
             finish();
@@ -102,10 +108,5 @@ public class ProductDetailActivity extends AppCompatActivity {
         } else {
             window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
-    }
-
-    // Méthode pour récupérer les données du produit depuis l'API
-    private void fetchProductDataFromAPI(int productId) {
-        // Appel API pour récupérer les informations du produit par ID (nom, prix, description, image ?).
     }
 }

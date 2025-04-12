@@ -3,11 +3,13 @@ package com.example.boozy.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.boozy.R;
 import com.example.boozy.data.model.Magasin;
 
@@ -18,12 +20,10 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
     private List<Magasin> magasins;
     private OnItemClickListener listener;
 
-    // Interface pour gérer les clics
     public interface OnItemClickListener {
-        void onItemClick(Magasin magasin);
+        void onItemClick(String shopName, int storeId);
     }
 
-    // Constructeur avec le listener
     public ShopAdapter(List<Magasin> magasins, OnItemClickListener listener) {
         this.magasins = magasins;
         this.listener = listener;
@@ -41,8 +41,12 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
         Magasin magasin = magasins.get(position);
         holder.shopNameText.setText(magasin.getName());
 
-        // Gérer le clic sur chaque élément
-        holder.itemView.setOnClickListener(v -> listener.onItemClick(magasin));
+        Glide.with(holder.itemView.getContext())
+                .load("http://4.172.255.120:5000/images/" + magasin.getImageNom())
+                .placeholder(R.drawable.ic_saq)
+                .into(holder.shopImageView);
+
+        holder.itemView.setOnClickListener(v -> listener.onItemClick(magasin.getName(), magasin.getStoreId()));
     }
 
     @Override
@@ -52,12 +56,12 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
 
     public static class ShopViewHolder extends RecyclerView.ViewHolder {
         TextView shopNameText;
+        ImageView shopImageView;
 
         public ShopViewHolder(@NonNull View itemView) {
             super(itemView);
             shopNameText = itemView.findViewById(R.id.magasinNomText);
-
-
+            shopImageView = itemView.findViewById(R.id.shopLogo);
         }
     }
 }

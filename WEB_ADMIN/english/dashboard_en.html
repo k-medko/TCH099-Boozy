@@ -1,4 +1,5 @@
-<html lang="fr">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Dashboard Manager</title>
@@ -193,26 +194,27 @@
   font-size: 14px;
   width: 250px;
     }
+
   </style>
 </head>
 <body>
 <div class="wrapper">
   <header>
-    <h1><img src="assets/image/LOGO 1.png" alt="Logo" style="height: 120px;width: 120px;"> Gestionnaire</h1>
-    <input type="text" id="searchBar" placeholder="Rechercher..." class="search-input">
+    <h1><img src="assets/image/LOGO 1.png" alt="Logo" style="height: 120px;width: 120px;"> Manager</h1>
+    <input type="text" id="searchBar" placeholder="Search..." class="search-input">
     <div style="display: flex; align-items: center; gap: 20px;">
-      <button onclick="switchLanguage()" class="lang-btn" style="padding: 3px 8px;">EN</button>
-      <button class="logout" id="btn-logout">Déconnexion</button>
+      <button onclick="switchLanguage()" class="lang-btn" style="padding: 3px 8px;">FR</button>
+      <button class="logout" id="btn-logout">Logout</button>
     </div>
   </header>
 
   <div class="main">
     <nav>
-      <a href="#" id="btn-home"><img src="assets/image/Frame 218.png" alt="Home"> Accueil</a>
-      <a href="#" id="btn-stores"><img src="assets/image/store-alt.png" alt="Stores"> Magasins</a>
-      <a href="#" id="btn-orders"><img src="assets/image/border-all.png" alt="Orders"> Commandes</a>
-      <a href="#" id="btn-menu"><img src="assets/image/wine-bottle.png" alt="Menu"> Produits</a>
-      <a href="#" id="btn-users"><img src="assets/image/users.png" alt="Users"> Utilisateurs</a>
+      <a href="#" id="btn-home"><img src="assets/image/Frame 218.png" alt="Home"> Home</a>
+      <a href="#" id="btn-stores"><img src="assets/image/store-alt.png" alt="Stores"> Stores</a>
+      <a href="#" id="btn-orders"><img src="assets/image/border-all.png" alt="Orders"> Orders</a>
+      <a href="#" id="btn-menu"><img src="assets/image/wine-bottle.png" alt="Products"> Products</a>
+      <a href="#" id="btn-users"><img src="assets/image/users.png" alt="Users"> Users</a>
     </nav>
 
     <section class="content">
@@ -222,7 +224,7 @@
         </div>
         <div class="card-info">
           <div class="card-value"></div>
-          <div class="card-title">Revenus totaux</div>
+          <div class="card-title">Total Revenue</div>
           <div class="card-change"></div>
         </div>
       </div>
@@ -233,7 +235,7 @@
         </div>
         <div class="card-info">
           <div class="card-value"></div>
-          <div class="card-title">Commandes totales</div>
+          <div class="card-title">Total Orders</div>
           <div class="card-change"></div>
         </div>
       </div>
@@ -244,7 +246,7 @@
         </div>
         <div class="card-info">
           <div class="card-value"></div>
-          <div class="card-title">Livraisons totales</div>
+          <div class="card-title">Total Deliveries</div>
           <div class="card-change"></div>
         </div>
       </div>
@@ -255,7 +257,7 @@
         </div>
         <div class="card-info">
           <div class="card-value"></div>
-          <div class="card-title">Commandes annulées</div>
+          <div class="card-title">Cancelled Orders</div>
           <div class="card-change"></div>
         </div>
       </div>
@@ -263,17 +265,17 @@
   </div>
 
   <footer>
-    <p>Si vous avez besoin d'aide, contactez-nous au 514-652-3145</p>
+    <p>If you need help, contact us at 514-652-3145</p>
   </footer>
 </div>
 <script>
   const redirectMap = {
-    "btn-home": "dashboard.html",
-    "btn-stores": "stores.html",
-    "btn-orders": "orders.html",
-    "btn-menu": "products.html",
-    "btn-users": "users.html",
-    "btn-logout": "accueil.html"
+    "btn-home": "dashboard_en.html",
+    "btn-stores": "stores_en.html",
+    "btn-orders": "orders_en.html",
+    "btn-menu": "products_en.html",
+    "btn-users": "users_en.html",
+    "btn-logout": "accueil_en.html"
   };
 
   Object.entries(redirectMap).forEach(([id, url]) => {
@@ -284,10 +286,9 @@
       });
     }
   });
-</script>
-<script>
+
   function switchLanguage() {
-    window.location.href = "dashboard_en.html";
+    window.location.href = "dashboard.html";
   }
 </script>
 </body>

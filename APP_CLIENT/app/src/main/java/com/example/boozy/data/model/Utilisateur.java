@@ -1,49 +1,37 @@
 package com.example.boozy.data.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Utilisateur {
+    @SerializedName("userId")
     private int idUtilisateur;
-    private String nom;
+
+    @SerializedName("firstName")
     private String prenom;
+
+    @SerializedName("lastName")
+    private String nom;
+
+    @SerializedName("email")
     private String email;
-    private String motDePasse;
+
+    @SerializedName("phoneNumber")
     private String numTel;
+
+    @SerializedName("licensePlate")
     private String numeroPermis;
-    private TypeUtilisateur typeUtilisateur;
-    private Adresse adresse;
 
-    // Constructeur vide
-    public Utilisateur() {
-    }
+    @SerializedName("userType")
+    private String typeUtilisateur;
 
-    // Constructeur avec paramètres
-    public Utilisateur(int idUtilisateur, String nom, String prenom, String email, String motDePasse,
-                       String numTel, String numeroPermis, TypeUtilisateur typeUtilisateur, Adresse adresse) {
-        this.idUtilisateur = idUtilisateur;
-        this.nom = nom;
-        this.prenom = prenom;
-        this.email = email;
-        this.motDePasse = motDePasse;
-        this.numTel = numTel;
-        this.numeroPermis = numeroPermis;
-        this.typeUtilisateur = typeUtilisateur;
-        this.adresse = adresse;
-    }
+    public Utilisateur() {}
 
-    // Getters et setters
     public int getIdUtilisateur() {
         return idUtilisateur;
     }
 
     public void setIdUtilisateur(int idUtilisateur) {
         this.idUtilisateur = idUtilisateur;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
     }
 
     public String getPrenom() {
@@ -54,20 +42,20 @@ public class Utilisateur {
         this.prenom = prenom;
     }
 
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getMotDePasse() {
-        return motDePasse;
-    }
-
-    public void setMotDePasse(String motDePasse) {
-        this.motDePasse = motDePasse;
     }
 
     public String getNumTel() {
@@ -86,20 +74,11 @@ public class Utilisateur {
         this.numeroPermis = numeroPermis;
     }
 
-    public TypeUtilisateur getTypeUtilisateur() {
+    public String getTypeUtilisateur() {
         return typeUtilisateur;
     }
 
-    public void setTypeUtilisateur(TypeUtilisateur typeUtilisateur) {
+    public void setTypeUtilisateur(String typeUtilisateur) {
         this.typeUtilisateur = typeUtilisateur;
     }
-
-    public Adresse getAdresse() {
-        return adresse;
-    }
-
-    public void setAdresse(Adresse adresse) {
-        this.adresse = adresse;
-    }
-
 }

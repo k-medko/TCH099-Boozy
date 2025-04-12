@@ -1,86 +1,42 @@
 package com.example.boozy.data.model;
 
 public class Produit {
-    private int idProduit;
+    private int id;
     private String name;
-    private String category;
     private String description;
-    private int price;
-    private int imageResId; // a verifier
+    private double price;
+    private String category;
     private int quantity;
+    private String imageName;
 
-    // Constructeur pour ShopDetailActivity (nom, catégorie, image)
-    public Produit(int idProduit, String name, String category, int imageResId) {
-        this.idProduit = idProduit;
+    public Produit(int id, String name, String description, double price, String category, int quantity, String imageName) {
+        this.id = id;
         this.name = name;
-        this.category = category;
-        this.imageResId = imageResId;
-    }
-
-    // Constructeur pour ProductDetailActivity (nom, prix, image, description)
-    public Produit(int idProduit, String name, int price, int imageResId, String description) {
-        this.idProduit = idProduit;
-        this.name = name;
-        this.price = price;
-        this.imageResId = imageResId;
         this.description = description;
-    }
-
-    // Constructeur pour PaiementActivity (nom, quantité)
-    public Produit(int idProduit, int price, String name, int quantity) {
-        this.idProduit = idProduit;
         this.price = price;
-        this.name = name;
+        this.category = category;
         this.quantity = quantity;
+        this.imageName = imageName;
     }
 
-    // Getters et Setters
-    public int getIdProduit() {
-        return idProduit;
-    }
-
-    public void setIdProduit(int idProduit) {
-        this.idProduit = idProduit;
+    public int getId() {
+        return id;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
-        this.price = price;
-    }
-
-    public int getImageResId() {
-        return imageResId;
-    }
-
-    public void setImageResId(int imageResId) {
-        this.imageResId = imageResId;
+    public String getCategory() {
+        return category;
     }
 
     public int getQuantity() {
@@ -89,5 +45,9 @@ public class Produit {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public String getImageName() {
+        return imageName;
     }
 }

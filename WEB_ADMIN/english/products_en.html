@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produits SAQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #34495e;
+      --primary-hover: #2c3e50;
+      --gray-light: #f4f6f8;
+      --gray-dark: #2c3e50;
+      --white: #ffffff;
+      --gray-border: #d0d7de;
+      --danger: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--gray-light);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background-color: var(--white);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: 40px;
+    }
+
+    header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--gray-dark);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background-color: var(--white);
+      border: 1px solid var(--gray-border);
+      border-radius: 999px;
+      padding: 4px 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .search-bar input {
+      border: none;
+      outline: none;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 999px;
+      width: 200px;
+    }
+
+    .search-bar button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    .search-bar button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lang-btn, .back-btn {
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      border: none;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: 1.5px solid var(--gray-dark);
+      color: var(--gray-dark);
+    }
+
+    .lang-btn:hover {
+      background-color: var(--gray-dark);
+      color: white;
+    }
+
+    .back-btn {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .back-btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .main {
+      padding: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      flex: 1;
+    }
+
+    .product-box {
+      background-color: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      flex: 1 1 320px;
+    }
+
+    .product {
+      border-bottom: 1px solid var(--gray-border);
+      padding: 12px 0;
+    }
+
+    .product:last-child {
+      border-bottom: none;
+    }
+
+    .product h3 {
+      font-size: 18px;
+      color: var(--gray-dark);
+      margin-bottom: 4px;
+    }
+
+    .product p {
+      font-size: 14px;
+      color: #555;
+      margin: 0;
+    }
+
+    footer {
+      background-color: var(--primary);
+      color: white;
+      text-align: center;
+      padding: 16px 20px;
+      font-size: 14px;
+    }
+
+    footer a {
+      color: #ffc0cb;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo-container">
+      <h1><img src="assets/image/LOGO 1.png" alt="Logo" style="width: 50px; height: 50px;">Produits SAQ</h1>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="searchBar" placeholder="Rechercher un produit...">
+      <button onclick="searchProducts()">Recherche</button>
+    </div>
+    <div class="header-controls">
+      <button onclick="switchLanguage()" class="lang-btn">FR</button>
+      <a href="dashboard.html" class="back-btn">← Retour</a>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="product-box">
+      <h2>Liste des produits</h2>
+      <div id="productList"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Boozy Inc. Tous droits réservés.</p>
+    <p><a href="mailto:support@boozy.com">support@boozy.com</a> | 514-652-3145</p>
+  </footer>
+
+  <script>
+    async function fetchProducts() {
+      try {
+        const response = await fetch("http://4.172.255.120:5000/getProducts");
+        const produits = await response.json();
+        afficherProduits(produits);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des produits:", error);
+        document.getElementById("productList").innerHTML = '<p>Erreur lors du chargement des produits.</p>';
+      }
+    }
+
+    function afficherProduits(produits) {
+      const productList = document.getElementById("productList");
+      productList.innerHTML = "";
+
+      produits.forEach(prod => {
+        const div = document.createElement("div");
+        div.className = "product";
+        div.innerHTML = `
+          <h3>${prod.name}</h3>
+          <p>${prod.description}</p>
+          <p><strong>${prod.price} $</strong> – Catégorie : ${prod.category}</p>
+        `;
+        productList.appendChild(div);
+      });
+    }
+
+    function searchProducts() {
+      const input = document.getElementById("searchBar").value.toLowerCase();
+      const items = document.querySelectorAll(".product");
+
+      items.forEach(item => {
+        const name = item.querySelector("h3").textContent.toLowerCase();
+        item.style.display = name.includes(input) ? "block" : "none";
+      });
+    }
+
+    function switchLanguage() {
+      window.location.href = "products.html";
+    }
+
+    window.onload = fetchProducts;
+  </script>
+</body>
+</html>

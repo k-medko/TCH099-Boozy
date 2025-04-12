@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.boozy.R;
-import com.example.boozy.ui.client.ClientHomeActivity;
+import com.example.boozy.ui.auth.AuthChoiceActivity;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -27,7 +27,7 @@ public class SplashActivity extends AppCompatActivity {
 
         // Attendre 3 secondes puis lancer ClientHomeActivity
         new Handler().postDelayed(() -> {
-            startActivity(new Intent(SplashActivity.this, ClientHomeActivity.class));
+            startActivity(new Intent(SplashActivity.this, AuthChoiceActivity.class));
             finish();
         }, 3000);
     }
