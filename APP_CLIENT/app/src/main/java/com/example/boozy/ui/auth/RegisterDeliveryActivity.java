@@ -10,14 +10,36 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.boozy.R;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class RegisterDeliveryActivity extends AppCompatActivity {
 
     private EditText inputName, inputFirstName, inputEmail, inputPhone, inputDrivingLicense, inputPassword;
     private Button buttonCreateAccountDelivery;
+
+    private OkHttpClient okHttpClient;
+    private ObjectMapper mapper;
+
+    private static final MediaType  JSON = MediaType.parse("application/json; charset=utf-8");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +47,13 @@ public class RegisterDeliveryActivity extends AppCompatActivity {
         setFullScreen();
         setContentView(R.layout.activity_register_delivery);
         initializeViews();
+
+        okHttpClient  = new OkHttpClient();
+        mapper = new ObjectMapper();
+
+        initializeViews();
+
+
     }
 
     private void setFullScreen() {
@@ -48,7 +77,12 @@ public class RegisterDeliveryActivity extends AppCompatActivity {
         inputPassword = findViewById(R.id.inputPassword);
         buttonCreateAccountDelivery = findViewById(R.id.buttonCreateAccountDelivery);
 
-        buttonCreateAccountDelivery.setOnClickListener(v -> handleRegistration());
+        buttonCreateAccountDelivery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleRegistration();
+            }
+        });
     }
 
     private void handleRegistration() {
@@ -56,10 +90,10 @@ public class RegisterDeliveryActivity extends AppCompatActivity {
         String prenom = inputFirstName.getText().toString().trim();
         String email = inputEmail.getText().toString().trim();
         String tel = inputPhone.getText().toString().trim();
-        String permis = inputDrivingLicense.getText().toString().trim();
+        String plaque = inputDrivingLicense.getText().toString().trim();
         String mdp = inputPassword.getText().toString().trim();
 
-        if (nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || tel.isEmpty() || permis.isEmpty() || mdp.isEmpty()) {
+        if (nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || tel.isEmpty() || plaque.isEmpty() || mdp.isEmpty()) {
             showToast("Veuillez remplir tous les champs");
             return;
         }
@@ -69,22 +103,76 @@ public class RegisterDeliveryActivity extends AppCompatActivity {
             return;
         }
 
-        // APPEL À L'API ICI
-        // Faire un appel à l'API pour enregistrer le livreur avec les informations recueillies.
-        // Si l'enregistrement est réussi, rediriger vers la page de connexion.
+        Map<String, Object> map = new HashMap<>();
+        map.put("email", email);
+        map.put("password", mdp);
+        map.put("last_name", nom);
+        map.put("first_name", prenom);
+        map.put("phone_number", tel);
+        map.put("user_type", "carrier");
+        map.put("license_plate", plaque);
 
-        // Si l'enregistrement est réussi :
-        navigateToLogin();
+
+        String js;
+        try{
+            js = mapper.writeValueAsString(map);
+        }catch (IOException e){
+            e.printStackTrace();
+            showToast("Erreur lors de la conversion Jackson");
+            return;
+        }
+
+        RequestBody body = RequestBody.create(JSON,js);
+
+        Request  rq = new Request.Builder()
+                .url("http://4.172.252.189:5000/createUser")
+                .post(body)
+                .build();
+
+        okHttpClient.newCall(rq).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showToast("ERREUR: reseau");
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+
+                if(response.isSuccessful()){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showToast("SUCCES : Creation du livreur");
+                            navigateToLogin();
+                        }
+                    });
+                }else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showToast("Erreur: email deja utilise ou donnees invalides");
+                        }
+                    });
+                }
+                response.close();
+            }
+        });
     }
 
     private void navigateToLogin() {
         showToast("Compte créé avec succès. Veuillez vous connecter.");
-        Intent intent = new Intent(this, LoginActivity.class);
+        Intent intent = new Intent(RegisterDeliveryActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
     }
 
     private void showToast(String message) {
-        runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show());
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

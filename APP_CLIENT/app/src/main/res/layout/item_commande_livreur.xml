@@ -12,7 +12,7 @@
     android:backgroundTint="@android:color/white"
     android:foreground="?android:attr/selectableItemBackground">
 
-    <!-- Ligne 1 : Numéro de commande -->
+    <!-- Ligne 1 : Numéro de clientOrder -->
     <TextView
         android:id="@+id/numeroCommande"
         android:layout_width="match_parent"

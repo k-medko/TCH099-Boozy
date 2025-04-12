@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="#FFFFFF">
 
-    <!-- Barre du haut -->
+    <!-- ───── Barre du haut ───── -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,20 +20,25 @@
             android:layout_height="24dp"
             android:src="@drawable/ic_arrow_back"
             android:contentDescription="@string/retour"
-            app:tint="#000000" />
+            app:tint="#000000"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="center"
             android:text="@string/commande_en_cours"
             android:textSize="18sp"
-            android:textColor="#000000"
             android:textStyle="bold"
-            android:gravity="center" />
+            android:textColor="#000000"/>
     </LinearLayout>
 
-    <!-- Contenu principal -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E6E6E6"/>
+
+    <!-- ───── Contenu ───── -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -41,49 +46,47 @@
         android:paddingBottom="16dp">
 
         <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:background="@android:color/white"
             android:elevation="1dp"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"
-            android:layout_marginHorizontal="4dp"
-            android:backgroundTint="@android:color/white"
-            android:foreground="?android:attr/selectableItemBackground">
+            android:layout_marginHorizontal="4dp">
 
-            <!-- Ligne 1 : numéro de commande -->
+            <!-- Ligne 1 : numéro -->
             <TextView
                 android:id="@+id/textNumeroCommande"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Commande #1234"
                 android:textStyle="bold"
-                android:textColor="#000000"
                 android:textSize="16sp"
-                android:padding="12dp" />
+                android:textColor="#000000"
+                android:padding="12dp"/>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#E6E6E6" />
+                android:background="#E6E6E6"/>
 
-            <!-- Ligne 2 : Client -->
+            <!-- Ligne 2 : client -->
             <TextView
                 android:id="@+id/textClient"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Client : Jacques G."
-                android:textColor="#000000"
                 android:textSize="15sp"
-                android:padding="12dp" />
+                android:textColor="#000000"
+                android:padding="12dp"/>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#E6E6E6" />
+                android:background="#E6E6E6"/>
 
-            <!-- Ligne 3 : Récupération -->
+            <!-- Ligne 3 : récupération -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -96,7 +99,7 @@
                     android:layout_height="20dp"
                     android:src="@drawable/ic_store"
                     android:layout_marginEnd="8dp"
-                    app:tint="#000000" />
+                    app:tint="#000000"/>
 
                 <TextView
                     android:id="@+id/textRecuperation"
@@ -104,16 +107,16 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Récupération : 1234 rue Ontario, Montréal"
-                    android:textColor="#000000"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    android:textColor="#000000"/>
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#E6E6E6" />
+                android:background="#E6E6E6"/>
 
-            <!-- Ligne 4 : Destination -->
+            <!-- Ligne 4 : destination -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -126,24 +129,63 @@
                     android:layout_height="20dp"
                     android:src="@drawable/ic_location"
                     android:layout_marginEnd="8dp"
-                    app:tint="#000000" />
+                    app:tint="#000000"/>
 
                 <TextView
                     android:id="@+id/textDestination"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Destination : 1234 rue Ontario, Montréal"
-                    android:textColor="#000000"
-                    android:textSize="15sp" />
+                    android:text="Destination : 5678 rue Sherbrooke, Montréal"
+                    android:textSize="15sp"
+                    android:textColor="#000000"/>
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#E6E6E6" />
+                android:background="#E6E6E6"/>
 
-            <!-- Ligne 5 : Bouton "Démarrer la course" -->
+            <!-- ===== AJOUT : ETA + ProgressBar ===== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="12dp"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_clock"
+                    android:layout_marginEnd="8dp"
+                    app:tint="#000000"/>
+
+                <TextView
+                    android:id="@+id/textEta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Calcul…"
+                    android:textSize="15sp"
+                    android:textColor="#000000"/>
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progressEta"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="12dp"
+                android:indeterminate="false"
+                android:max="100"
+                android:progress="0"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E6E6E6"/>
+
+            <!-- Ligne 5 : bouton démarrer -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -159,15 +201,15 @@
                     android:background="@drawable/button_square"
                     android:textColor="#FFFFFF"
                     android:paddingHorizontal="24dp"
-                    android:paddingVertical="6dp" />
+                    android:paddingVertical="6dp"/>
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#E6E6E6" />
+                android:background="#E6E6E6"/>
 
-            <!-- Ligne 6 : Bouton "Marquer comme livrée" -->
+            <!-- Ligne 6 : bouton livrée -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -183,9 +225,8 @@
                     android:background="@drawable/button_square"
                     android:textColor="#FFFFFF"
                     android:paddingHorizontal="24dp"
-                    android:paddingVertical="6dp" />
+                    android:paddingVertical="6dp"/>
             </LinearLayout>
-
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

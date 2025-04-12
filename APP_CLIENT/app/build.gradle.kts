@@ -52,6 +52,7 @@ dependencies {
     implementation ("androidx.core:core-ktx:1.12.0")
 
 
+    //okHttp
     implementation ("com.squareup.okhttp3:okhttp:4.12.0")
 
     //implementation ("com.google.maps.android:android-maps-utils:2.3.0")
@@ -61,6 +62,15 @@ dependencies {
     implementation ("pl.droidsonroids.gif:android-gif-drawable:1.2.27")
 
     implementation ("com.google.code.gson:gson:2.10.1")
+
+
+    //Jackson
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
+
+    // Retrofit
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
 
 
 

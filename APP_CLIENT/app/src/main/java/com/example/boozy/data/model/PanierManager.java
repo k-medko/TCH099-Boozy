@@ -2,6 +2,7 @@ package com.example.boozy.data.model;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -9,6 +10,12 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * PanierManager
+ * -------------
+ * Gère un panier local dans SharedPreferences.
+ * Stocke la liste de Product (ou un champ quantity dans Product).
+ */
 public class PanierManager {
 
     private static final String PREF_NAME = "boozy_prefs";
@@ -37,7 +44,6 @@ public class PanierManager {
         List<Produit> panier = getCart();
         panier.remove(product);
         saveCart(panier);
-
     }
 
     public List<Produit> getCart() {

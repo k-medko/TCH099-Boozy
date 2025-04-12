@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@android:color/white">
 
-    <!-- En-tête avec flèche retour et titre -->
+    <!-- ─────────────── En‑tête ─────────────── -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:orientation="horizontal"
         android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingEnd="16dp">
 
@@ -24,31 +24,30 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Suivi de commande"
-            android:textSize="18sp"
-            android:textStyle="bold"
             android:gravity="center"
+            android:text="Suivi de clientOrder"
             android:textColor="@android:color/black"
-            />
+            android:textSize="18sp"
+            android:textStyle="bold"/>
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#CCCCCC" />
+        android:background="#CCCCCC"/>
 
-    <!-- Contenu défilable -->
+    <!-- ─────────────── Contenu scrollable ─────────────── -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <!-- Section Infos commande -->
-            <!-- Ligne : # commande -->
+            <!-- ====== Infos clientOrder ====== -->
+            <!-- # clientOrder -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -61,21 +60,21 @@
                     android:layout_weight="1"
                     android:text="Commande #"
                     android:textStyle="bold"
-                    android:textColor="@android:color/black" />
+                    android:textColor="@android:color/black"/>
 
                 <TextView
                     android:id="@+id/numeroCommande"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/black" />
+                    android:textColor="@android:color/black"/>
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#CCCCCC" />
+                android:background="#CCCCCC"/>
 
-            <!-- Ligne : Date -->
+            <!-- Date -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -88,21 +87,21 @@
                     android:layout_weight="1"
                     android:text="@string/date"
                     android:textStyle="bold"
-                    android:textColor="@android:color/black" />
+                    android:textColor="@android:color/black"/>
 
                 <TextView
                     android:id="@+id/dateCommande"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/black" />
+                    android:textColor="@android:color/black"/>
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#CCCCCC" />
+                android:background="#CCCCCC"/>
 
-            <!-- Ligne : Total payé -->
+            <!-- Total payé -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -115,21 +114,21 @@
                     android:layout_weight="1"
                     android:text="@string/total_paye"
                     android:textStyle="bold"
-                    android:textColor="@android:color/black" />
+                    android:textColor="@android:color/black"/>
 
                 <TextView
                     android:id="@+id/montantCommande"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/black" />
+                    android:textColor="@android:color/black"/>
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#CCCCCC" />
+                android:background="#CCCCCC"/>
 
-            <!-- Ligne : Livreur -->
+            <!-- Livreur -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -142,22 +141,44 @@
                     android:layout_weight="1"
                     android:text="Livreur"
                     android:textStyle="bold"
-                    android:textColor="@android:color/black"
-                    />
+                    android:textColor="@android:color/black"/>
 
                 <TextView
                     android:id="@+id/livreurCommande"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/black" />
+                    android:textColor="@android:color/black"/>
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#CCCCCC" />
+                android:background="#CCCCCC"/>
 
-            <!-- Barre de progression -->
+            <!-- ====== Statut temps réel ====== -->
+            <TextView
+                android:id="@+id/textStatut"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_gravity="center_horizontal"
+                android:text="Statut : ..."
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"/>
+
+            <ProgressBar
+                android:id="@+id/progressSuivi"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="240dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_gravity="center_horizontal"
+                android:max="100"
+                android:progress="0"
+                android:indeterminate="false"/>
+
+            <!-- ====== Barre de progression décorative ====== -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="480dp"
@@ -165,20 +186,21 @@
                 android:orientation="vertical"
                 android:paddingHorizontal="80dp">
 
-                <!-- Étape 1 -->
+                <!-- Étape 1 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <TextView
+                        android:id="@+id/circle1"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_marginEnd="8dp"
                         android:background="@drawable/circle_brown"
                         android:gravity="center"
                         android:text="1"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@android:color/white"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -186,8 +208,7 @@
                         android:layout_gravity="center_vertical"
                         android:text="@string/en_cours_de_traitement"
                         android:textSize="16sp"
-                        android:textColor="@android:color/black"
-                        />
+                        android:textColor="@android:color/black"/>
                 </LinearLayout>
 
                 <View
@@ -195,22 +216,23 @@
                     android:layout_width="5dp"
                     android:layout_height="120dp"
                     android:layout_marginStart="19dp"
-                    android:background="@color/grey" />
+                    android:background="@color/grey"/>
 
-                <!-- Étape 2 -->
+                <!-- Étape 2 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <TextView
+                        android:id="@+id/circle2"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_marginEnd="8dp"
                         android:background="@drawable/circle_brown"
                         android:gravity="center"
                         android:text="2"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@android:color/white"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -218,8 +240,7 @@
                         android:layout_gravity="center_vertical"
                         android:text="@string/en_route"
                         android:textSize="16sp"
-                        android:textColor="@android:color/black"
-                        />
+                        android:textColor="@android:color/black"/>
                 </LinearLayout>
 
                 <View
@@ -227,22 +248,23 @@
                     android:layout_width="5dp"
                     android:layout_height="120dp"
                     android:layout_marginStart="19dp"
-                    android:background="@color/grey" />
+                    android:background="@color/grey"/>
 
-                <!-- Étape 3 -->
+                <!-- Étape 3 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <TextView
+                        android:id="@+id/circle3"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_marginEnd="8dp"
                         android:background="@drawable/circle_brown"
                         android:gravity="center"
                         android:text="3"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@android:color/white"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -250,8 +272,7 @@
                         android:layout_gravity="center_vertical"
                         android:text="@string/livree"
                         android:textSize="16sp"
-                        android:textColor="@android:color/black"
-                        />
+                        android:textColor="@android:color/black"/>
                 </LinearLayout>
 
                 <View
@@ -259,7 +280,7 @@
                     android:layout_width="5dp"
                     android:layout_height="120dp"
                     android:layout_marginStart="19dp"
-                    android:background="@color/grey" />
+                    android:background="@color/grey"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

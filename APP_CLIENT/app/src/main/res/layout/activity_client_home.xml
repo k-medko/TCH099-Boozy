@@ -136,7 +136,7 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
-            <!-- Titre liste magasins -->
+            <!-- Titre liste shops -->
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -162,7 +162,7 @@
                 android:layout_marginStart="16dp"
                 style="@style/TextStyle"/>
 
-            <!-- Liste des magasins -->
+            <!-- Liste des shops -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/shopRecyclerView"
                 android:layout_width="match_parent"

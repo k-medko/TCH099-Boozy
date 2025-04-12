@@ -1,10 +1,19 @@
 package com.example.boozy.data.model;
 
-public class UserLoginData {
+import java.io.Serializable;
+
+/**
+ * LoginDto
+ * --------
+ * Objet envoyé à /connectUser (ou /login) pour se connecter.
+ */
+public class LoginDto implements Serializable {
     private String email;
     private String password;
 
-    public UserLoginData(String email, String password) {
+    public LoginDto() { }
+
+    public LoginDto(String email, String password) {
         this.email = email;
         this.password = password;
     }
@@ -12,9 +21,7 @@ public class UserLoginData {
     public String getEmail() {
         return email;
     }
-
     public String getPassword() {
         return password;
     }
 }
-

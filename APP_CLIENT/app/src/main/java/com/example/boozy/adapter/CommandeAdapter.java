@@ -9,16 +9,16 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.boozy.R;
-import com.example.boozy.data.model.Commande;
+import com.example.boozy.data.model.ClientOrder;
 
 import java.util.List;
 
 public class CommandeAdapter extends RecyclerView.Adapter<CommandeAdapter.CommandeViewHolder> {
 
-    List<Commande> commandes;
+    List<ClientOrder> clientOrders;
 
-    public CommandeAdapter(List<Commande> commandes) {
-        this.commandes = commandes;
+    public CommandeAdapter(List<ClientOrder> clientOrders) {
+        this.clientOrders = clientOrders;
     }
 
     @NonNull
@@ -30,14 +30,14 @@ public class CommandeAdapter extends RecyclerView.Adapter<CommandeAdapter.Comman
 
     @Override
     public void onBindViewHolder(@NonNull CommandeViewHolder holder, int position) {
-        Commande commande = commandes.get(position);
-        holder.numero.setText("Commande #" + commande.getNumeroCommande());
-        holder.date.setText("Date : " + commande.getDateCommande());
+        ClientOrder clientOrder = clientOrders.get(position);
+        holder.numero.setText("Commande #" + clientOrder.getClientOrderId());
+        holder.date.setText("Date : " + clientOrder.getCreationDate());
     }
 
     @Override
     public int getItemCount() {
-        return commandes.size();
+        return clientOrders.size();
     }
 
     static class CommandeViewHolder extends RecyclerView.ViewHolder {

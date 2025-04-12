@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
+
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:allowBackup="true"
@@ -20,54 +21,40 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Boozy"
         tools:targetApi="31">
-        <activity
-            android:name=".ui.order.HistoriqueActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.delivery.ModifierProfilLivreurActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.delivery.ProfilLivreurActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.client.ModifierProfilClientActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.delivery.LivreurHomeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.order.SuiviCommandeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.order.CommandeEnCoursActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.client.PaiementActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.shop.ProductDetailActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.client.ProfilClientActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.client.ClientHomeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.auth.RegisterDeliveryActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.auth.RegisterClientActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.auth.LoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.auth.SelectionProfilActivity"
-            android:exported="false" />
+        <activity android:name=".ui.order.HistoriqueActivity" android:exported="false" />
+
+        <activity android:name=".ui.delivery.ModifierProfilLivreurActivity" android:exported="false" />
+
+        <activity android:name=".ui.delivery.ProfilLivreurActivity" android:exported="false" />
+
+        <activity android:name=".ui.client.ModifierProfilClientActivity" android:exported="false" />
+
+        <activity android:name=".ui.delivery.LivreurHomeActivity" android:exported="true" />
+
+        <activity android:name=".ui.order.SuiviCommandeActivity" android:exported="false" />
+
+        <activity android:name=".ui.order.CommandeEnCoursActivity" android:exported="false" />
+
+        <activity android:name=".ui.client.PaiementActivity" android:exported="false" />
+
+        <activity android:name=".ui.shop.ProductDetailActivity" android:exported="false" />
+
+        <activity android:name=".ui.client.ProfilClientActivity" android:exported="false" />
+
+        <activity android:name=".ui.client.ClientHomeActivity" android:exported="true" />
+
+        <activity android:name=".ui.auth.RegisterDeliveryActivity" android:exported="false" />
+
+        <activity android:name=".ui.auth.RegisterClientActivity" android:exported="true" />
+
+        <activity android:name=".ui.auth.LoginActivity" android:exported="true" />
+
+        <activity android:name=".ui.auth.SelectionProfilActivity" android:exported="true" />
+
+
         <activity
             android:name=".ui.auth.AuthChoiceActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.Boozy" />
         <activity
             android:name=".ui.shop.ShopDetailActivity"

@@ -15,8 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.boozy.R;
 import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.TypeUtilisateur;
-import com.example.boozy.data.model.UserLoginData;
-import com.example.boozy.data.model.Utilisateur;
+import com.example.boozy.data.model.LoginDto;
+import com.example.boozy.data.model.UserAccount;
 import com.example.boozy.data.model.UtilisateurManager;
 import com.example.boozy.ui.client.ClientHomeActivity;
 import com.example.boozy.ui.delivery.LivreurHomeActivity;
@@ -39,12 +39,15 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         initializeViews();
 
+        String storedType = UtilisateurManager.getInstance(getApplicationContext()).getUserType();
         // Vérifier si l'utilisateur est déjà connecté
         if (UtilisateurManager.getInstance(getApplicationContext()).isLoggedIn()) {
-            if (UtilisateurManager.getInstance(getApplicationContext()).getType() == TypeUtilisateur.CLIENT) {
+            if (storedType.equalsIgnoreCase("client")) {
                 openActivity(ClientHomeActivity.class);
-            } else {
+            } else if (storedType.equalsIgnoreCase("carrier")) {
                 openActivity(LivreurHomeActivity.class);
+            }else {
+                showToast("Type d'utilisateur non gere.");
             }
         }
     }
@@ -81,41 +84,42 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://4.172.255.120:5000/")
+                .baseUrl("http://4.172.252.189:5000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         ApiService apiService = retrofit.create(ApiService.class);
 
-        UserLoginData loginData = new UserLoginData(email, password);
+        LoginDto loginData = new LoginDto(email, password);
 
-        Call<Utilisateur> call = apiService.connectUser(loginData);
-        call.enqueue(new Callback<Utilisateur>() {
+        Call<UserAccount> call = apiService.connectUser(loginData);
+        call.enqueue(new Callback<UserAccount>() {
             @Override
-            public void onResponse(Call<Utilisateur> call, Response<Utilisateur> response) {
+            public void onResponse(Call<UserAccount> call, Response<UserAccount> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Utilisateur utilisateur = response.body();
-                    String userType = utilisateur.getTypeUtilisateur();
+                    UserAccount user = response.body();
+                    String userType = user.getUserType();
 
                     // Enregistrer les informations utilisateur localement
-                    if (userType.equals("customer")) {
+                    if (userType.equalsIgnoreCase("client")) {
                         UtilisateurManager.getInstance(getApplicationContext()).setClient(
-                                utilisateur.getIdUtilisateur(),
-                                utilisateur.getNom(),
-                                utilisateur.getPrenom(),
-                                utilisateur.getEmail(),
+                                user.getUserId(),
+                                user.getLastName(),
+                                user.getFirstName(),
+                                user.getEmail(),
                                 "token_placeholder"
                         );
                         openActivity(ClientHomeActivity.class);
-                    } else if (userType.equals("deliverer")) {
+
+                    } else if (userType.equalsIgnoreCase("carrier")) {
                         UtilisateurManager.getInstance(getApplicationContext()).setLivreur(
-                                utilisateur.getIdUtilisateur(),
-                                utilisateur.getNom(),
-                                utilisateur.getPrenom(),
-                                utilisateur.getEmail(),
+                                user.getUserId(),
+                                user.getLastName(),
+                                user.getFirstName(),
+                                user.getEmail(),
                                 "token_placeholder",
-                                utilisateur.getNumTel(),
-                                utilisateur.getNumeroPermis()
+                                user.getPhoneNumber(),
+                                user.getLicensePlate()
                         );
                         openActivity(LivreurHomeActivity.class);
                     } else if (userType.equals("admin")) {
@@ -129,7 +133,7 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<Utilisateur> call, Throwable t) {
+            public void onFailure(Call<UserAccount> call, Throwable t) {
                 showToast("Erreur de connexion : " + t.getMessage());
             }
         });

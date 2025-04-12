@@ -10,21 +10,21 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.boozy.R;
-import com.example.boozy.data.model.Commande;
+import com.example.boozy.data.model.ClientOrder;
 
 import java.util.List;
 
 public class CommandeDisponibleAdapter extends RecyclerView.Adapter<CommandeDisponibleAdapter.ViewHolder> {
 
     public interface OnAccepterClickListener {
-        void onAccepterClicked(Commande commande);
+        void onAccepterClicked(ClientOrder clientOrder);
     }
 
-    private List<Commande> commandes;
+    private List<ClientOrder> clientOrders;
     private OnAccepterClickListener listener;
 
-    public CommandeDisponibleAdapter(List<Commande> commandes, OnAccepterClickListener listener) {
-        this.commandes = commandes;
+    public CommandeDisponibleAdapter(List<ClientOrder> clientOrders, OnAccepterClickListener listener) {
+        this.clientOrders = clientOrders;
         this.listener = listener;
     }
 
@@ -51,13 +51,13 @@ public class CommandeDisponibleAdapter extends RecyclerView.Adapter<CommandeDisp
 
     @Override
     public void onBindViewHolder(@NonNull CommandeDisponibleAdapter.ViewHolder holder, int position) {
-        Commande commande = commandes.get(position);
+        ClientOrder clientOrder = clientOrders.get(position);
 
         // Numéro de commande
-        holder.numeroCommande.setText("Commande " + commande.getNumeroCommande());
+        holder.numeroCommande.setText("Commande " + clientOrder.getClientOrderId());
 
         // Temps estimé avec fallback
-        String temps = commande.getTempsEstime();
+        String temps = clientOrder.getTempsEstime();
         if (temps != null && !temps.isEmpty()) {
             holder.tempsEstimeText.setText("Temps approximatif : " + temps);
         } else {
@@ -65,15 +65,15 @@ public class CommandeDisponibleAdapter extends RecyclerView.Adapter<CommandeDisp
         }
 
         // Montant a calculer
-        holder.paiementText.setText("Montant : " + commande.getMontant());
+        holder.paiementText.setText("Montant : " + clientOrder.getTotalAmount());
 
         // Action bouton
-        holder.accepterButton.setOnClickListener(v -> listener.onAccepterClicked(commande));
+        holder.accepterButton.setOnClickListener(v -> listener.onAccepterClicked(clientOrder));
 
     }
 
     @Override
     public int getItemCount() {
-        return commandes.size();
+        return clientOrders.size();
     }
 }

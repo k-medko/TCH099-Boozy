@@ -4,7 +4,7 @@
     <string name="background">Background</string>
     <string name="connexion">Connexion</string>
     <string name="inscription">Inscription</string>
-    <string name="suivi_commande">Suivi commande</string>
+    <string name="suivi_commande">Suivi clientOrder</string>
     <string name="historique">Historique</string>
     <string name="profil">Profil</string>
     <string name="banner">banner</string>

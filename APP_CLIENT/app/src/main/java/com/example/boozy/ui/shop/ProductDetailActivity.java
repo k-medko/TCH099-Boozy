@@ -62,7 +62,7 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         // Charger l'image avec Glide
         Glide.with(this)
-                .load("http://4.172.255.120:5000/images/" + productImageName)
+                .load("http://4.172.252.189:5000/images/" + productImageName)
                 .placeholder(R.drawable.produit)
                 .into(productImageView);
 
@@ -81,7 +81,8 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         // Ajouter au panier
         addToCartButton.setOnClickListener(v -> {
-            Produit produit = new Produit(productId, productName, productDescription, productPrice, productCategory, quantity, productImageName);
+            Produit produit = new Produit(productId, productName, productDescription, productPrice,
+                    productCategory, 0.0, quantity, productImageName);
             produit.setQuantity(quantity);
             PanierManager.getInstance(getApplicationContext()).addProduct(produit);
 

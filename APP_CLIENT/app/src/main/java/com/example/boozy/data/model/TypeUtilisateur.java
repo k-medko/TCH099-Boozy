@@ -2,21 +2,22 @@ package com.example.boozy.data.model;
 
 public enum TypeUtilisateur {
     CLIENT("client"),
-    LIVREUR("livreur");
+    LIVREUR("carrier"),
+    ADMIN("admin");
 
-    private final String typeUtilisateur;
+    private final String apiValue;
 
-    TypeUtilisateur(String typeUtilisateur) {
-        this.typeUtilisateur = typeUtilisateur;
+    TypeUtilisateur(String apiValue) {
+        this.apiValue = apiValue;
     }
 
-    public String getType() {
-        return typeUtilisateur;
-    }
+    /** Valeur envoyée ou reçue depuis l'API */
+    public String getApiValue() { return apiValue; }
 
+    /** Convertit la chaîne reçue depuis l'API en enum (case‑insensitive). */
     public static TypeUtilisateur fromString(String text) {
-        for (TypeUtilisateur t : TypeUtilisateur.values()) {
-            if (t.typeUtilisateur.equalsIgnoreCase(text)) {
+        for (TypeUtilisateur t : values()) {
+            if (t.apiValue.equalsIgnoreCase(text)) {
                 return t;
             }
         }

@@ -38,7 +38,7 @@
         android:layout_height="1dp"
         android:background="#E6E6E6" />
 
-    <!-- Liste des commandes -->
+    <!-- Liste des clientOrders -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerHistorique"
         android:layout_width="match_parent"
