@@ -336,6 +336,90 @@ def create_order():
     )
 
     return jsonify({"status": "success"})
+@app.route('/modifyUser', methods=['POST'])
+def modify_user():
+    data = request.get_json()
+    if "email" not in data or "password" not in data:
+        return jsonify({"status": "error", "message": "Email and password are required"}), 400
+
+    user = execute_query("SELECT * FROM UserAccount WHERE email = %s AND password = %s", (data["email"], data["password"]))
+    if not user:
+        return jsonify({"status": "error", "message": "Invalid credentials"}), 401
+
+    user_id = user[0][0]
+    user_type = user[0][7]
+
+    updates = []
+    params = []
+
+    if "new_email" in data:
+        updates.append("email = %s")
+        params.append(data["new_email"])
+
+    if "new_password" in data:
+        updates.append("password = %s")
+        params.append(data["new_password"])
+
+    if "last_name" in data:
+        updates.append("last_name = %s")
+        params.append(data["last_name"])
+
+    if "first_name" in data:
+        updates.append("first_name = %s")
+        params.append(data["first_name"])
+
+    if "phone_number" in data:
+        updates.append("phone_number = %s")
+        params.append(data["phone_number"])
+
+    if user_type == "carrier":
+        if "license_plate" in data:
+            updates.append("license_plate = %s")
+            params.append(data["license_plate"])
+        if "car_brand" in data:
+            updates.append("car_brand = %s")
+            params.append(data["car_brand"])
+
+    # Handle address update: update only fields provided in the request.
+    address_id = user[0][6]
+    if any(key in data for key in ["civic", "apartment", "street", "city", "postal_code"]):
+        if address_id:
+            addr_updates = []
+            addr_params = []
+            if "civic" in data:
+                addr_updates.append("civic = %s")
+                addr_params.append(data["civic"])
+            if "apartment" in data:
+                addr_updates.append("apartment = %s")
+                addr_params.append(data["apartment"])
+            if "street" in data:
+                addr_updates.append("street = %s")
+                addr_params.append(data["street"])
+            if "city" in data:
+                addr_updates.append("city = %s")
+                addr_params.append(data["city"])
+            if "postal_code" in data:
+                addr_updates.append("postal_code = %s")
+                addr_params.append(data["postal_code"])
+            if addr_updates:
+                addr_params.append(address_id)
+                execute_query(f"UPDATE AddressLine SET {', '.join(addr_updates)} WHERE address_id = %s", tuple(addr_params), fetch=False)
+        else:
+            if all(key in data for key in ["civic", "street", "city"]):
+                new_addr_id = execute_query(
+                    "INSERT INTO AddressLine (civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s)",
+                    (data.get("civic"), data.get("apartment"), data.get("street"), data.get("city"), data.get("postal_code")),
+                    fetch=False
+                )
+                updates.append("address_id = %s")
+                params.append(new_addr_id)
+
+    if updates:
+        params.append(user_id)
+        execute_query(f"UPDATE UserAccount SET {', '.join(updates)} WHERE user_id = %s", tuple(params), fetch=False)
+        return jsonify({"status": "success", "message": "User updated successfully"})
+
+    return jsonify({"status": "error", "message": "No fields to update"}), 400
 
 @app.route('/cancelOrder', methods=['POST'])
 def cancel_order():

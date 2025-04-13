@@ -307,13 +307,13 @@ def run_tests():
             }
             test_endpoint("POST", "/takeOrder", data=take_order_data, expected_status=200, description="carrier takes order")
             
-            # --- Carrier Updates Order Status to Shipped ---
+            # --- Carrier Updates Order Status to Shipping ---
             update_order_data = {
                 "email": CARRIER_EMAIL,
                 "password": CARRIER_PASSWORD,
-                "status": "Shipped"
+                "status": "Shipping"
             }
-            test_endpoint("POST", "/updateOrder", data=update_order_data, expected_status=200, description="update order to Shipped")
+            test_endpoint("POST", "/updateOrder", data=update_order_data, expected_status=200, description="update order to Shipping")
             
             # --- Carrier Updates Order Status to Completed ---
             complete_order_data = {
