@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="12dp"
+    android:padding="0dp"
+    android:backgroundTint="@android:color/white"
+    android:elevation="1dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:background="@drawable/product_card_background">
+
+    <TextView
+        android:id="@+id/textNumero"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="Commande #1234"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:textSize="16sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E6E6E6" />
+
+    <TextView
+        android:id="@+id/textDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:textColor="#000000"
+        android:textSize="15sp" />
+</LinearLayout>
