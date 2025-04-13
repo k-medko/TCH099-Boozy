@@ -21,6 +21,9 @@ import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.Produit;
 import com.example.boozy.ui.client.ClientHomeActivity;
 import com.example.boozy.ui.client.PaiementActivity;
+import com.example.boozy.ui.client.ProfilClientActivity;
+import com.example.boozy.ui.order.CommandeEnCoursActivity;
+import com.example.boozy.ui.order.SuiviCommandeActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
@@ -63,11 +66,13 @@ public class ShopDetailActivity extends AppCompatActivity {
 
     private void setupFullScreen() {
         Window window = getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        window.getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(true);
+        } else {
+            window.getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            );
+        }
         window.setStatusBarColor(Color.TRANSPARENT);
         window.setNavigationBarColor(Color.TRANSPARENT);
     }
@@ -163,6 +168,14 @@ public class ShopDetailActivity extends AppCompatActivity {
                 navigateToCart();
                 return true;
             }
+            else if (id == R.id.nav_profile) {
+                navigateToProfil();
+                return true;
+            }
+            else if (id == R.id.nav_notifications) {
+                navigateToOrder();
+                return true;
+            }
             return false;
         });
     }
@@ -176,6 +189,16 @@ public class ShopDetailActivity extends AppCompatActivity {
 
     private void navigateToCart() {
         Intent intent = new Intent(this, PaiementActivity.class);
+        startActivity(intent);
+    }
+
+    private void navigateToProfil() {
+        Intent intent = new Intent(this, ProfilClientActivity.class);
+        startActivity(intent);
+    }
+
+    private void navigateToOrder() {
+        Intent intent = new Intent(this, SuiviCommandeActivity.class);
         startActivity(intent);
     }
 }

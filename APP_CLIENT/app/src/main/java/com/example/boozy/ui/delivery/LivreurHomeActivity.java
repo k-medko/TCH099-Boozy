@@ -19,6 +19,7 @@ import com.example.boozy.ui.order.CommandeEnCoursActivity;
 import com.example.boozy.ui.order.HistoriqueActivity;
 import com.example.boozy.ui.delivery.ProfilLivreurActivity;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,20 +34,11 @@ public class LivreurHomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_livreur_home);
 
-        // Effet plein écran
         setupFullScreen();
-
-        // Initialisation des vues
         recyclerView = findViewById(R.id.recyclerCommandes);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        // Initialiser la liste des commandes
         commandeList = new ArrayList<>();
 
-        // Charger les commandes depuis le serveur
-        loadCommandesFromServer();
-
-        // Configuration de l'adaptateur
         adapter = new CommandeDisponibleAdapter(commandeList, commande -> {
             commandeList.remove(commande);
             adapter.notifyDataSetChanged();
@@ -60,6 +52,7 @@ public class LivreurHomeActivity extends AppCompatActivity {
         });
 
         recyclerView.setAdapter(adapter);
+        loadCommandesFromServer();
 
         // Bouton de redirection vers l'historique
         LinearLayout btnHistorique = findViewById(R.id.buttonHistorique);
@@ -78,7 +71,7 @@ public class LivreurHomeActivity extends AppCompatActivity {
         // Bouton de redirection vers le profil livreur
         LinearLayout btnProfilLivreur = findViewById(R.id.buttonProfil);
         btnProfilLivreur.setOnClickListener(v -> {
-            Intent intent = new Intent(LivreurHomeActivity.this, com.example.boozy.ui.delivery.ProfilLivreurActivity.class);
+            Intent intent = new Intent(LivreurHomeActivity.this, ProfilLivreurActivity.class);
             startActivity(intent);
         });
     }

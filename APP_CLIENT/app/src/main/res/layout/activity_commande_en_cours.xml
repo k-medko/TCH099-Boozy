@@ -1,191 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="#FFFFFF">
 
-    <!-- Barre du haut -->
-    <LinearLayout
+    <!-- Header avec retour + titre -->
+    <RelativeLayout
+        android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="12dp"
-        android:gravity="center_vertical">
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
+        <ImageButton
             android:id="@+id/buttonBack"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="0dp"
             android:src="@drawable/ic_arrow_back"
-            android:contentDescription="@string/retour"
-            app:tint="#000000" />
+            app:tint="#000000"
+            android:contentDescription="Retour" />
 
         <TextView
-            android:layout_width="0dp"
+            android:id="@+id/titleCommande"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/commande_en_cours"
+            android:text="Commande en cours"
             android:textSize="18sp"
-            android:textColor="#000000"
             android:textStyle="bold"
-            android:gravity="center" />
-    </LinearLayout>
+            android:textColor="#000000"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="12dp"
+            android:layout_alignParentTop="true"/>
+    </RelativeLayout>
 
-    <!-- Contenu principal -->
-    <ScrollView
+    <!-- Ligne grise sous le header -->
+    <View
+        android:id="@+id/ligneGrise"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="16dp">
+        android:layout_height="0.7dp"
+        android:background="#E0E0E0"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout" />
 
+    <!-- Bloc encadré -->
+    <LinearLayout
+        android:id="@+id/containerCommande"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginHorizontal="16dp"
+        android:orientation="vertical"
+        android:background="@drawable/image_border"
+        app:layout_constraintTop_toBottomOf="@id/ligneGrise"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+    <!-- Commande -->
+        <TextView
+            android:id="@+id/textNumeroCommande"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Commande #1234"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:padding="12dp" />
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6"/>
+
+        <!-- Client -->
+        <TextView
+            android:id="@+id/textClient"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Client : Jacques G."
+            android:textColor="#000000"
+            android:textSize="15sp"
+            android:padding="12dp" />
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6"/>
+
+        <!-- Récupération -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@android:color/white"
-            android:elevation="1dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="12dp"
-            android:layout_marginHorizontal="4dp"
-            android:backgroundTint="@android:color/white"
-            android:foreground="?android:attr/selectableItemBackground">
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:gravity="center_vertical">
 
-            <!-- Ligne 1 : numéro de commande -->
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_store"
+                android:layout_marginEnd="8dp"
+                app:tint="#000000" />
+
             <TextView
-                android:id="@+id/textNumeroCommande"
-                android:layout_width="match_parent"
+                android:id="@+id/textRecuperation"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Commande #1234"
-                android:textStyle="bold"
+                android:layout_weight="1"
+                android:text="Récupération : 1234 rue Ontario, Montréal"
                 android:textColor="#000000"
-                android:textSize="16sp"
-                android:padding="12dp" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E6E6E6" />
-
-            <!-- Ligne 2 : Client -->
-            <TextView
-                android:id="@+id/textClient"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Client : Jacques G."
-                android:textColor="#000000"
-                android:textSize="15sp"
-                android:padding="12dp" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E6E6E6" />
-
-            <!-- Ligne 3 : Récupération -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="12dp"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_store"
-                    android:layout_marginEnd="8dp"
-                    app:tint="#000000" />
-
-                <TextView
-                    android:id="@+id/textRecuperation"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Récupération : 1234 rue Ontario, Montréal"
-                    android:textColor="#000000"
-                    android:textSize="15sp" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E6E6E6" />
-
-            <!-- Ligne 4 : Destination -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="12dp"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_location"
-                    android:layout_marginEnd="8dp"
-                    app:tint="#000000" />
-
-                <TextView
-                    android:id="@+id/textDestination"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Destination : 1234 rue Ontario, Montréal"
-                    android:textColor="#000000"
-                    android:textSize="15sp" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E6E6E6" />
-
-            <!-- Ligne 5 : Bouton "Démarrer la course" -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="end"
-                android:padding="12dp">
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/buttonDemarrer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/demarrer"
-                    android:textAllCaps="false"
-                    android:background="@drawable/button_square"
-                    android:textColor="#FFFFFF"
-                    android:paddingHorizontal="24dp"
-                    android:paddingVertical="6dp" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E6E6E6" />
-
-            <!-- Ligne 6 : Bouton "Marquer comme livrée" -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="end"
-                android:padding="12dp">
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/buttonLivree"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/livrer"
-                    android:textAllCaps="false"
-                    android:background="@drawable/button_square"
-                    android:textColor="#FFFFFF"
-                    android:paddingHorizontal="24dp"
-                    android:paddingVertical="6dp" />
-            </LinearLayout>
-
+                android:textSize="15sp" />
         </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6"/>
+
+        <!-- Destination -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_location"
+                android:layout_marginEnd="8dp"
+                app:tint="#000000" />
+
+            <TextView
+                android:id="@+id/textDestination"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Destination : 1234 rue Ontario, Montréal"
+                android:textColor="#000000"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6"/>
+
+        <!-- Bouton Démarrer -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:padding="12dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/buttonDemarrer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Démarrer la course"
+                android:textAllCaps="false"
+                android:background="@drawable/button_square"
+                android:textColor="#FFFFFF"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"/>
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6"/>
+
+        <!-- Bouton Livrée -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:padding="12dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/buttonLivree"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Marquer comme livrée"
+                android:textAllCaps="false"
+                android:background="@drawable/button_square"
+                android:textColor="#FFFFFF"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

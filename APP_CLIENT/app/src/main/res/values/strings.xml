@@ -8,7 +8,7 @@
     <string name="historique">Historique</string>
     <string name="profil">Profil</string>
     <string name="banner">banner</string>
-    <string name="magasins_dispo">Magasins à proximité</string>
+    <string name="magasins_dispo">Magasins disponibles</string>
     <string name="ic_notif">ic_notif</string>
     <string name="ic_clock">ic_clock</string>
     <string name="ic_profil">ic_profil</string>
@@ -67,4 +67,6 @@
     <string name="en_route">En route</string>
     <string name="livree">Livrée</string>
     <string name="appartement">Appartement</string>
+    <string name="ajouter_au_panier">Ajouter au panier</string>
+    <string name="num_de_plaque">Numéro de plaque</string>
 </resources>

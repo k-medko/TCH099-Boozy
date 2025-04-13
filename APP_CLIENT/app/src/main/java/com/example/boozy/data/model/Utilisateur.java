@@ -20,13 +20,7 @@ public class Utilisateur {
     private String numTel;
 
     @SerializedName("license_plate")
-    private String numeroPermis;
-
-    @SerializedName("car_brand")
-    private String marqueAuto;
-
-    @SerializedName("total_earnings")
-    private double totalGains;
+    private String plaqueAuto;
 
     @SerializedName("user_type")
     private String typeUtilisateur;
@@ -79,28 +73,12 @@ public class Utilisateur {
         this.numTel = numTel;
     }
 
-    public String getNumeroPermis() {
-        return numeroPermis;
+    public String getPlaqueAuto() {
+        return plaqueAuto;
     }
 
-    public void setNumeroPermis(String numeroPermis) {
-        this.numeroPermis = numeroPermis;
-    }
-
-    public String getMarqueAuto() {
-        return marqueAuto;
-    }
-
-    public void setMarqueAuto(String marqueAuto) {
-        this.marqueAuto = marqueAuto;
-    }
-
-    public double getTotalGains() {
-        return totalGains;
-    }
-
-    public void setTotalGains(double totalGains) {
-        this.totalGains = totalGains;
+    public void setPlaqueAuto(String plaqueAuto) {
+        this.plaqueAuto = plaqueAuto;
     }
 
     public String getTypeUtilisateur() {
