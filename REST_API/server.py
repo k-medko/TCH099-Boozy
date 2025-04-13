@@ -265,9 +265,10 @@ def create_order():
     creation_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     order_id = execute_query(
         "INSERT INTO ClientOrder (creation_date, status, total_amount, address_id, shop_id, client_id, carrier_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-        (creation_date, "Searching", total_amount, address_id, shop_id, user[0][0], None), 
+        (creation_date, "Searching", total_amount, address_id, shop_id, user[0][0], 0),
         fetch=False
     )
+
 
     for item in items:
         prod_id = item["product_id"]
