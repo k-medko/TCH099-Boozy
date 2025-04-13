@@ -194,7 +194,7 @@ def get_order_status():
     order = execute_query("SELECT status, client_id FROM ClientOrder WHERE client_order_id = %s", (order_id,))
     if not order:
         return jsonify({"status": "error", "message": "Order not found"}), 404
-
+    
     if order[0][1] != user_id:
         return jsonify({"status": "error", "message": "This order does not belong to the user"}), 403
 
