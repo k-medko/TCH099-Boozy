@@ -133,6 +133,30 @@ def get_availability():
         })
     return jsonify(res)
 
+@app.route('/getOrders', methods=['GET'])
+def get_orders():
+    orders = execute_query(
+        "SELECT co.client_order_id, co.total_amount, co.shop_id, s.name as shop_name, "
+        "a.civic, a.apartment, a.street, a.city, a.postal_code "
+        "FROM ClientOrder co "
+        "JOIN Shop s ON co.shop_id = s.shop_id "
+        "JOIN AddressLine a ON s.address_id = a.address_id "
+        "WHERE co.status = 'Searching'"
+    )
+    
+    result = []
+    for order in orders:
+        apt = f" apt {order[5]}" if order[5] else ""
+        result.append({
+            "order_id": order[0],
+            "total_amount": float(order[1]),
+            "shop_id": order[2],
+            "shop_name": order[3],
+            "shop_address": f"{order[4]}{apt} {order[6]}, {order[7]}, {order[8]}"
+        })
+    
+    return jsonify(result)
+
 ######## User Routes ########
 @app.route('/createUser', methods=['POST'])
 def create_user():
@@ -157,18 +181,28 @@ def create_user():
         license_plate = data["license_plate"]
         car_brand = data.get("car_brand")
     address_id = None
+    # Allow address only if provided during user creation but do not return it
     if "address" in data and isinstance(data["address"], dict):
         addr = data["address"]
-        new_addr_id = execute_query("INSERT INTO AddressLine (civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s)",
-                                    (addr.get("civic"), addr.get("apartment"), addr.get("street"), addr.get("city"), addr.get("postal_code")), fetch=False)
+        new_addr_id = execute_query(
+            "INSERT INTO AddressLine (civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s)",
+            (addr.get("civic"), addr.get("apartment"), addr.get("street"), addr.get("city"), addr.get("postal_code")), 
+            fetch=False
+        )
         address_id = new_addr_id
     elif all(key in data for key in ["civic", "street", "city"]):
-        new_addr_id = execute_query("INSERT INTO AddressLine (civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s)",
-                                    (data.get("civic"), data.get("apartment"), data.get("street"), data.get("city"), data.get("postal_code", "")), fetch=False)
+        new_addr_id = execute_query(
+            "INSERT INTO AddressLine (civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s)",
+            (data.get("civic"), data.get("apartment"), data.get("street"), data.get("city"), data.get("postal_code", "")), 
+            fetch=False
+        )
         address_id = new_addr_id
-    new_user_id = execute_query("INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, car_brand, total_earnings) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, car_brand, 0.0), fetch=False)
-    return jsonify({"status": "success", "user_id": new_user_id})
+    execute_query(
+        "INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, car_brand, total_earnings) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, car_brand, 0.0), 
+        fetch=False
+    )
+    return jsonify({"status": "success"})
 
 @app.route('/connectUser', methods=['POST'])
 def connect_user():
@@ -184,7 +218,7 @@ def connect_user():
             ad = execute_query("SELECT * FROM AddressLine WHERE address_id = %s", (user[0][6],))
             if ad:
                 addr = {"civic": ad[0][1], "apartment": ad[0][2], "street": ad[0][3], "city": ad[0][4], "postal_code": ad[0][5]}
-        user_data = {"user_id": user[0][0], "email": user[0][1], "last_name": user[0][3], "first_name": user[0][4],
+        user_data = {"email": user[0][1], "last_name": user[0][3], "first_name": user[0][4],
                      "phone_number": user[0][5], "user_type": user[0][7], "license_plate": user[0][8] if user[0][8] else None,
                      "car_brand": user[0][9] if user[0][9] else None, "total_earnings": float(user[0][10]) if user[0][10] else 0.0,
                      "address": addr}
@@ -194,44 +228,28 @@ def connect_user():
 @app.route('/createOrder', methods=['POST'])
 def create_order():
     data = request.get_json()
-    req = ["user_id", "shop_id", "items", "payment_method"]
+    req = ["email", "password", "shop_id", "items", "payment_method", "card_name", "card_number", "CVC_card", "expiry_date_month", "expiry_date_year"]
     for r in req:
         if r not in data:
             return jsonify({"status": "error", "message": f"Missing required field: {r}"}), 400
-    user_id = data["user_id"]
+
+    user = execute_query("SELECT * FROM UserAccount WHERE email = %s AND password = %s", (data["email"], data["password"]))
+    if not user:
+        return jsonify({"status": "error", "message": "Invalid credentials"}), 401
+
+    # Use only the user's attached address; ignore any address provided in the request
+    if not user[0][6]:
+        return jsonify({"status": "error", "message": "Delivery address is required"}), 400
+    address_id = user[0][6]
+    
     shop_id = data["shop_id"]
     items = data["items"]
     payment_method = data["payment_method"]
-    user = execute_query("SELECT * FROM UserAccount WHERE user_id = %s", (user_id,))
-    if not user:
-        return jsonify({"status": "error", "message": "User not found"}), 404
+
     shop = execute_query("SELECT * FROM Shop WHERE shop_id = %s", (shop_id,))
     if not shop:
         return jsonify({"status": "error", "message": "Shop not found"}), 404
-    address_id = None
-    if "address_id" in data:
-        address_id = data["address_id"]
-        addr = execute_query("SELECT * FROM AddressLine WHERE address_id = %s", (address_id,))
-        if not addr:
-            return jsonify({"status": "error", "message": "Address not found"}), 404
-    elif all(key in data for key in ["civic", "street", "city", "postal_code"]):
-        new_addr_id = execute_query("INSERT INTO AddressLine (civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s)",
-                                    (data.get("civic"), data.get("apartment"), data.get("street"), data.get("city"), data["postal_code"]), fetch=False)
-        address_id = new_addr_id
-    elif user[0][6]:
-        address_id = user[0][6]
-    else:
-        return jsonify({"status": "error", "message": "Delivery address is required"}), 400
-    for r in ["card_name", "card_number", "CVC_card", "expiry_date_month", "expiry_date_year"]:
-        if r not in data:
-            return jsonify({"status": "error", "message": f"Missing payment field: {r}"}), 400
-    carrier = execute_query(
-        "SELECT user_id FROM UserAccount WHERE user_type = 'carrier' AND user_id NOT IN (SELECT DISTINCT carrier_id FROM ClientOrder WHERE status IN ('Searching', 'InRoute')) LIMIT 1")
-    if not carrier:
-        carrier = execute_query("SELECT user_id FROM UserAccount WHERE user_type = 'carrier' LIMIT 1")
-        if not carrier:
-            return jsonify({"status": "error", "message": "No carrier available"}), 400
-    carrier_id = carrier[0][0]
+
     total_amount = 0
     for item in items:
         prod_id = item["product_id"]
@@ -243,33 +261,60 @@ def create_order():
         if not inv or inv[0][0] < qty:
             return jsonify({"status": "error", "message": f"Product {prod_id} not available in requested quantity"}), 400
         total_amount += float(prod[0][0]) * qty
+
     creation_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    order_id = execute_query("INSERT INTO ClientOrder (creation_date, status, total_amount, address_id, shop_id, client_id, carrier_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                             (creation_date, "Searching", total_amount, address_id, shop_id, user_id, carrier_id), fetch=False)
+    order_id = execute_query(
+        "INSERT INTO ClientOrder (creation_date, status, total_amount, address_id, shop_id, client_id, carrier_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+        (creation_date, "Searching", total_amount, address_id, shop_id, user[0][0], None), 
+        fetch=False
+    )
+
     for item in items:
         prod_id = item["product_id"]
         qty = item["quantity"]
-        execute_query("INSERT INTO ClientOrderProduct (client_order_id, product_id, quantity) VALUES (%s, %s, %s)", (order_id, prod_id, qty), fetch=False)
-        execute_query("UPDATE ShopProduct SET quantity = quantity - %s WHERE shop_id = %s AND product_id = %s", (qty, shop_id, prod_id), fetch=False)
-    new_payment_id = execute_query("INSERT INTO Payment (payment_method, amount, payment_date, is_completed, client_order_id, user_id, card_name, card_number, CVC_card, expiry_date_month, expiry_date_year) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                   (payment_method, total_amount, creation_date, True, order_id, user_id, data["card_name"], data["card_number"], data["CVC_card"], data["expiry_date_month"], data["expiry_date_year"]), fetch=False)
-    return jsonify({"status": "success", "order_id": order_id})
+        execute_query(
+            "INSERT INTO ClientOrderProduct (client_order_id, product_id, quantity) VALUES (%s, %s, %s)",
+            (order_id, prod_id, qty), 
+            fetch=False
+        )
+        execute_query(
+            "UPDATE ShopProduct SET quantity = quantity - %s WHERE shop_id = %s AND product_id = %s",
+            (qty, shop_id, prod_id), 
+            fetch=False
+        )
+
+    execute_query(
+        "INSERT INTO Payment (payment_method, amount, payment_date, is_completed, client_order_id, user_id, card_name, card_number, CVC_card, expiry_date_month, expiry_date_year) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        (payment_method, total_amount, creation_date, True, order_id, user[0][0], data["card_name"], data["card_number"], data["CVC_card"], data["expiry_date_month"], data["expiry_date_year"]),
+        fetch=False
+    )
+    
+    return jsonify({"status": "success"})
 
 @app.route('/cancelOrder', methods=['POST'])
 def cancel_order():
     data = request.get_json()
-    if "order_id" not in data:
-        return jsonify({"status": "error", "message": "Order ID is required"}), 400
+    req = ["email", "password", "order_id"]
+    for r in req:
+        if r not in data:
+            return jsonify({"status": "error", "message": f"Missing required field: {r}"}), 400
+
+    user = execute_query("SELECT * FROM UserAccount WHERE email = %s AND password = %s", (data["email"], data["password"]))
+    if not user:
+        return jsonify({"status": "error", "message": "Invalid credentials"}), 401
+
     order_id = data["order_id"]
-    if "email" in data and "password" in data:
-        user = execute_query("SELECT * FROM UserAccount WHERE email = %s AND password = %s", (data["email"], data["password"]))
-        if not user:
-            return jsonify({"status": "error", "message": "Invalid credentials"}), 401
     order = execute_query("SELECT * FROM ClientOrder WHERE client_order_id = %s", (order_id,))
     if not order:
         return jsonify({"status": "error", "message": "Order not found"}), 404
+
+    # Verify order ownership: client_id is assumed to be at index 6
+    if order[0][6] != user[0][0]:
+        return jsonify({"status": "error", "message": "You do not own this order"}), 401
+
     if order[0][2] == "Cancelled":
         return jsonify({"status": "error", "message": "Order is already cancelled"}), 400
+
     items = execute_query("SELECT product_id, quantity FROM ClientOrderProduct WHERE client_order_id = %s", (order_id,))
     for it in items:
         prod_id = it[0]
@@ -278,6 +323,173 @@ def cancel_order():
         execute_query("UPDATE ShopProduct SET quantity = quantity + %s WHERE shop_id = %s AND product_id = %s", (qty, shop_id, prod_id), fetch=False)
     execute_query("UPDATE ClientOrder SET status = 'Cancelled' WHERE client_order_id = %s", (order_id,), fetch=False)
     return jsonify({"status": "success", "message": "Order cancelled successfully"})
+
+@app.route('/modifyUser', methods=['POST'])
+def modify_user():
+    data = request.get_json()
+    if "email" not in data or "password" not in data:
+        return jsonify({"status": "error", "message": "Email and password are required"}), 400
+
+    user = execute_query("SELECT * FROM UserAccount WHERE email = %s AND password = %s", (data["email"], data["password"]))
+    if not user:
+        return jsonify({"status": "error", "message": "Invalid credentials"}), 401
+
+    user_id = user[0][0]
+    user_type = user[0][7]
+
+    updates = []
+    params = []
+
+    if "new_email" in data:
+        updates.append("email = %s")
+        params.append(data["new_email"])
+
+    if "new_password" in data:
+        updates.append("password = %s")
+        params.append(data["new_password"])
+
+    if "last_name" in data:
+        updates.append("last_name = %s")
+        params.append(data["last_name"])
+
+    if "first_name" in data:
+        updates.append("first_name = %s")
+        params.append(data["first_name"])
+
+    if "phone_number" in data:
+        updates.append("phone_number = %s")
+        params.append(data["phone_number"])
+
+    if user_type == "carrier":
+        if "license_plate" in data:
+            updates.append("license_plate = %s")
+            params.append(data["license_plate"])
+        if "car_brand" in data:
+            updates.append("car_brand = %s")
+            params.append(data["car_brand"])
+
+    # Handle address update: update only fields provided in the request.
+    address_id = user[0][6]
+    if any(key in data for key in ["civic", "apartment", "street", "city", "postal_code"]):
+        if address_id:
+            addr_updates = []
+            addr_params = []
+            if "civic" in data:
+                addr_updates.append("civic = %s")
+                addr_params.append(data["civic"])
+            if "apartment" in data:
+                addr_updates.append("apartment = %s")
+                addr_params.append(data["apartment"])
+            if "street" in data:
+                addr_updates.append("street = %s")
+                addr_params.append(data["street"])
+            if "city" in data:
+                addr_updates.append("city = %s")
+                addr_params.append(data["city"])
+            if "postal_code" in data:
+                addr_updates.append("postal_code = %s")
+                addr_params.append(data["postal_code"])
+            if addr_updates:
+                addr_params.append(address_id)
+                execute_query(f"UPDATE AddressLine SET {', '.join(addr_updates)} WHERE address_id = %s", tuple(addr_params), fetch=False)
+        else:
+            # Create new address if none exists and required fields are provided.
+            if all(key in data for key in ["civic", "street", "city"]):
+                new_addr_id = execute_query(
+                    "INSERT INTO AddressLine (civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s)",
+                    (data.get("civic"), data.get("apartment"), data.get("street"), data.get("city"), data.get("postal_code")),
+                    fetch=False
+                )
+                updates.append("address_id = %s")
+                params.append(new_addr_id)
+
+    if updates:
+        params.append(user_id)
+        execute_query(f"UPDATE UserAccount SET {', '.join(updates)} WHERE user_id = %s", tuple(params), fetch=False)
+        return jsonify({"status": "success", "message": "User updated successfully"})
+
+    return jsonify({"status": "error", "message": "No fields to update"}), 400
+
+######## CARRIER ROUTES #######
+@app.route('/takeOrder', methods=['POST'])
+def take_order():
+    data = request.get_json()
+    if "email" not in data or "password" not in data:
+        return jsonify({"status": "error", "message": "Email and password are required"}), 400
+    if "order_id" not in data:
+        return jsonify({"status": "error", "message": "Order ID is required"}), 400
+    carrier = execute_query(
+        "SELECT user_id FROM UserAccount WHERE email = %s AND password = %s AND user_type = 'carrier'",
+        (data["email"], data["password"])
+    )
+    if not carrier:
+        return jsonify({"status": "error", "message": "Invalid credentials or not a carrier"}), 401
+    carrier_id = carrier[0][0]
+    active_orders = execute_query(
+        "SELECT client_order_id FROM ClientOrder WHERE carrier_id = %s AND status IN ('Searching', 'InRoute')",
+        (carrier_id,)
+    )
+    if active_orders:
+        return jsonify({"status": "error", "message": "Carrier is already assigned to an active order"}), 400
+    order_id = data["order_id"]
+    order = execute_query(
+        "SELECT client_order_id, status FROM ClientOrder WHERE client_order_id = %s",
+        (order_id,)
+    )
+    if not order:
+        return jsonify({"status": "error", "message": "Order not found"}), 404
+    if order[0][1] != "Searching":
+        return jsonify({"status": "error", "message": "Order is not available for pickup"}), 400
+    execute_query(
+        "UPDATE ClientOrder SET carrier_id = %s, status = 'InRoute' WHERE client_order_id = %s",
+        (carrier_id, order_id), fetch=False
+    )
+    return jsonify({"status": "success", "message": "Order assigned successfully"})
+
+@app.route('/updateOrder', methods=['POST'])
+def update_order():
+    data = request.get_json()
+    if "email" not in data or "password" not in data:
+        return jsonify({"status": "error", "message": "Email and password are required"}), 400
+    if "status" not in data:
+        return jsonify({"status": "error", "message": "New status is required"}), 400
+
+    new_status = data["status"]
+    valid_statuses = ["InRoute", "Shipped", "Completed"]
+    if new_status not in valid_statuses:
+        return jsonify({"status": "error", "message": f"Invalid status. Must be one of: {', '.join(valid_statuses)}"}), 400
+
+    carrier = execute_query(
+        "SELECT user_id FROM UserAccount WHERE email = %s AND password = %s AND user_type = 'carrier'",
+        (data["email"], data["password"])
+    )
+    if not carrier:
+        return jsonify({"status": "error", "message": "Invalid credentials or not a carrier"}), 401
+    carrier_id = carrier[0][0]
+
+    active_order = execute_query(
+        "SELECT client_order_id FROM ClientOrder WHERE carrier_id = %s AND status IN ('Searching', 'InRoute')",
+        (carrier_id,)
+    )
+    if not active_order:
+        return jsonify({"status": "error", "message": "No active order found"}), 404
+    order_id = active_order[0][0]
+
+    execute_query(
+        "UPDATE ClientOrder SET status = %s WHERE client_order_id = %s",
+        (new_status, order_id), fetch=False
+    )
+
+    if new_status == "Completed":
+        order = execute_query("SELECT total_amount FROM ClientOrder WHERE client_order_id = %s", (order_id,))
+        if order:
+            delivery_fee = float(order[0][0]) * 0.1
+            execute_query(
+                "UPDATE UserAccount SET total_earnings = total_earnings + %s WHERE user_id = %s",
+                (delivery_fee, carrier_id), fetch=False
+            )
+
+    return jsonify({"status": "success", "message": f"Order status updated to {new_status}"})
 
 ######## Admin Routes ########
 @app.route('/admin/createUser', methods=['POST'])
@@ -313,9 +525,9 @@ def admin_create_user():
         addr = data["address"]
         addr_id = execute_query("INSERT INTO AddressLine (civic, apartment, street, city, postal_code) VALUES (%s, %s, %s, %s, %s)",
                                 (addr.get("civic"), addr.get("apartment"), addr.get("street"), addr.get("city"), addr.get("postal_code")), fetch=False)
-    new_user_id = execute_query("INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, car_brand, total_earnings) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                (email, password, last_name, first_name, phone_number, addr_id, user_type, license_plate, car_brand, 0.0), fetch=False)
-    return jsonify({"status": "success", "user_id": new_user_id})
+    execute_query("INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, address_id, user_type, license_plate, car_brand, total_earnings) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                  (email, password, last_name, first_name, phone_number, addr_id, user_type, license_plate, car_brand, 0.0), fetch=False)
+    return jsonify({"status": "success"})
 
 @app.route('/admin/modifyUser', methods=['POST'])
 def admin_modify_user():
