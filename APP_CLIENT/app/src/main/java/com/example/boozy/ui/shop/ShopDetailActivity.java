@@ -21,7 +21,6 @@ import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.Produit;
 import com.example.boozy.ui.client.ClientHomeActivity;
 import com.example.boozy.ui.client.PaiementActivity;
-import com.example.boozy.utils.GridSpacingItemDecoration;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
@@ -86,8 +85,7 @@ public class ShopDetailActivity extends AppCompatActivity {
     }
 
     private void configureRecyclerViews() {
-        productsRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        productsRecyclerView.addItemDecoration(new GridSpacingItemDecoration(2, 0, true));
+        productsRecyclerView.setLayoutManager(new GridLayoutManager(this, 1));
         productAdapter = new ProductAdapter(produitList);
         productsRecyclerView.setAdapter(productAdapter);
 

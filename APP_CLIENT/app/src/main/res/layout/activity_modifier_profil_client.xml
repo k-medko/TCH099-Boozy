@@ -79,6 +79,30 @@
             android:layout_height="1dp"
             android:background="#DDDDDD"/>
 
+        <!-- Rue -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="12dp">
+
+            <TextView
+                android:text="@string/appartement"
+                android:textStyle="bold"
+                style="@style/TextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/editAppartment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/appartement"
+                android:background="@null"
+                android:minHeight="48dp" />
+        </LinearLayout>
+
         <!-- Numéro civique -->
         <LinearLayout
             android:layout_width="match_parent"
