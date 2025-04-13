@@ -90,7 +90,6 @@ public class LoginActivity extends AppCompatActivity {
                     Log.d("LOGIN_TEST", "Réponse complète : " + new Gson().toJson(response.body()));
 
                     Adresse adresse = utilisateur.getAdresse();
-
                     String userType = utilisateur.getTypeUtilisateur();
                     Log.d("LOGIN_TEST", "Type utilisateur reçu = " + userType);
 
@@ -104,12 +103,6 @@ public class LoginActivity extends AppCompatActivity {
                         );
 
                         if (adresse != null) {
-                            Log.d("LOGIN_TEST", "Adresse récupérée : " +
-                                    adresse.getCivic() + ", " +
-                                    adresse.getStreet() + ", " +
-                                    adresse.getCity() + ", " +
-                                    adresse.getPostalCode());
-
                             UtilisateurManager.getInstance(getApplicationContext()).setAdresse(
                                     adresse.getCivic(),
                                     adresse.getApartment(),
@@ -117,13 +110,12 @@ public class LoginActivity extends AppCompatActivity {
                                     adresse.getCity(),
                                     adresse.getPostalCode()
                             );
-                        } else {
-                            Log.d("LOGIN_TEST", "Adresse est NULL");
                         }
 
                         openActivity(ClientHomeActivity.class);
 
                     } else if ("carrier".equalsIgnoreCase(userType)) {
+                        Log.d("LOGIN_TEST", "Ouverture LivreurHomeActivity");
                         UtilisateurManager.getInstance(getApplicationContext()).setLivreur(
                                 utilisateur.getIdUtilisateur(),
                                 utilisateur.getNom(),
@@ -131,7 +123,7 @@ public class LoginActivity extends AppCompatActivity {
                                 utilisateur.getEmail(),
                                 "token_placeholder",
                                 utilisateur.getNumTel(),
-                                utilisateur.getNumeroPermis()
+                                utilisateur.getPlaqueAuto()
                         );
                         openActivity(LivreurHomeActivity.class);
 
@@ -154,6 +146,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void openActivity(Class<?> activityClass) {
+        Log.d("LOGIN_TEST", "Intent vers : " + activityClass.getSimpleName());
         startActivity(new Intent(this, activityClass));
         finish();
     }

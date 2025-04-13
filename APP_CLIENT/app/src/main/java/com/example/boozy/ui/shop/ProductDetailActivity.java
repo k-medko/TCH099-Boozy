@@ -73,7 +73,7 @@ public class ProductDetailActivity extends AppCompatActivity {
 
     private void displayProductData() {
         productNameText.setText(productName);
-        productPriceText.setText("Prix : $" + productPrice);
+        productPriceText.setText(productPrice + "$/unité");
         productDescriptionText.setText(productDescription);
 
         Glide.with(this)

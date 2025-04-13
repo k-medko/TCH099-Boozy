@@ -7,35 +7,39 @@
     android:background="#FFFFFF">
 
     <!-- Barre de haut -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="16dp">
+        android:layout_marginTop="10dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:gravity="center_vertical">
 
-        <ImageView
-            android:id="@+id/buttonBack"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="0dp"
             android:src="@drawable/ic_arrow_back"
             android:contentDescription="@string/retour"
-            app:tint="#000000" />
+            app:tint="#000000"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"/>
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="@string/historique"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#000000"
-            android:gravity="center" />
-    </LinearLayout>
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="0.7dp"
         android:background="#E6E6E6" />
 
     <!-- Liste des commandes -->
