@@ -472,10 +472,10 @@ def update_order():
 
     new_status = data["status"]
     # Allowed statuses for forward progression (not counting Cancelled)
-    allowed_statuses = ["InRoute", "Shipped", "Completed"]
+    allowed_statuses = ["InRoute", "Shipping", "Completed"]
     # "Cancelled" is allowed at any time.
     if new_status not in allowed_statuses and new_status != "Cancelled":
-        return jsonify({"status": "error", "message": "Invalid status. Must be one of: InRoute, Shipped, Completed or Cancelled"}), 400
+        return jsonify({"status": "error", "message": "Invalid status. Must be one of: InRoute, Shipping, Completed or Cancelled"}), 400
 
     # Get carrier credentials
     carrier = execute_query(
@@ -501,9 +501,9 @@ def update_order():
         valid_transition = False
         if current_status == "Searching" and new_status == "InRoute":
             valid_transition = True
-        elif current_status == "InRoute" and new_status == "Shipped":
+        elif current_status == "InRoute" and new_status == "Shipping":
             valid_transition = True
-        elif current_status == "Shipped" and new_status == "Completed":
+        elif current_status == "Shipping" and new_status == "Completed":
             valid_transition = True
 
         if not valid_transition:

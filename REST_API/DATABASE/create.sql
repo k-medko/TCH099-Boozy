@@ -57,7 +57,7 @@ CREATE TABLE Product (
 CREATE TABLE ClientOrder (
     client_order_id INT(10) AUTO_INCREMENT PRIMARY KEY,
     creation_date DATETIME NOT NULL,
-    status ENUM('Searching','InRoute','Shipped','Cancelled','Completed') NOT NULL,
+    status ENUM('Searching','InRoute','Shipping','Cancelled','Completed') NOT NULL,
     total_amount DECIMAL(10,2) NOT NULL,
     address_id INT(10) NOT NULL,
     shop_id INT(10) NOT NULL,
