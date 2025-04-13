@@ -66,4 +66,5 @@
     <string name="en_cours_de_traitement">En cours de traitement</string>
     <string name="en_route">En route</string>
     <string name="livree">Livrée</string>
+    <string name="appartement">Appartement</string>
 </resources>

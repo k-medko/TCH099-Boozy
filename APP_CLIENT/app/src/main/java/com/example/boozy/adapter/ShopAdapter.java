@@ -9,7 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.boozy.R;
 import com.example.boozy.data.model.Magasin;
 
@@ -40,18 +39,19 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
     public void onBindViewHolder(@NonNull ShopViewHolder holder, int position) {
         Magasin magasin = magasins.get(position);
         holder.shopNameText.setText(magasin.getName());
+        holder.shopImageView.setImageResource(R.drawable.ic_saq);
 
-        Glide.with(holder.itemView.getContext())
-                .load("http://4.172.255.120:5000/images/" + magasin.getImageNom())
-                .placeholder(R.drawable.ic_saq)
-                .into(holder.shopImageView);
-
-        holder.itemView.setOnClickListener(v -> listener.onItemClick(magasin.getName(), magasin.getStoreId()));
+        holder.itemView.setOnClickListener(v -> listener.onItemClick(magasin.getName(), magasin.getShopId()));
     }
 
     @Override
     public int getItemCount() {
         return magasins.size();
+    }
+
+    public void updateList(List<Magasin> newList) {
+        this.magasins = newList;
+        notifyDataSetChanged();
     }
 
     public static class ShopViewHolder extends RecyclerView.ViewHolder {

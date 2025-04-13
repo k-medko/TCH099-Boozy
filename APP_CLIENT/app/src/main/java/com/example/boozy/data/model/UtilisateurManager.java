@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 public class UtilisateurManager {
 
     private static final String PREF_NAME = "boozy_prefs";
-
     private static final String KEY_ID = "id_utilisateur";
     private static final String KEY_NOM = "nom";
     private static final String KEY_PRENOM = "prenom";
@@ -17,10 +16,11 @@ public class UtilisateurManager {
     private static final String KEY_NUM_TEL = "num_tel";
     private static final String KEY_NUMERO_PERMIS = "numero_permis";
 
-    private static final String KEY_NUMERO_CIVIQUE = "numero_civique";
-    private static final String KEY_RUE = "rue";
-    private static final String KEY_CODE_POSTAL = "code_postal";
-    private static final String KEY_VILLE = "ville";
+    private static final String KEY_CIVIC = "civic";
+    private static final String KEY_APARTMENT = "apartment";
+    private static final String KEY_STREET = "street";
+    private static final String KEY_CITY = "city";
+    private static final String KEY_POSTAL_CODE = "postal_code";
 
     private static final String KEY_STRIPE_CARD = "stripe_card";
 
@@ -41,7 +41,7 @@ public class UtilisateurManager {
         return instance;
     }
 
-    // Pour client
+    // ======== CLIENT ========
     public void setClient(int id, String nom, String prenom, String email, String token) {
         editor.putInt(KEY_ID, id);
         editor.putString(KEY_NOM, nom);
@@ -54,7 +54,7 @@ public class UtilisateurManager {
         editor.apply();
     }
 
-    // Pour livreur
+    // ======== LIVREUR ========
     public void setLivreur(int id, String nom, String prenom, String email, String token, String numTel, String numeroPermis) {
         editor.putInt(KEY_ID, id);
         editor.putString(KEY_NOM, nom);
@@ -67,41 +67,42 @@ public class UtilisateurManager {
         editor.apply();
     }
 
-    // Enregistrer l'adresse
-    public void setAdresse(String numeroCivique, String rue, String codePostal, String ville) {
-        editor.putString(KEY_NUMERO_CIVIQUE, numeroCivique);
-        editor.putString(KEY_RUE, rue);
-        editor.putString(KEY_CODE_POSTAL, codePostal);
-        editor.putString(KEY_VILLE, ville);
+    // ======== ADRESSE ========
+    public void setAdresse(String civic, String apartment, String street, String city, String postalCode) {
+        editor.putString(KEY_CIVIC, civic);
+        editor.putString(KEY_APARTMENT, apartment);
+        editor.putString(KEY_STREET, street);
+        editor.putString(KEY_CITY, city);
+        editor.putString(KEY_POSTAL_CODE, postalCode);
         editor.apply();
     }
 
-    // Récupérer l'adresse
     public Adresse getAdresse() {
-        String numeroCivique = prefs.getString(KEY_NUMERO_CIVIQUE, "");
-        String rue = prefs.getString(KEY_RUE, "");
-        String codePostal = prefs.getString(KEY_CODE_POSTAL, "");
-        String ville = prefs.getString(KEY_VILLE, "");
-        return new Adresse(0, numeroCivique, rue, codePostal, ville);
+        Adresse adresse = new Adresse();
+        adresse.setCivic(prefs.getString(KEY_CIVIC, ""));
+        adresse.setApartment(prefs.getString(KEY_APARTMENT, ""));
+        adresse.setStreet(prefs.getString(KEY_STREET, ""));
+        adresse.setCity(prefs.getString(KEY_CITY, ""));
+        adresse.setPostalCode(prefs.getString(KEY_POSTAL_CODE, ""));
+        return adresse;
     }
 
-    // Enregistrer la carte Stripe
+    // ======== STRIPE ========
     public void setCarteStripe(String cardNumber) {
         editor.putString(KEY_STRIPE_CARD, cardNumber);
         editor.apply();
     }
 
-    // Récupérer la carte Stripe
     public String getCarteStripe() {
         return prefs.getString(KEY_STRIPE_CARD, "");
     }
 
-    // Supprimer la carte Stripe
     public void clearCarteStripe() {
         editor.remove(KEY_STRIPE_CARD);
         editor.apply();
     }
 
+    // ======== GETTERS ========
     public int getId() {
         return prefs.getInt(KEY_ID, -1);
     }
@@ -139,11 +140,13 @@ public class UtilisateurManager {
         return getToken() != null && !getToken().isEmpty();
     }
 
+    // ======== LOGOUT ========
     public void logout() {
         editor.clear();
         editor.apply();
     }
 
+    // ======== SETTER TYPE ========
     public void setType(TypeUtilisateur typeUtilisateur) {
         editor.putString(KEY_TYPE, typeUtilisateur.getType());
         editor.apply();

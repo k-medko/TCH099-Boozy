@@ -1,6 +1,9 @@
 package com.example.boozy.data.api;
 
 import com.example.boozy.data.model.Adresse;
+import com.example.boozy.data.model.LoginResponse;
+import com.example.boozy.data.model.Magasin;
+import com.example.boozy.data.model.Produit;
 import com.example.boozy.data.model.UserLoginData;
 import com.example.boozy.data.model.Utilisateur;
 
@@ -8,29 +11,24 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 import java.util.List;
 
 public interface ApiService {
-    @GET("/getStores?")
-    Call<List<List<Object>>> getMagasins();
+    @GET("/getShops")
+    Call<List<Magasin>> getMagasins();
 
     @GET("/getProducts")
-    Call<List<List<Object>>> getProducts(@Query("storeId") int storeId);
-
-    @GET("getProduct/{id}")
-    Call<List<List<Object>>> getProductById(@Path("id") int productId);
+    Call<List<Produit>> getProducts(@Query("storeId") int storeId);
 
     @POST("/connectUser")
-    Call<Utilisateur> connectUser(@Body UserLoginData data);
+    Call<LoginResponse> connectUser(@Body UserLoginData data);
 
-    @GET("/getUser/{id}")
-    Call<Utilisateur> getUserById(@Path("id") int userId);
+    @POST("/createUser")
+    Call<Void> createUser(@Body Utilisateur utilisateur);
 
-    @GET("/getUserAddress/{userId}")
-    Call<Adresse> getUserAddress(@Path("userId") int userId);
+
 
 
 

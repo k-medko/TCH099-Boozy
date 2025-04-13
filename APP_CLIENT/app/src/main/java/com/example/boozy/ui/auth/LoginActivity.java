@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -14,12 +15,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.boozy.R;
 import com.example.boozy.data.api.ApiService;
-import com.example.boozy.data.model.TypeUtilisateur;
+import com.example.boozy.data.model.Adresse;
+import com.example.boozy.data.model.LoginResponse;
 import com.example.boozy.data.model.UserLoginData;
 import com.example.boozy.data.model.Utilisateur;
 import com.example.boozy.data.model.UtilisateurManager;
 import com.example.boozy.ui.client.ClientHomeActivity;
 import com.example.boozy.ui.delivery.LivreurHomeActivity;
+import com.google.gson.Gson;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -38,22 +41,11 @@ public class LoginActivity extends AppCompatActivity {
         setFullScreen();
         setContentView(R.layout.activity_login);
         initializeViews();
-
-        // Vérifier si l'utilisateur est déjà connecté
-        if (UtilisateurManager.getInstance(getApplicationContext()).isLoggedIn()) {
-            if (UtilisateurManager.getInstance(getApplicationContext()).getType() == TypeUtilisateur.CLIENT) {
-                openActivity(ClientHomeActivity.class);
-            } else {
-                openActivity(LivreurHomeActivity.class);
-            }
-        }
     }
-
 
     private void setFullScreen() {
         Window window = getWindow();
         window.setNavigationBarColor(Color.TRANSPARENT);
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false);
         } else {
@@ -67,11 +59,12 @@ public class LoginActivity extends AppCompatActivity {
         inputEmail = findViewById(R.id.inputEmail);
         inputPassword = findViewById(R.id.inputPassword);
         buttonLogin = findViewById(R.id.buttonLogin);
-
         buttonLogin.setOnClickListener(v -> performLogin());
     }
 
     private void performLogin() {
+        Log.d("LOGIN_TEST", "Début de performLogin()");
+
         String email = inputEmail.getText().toString().trim();
         String password = inputPassword.getText().toString().trim();
 
@@ -81,24 +74,27 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://4.172.255.120:5000/")
+                .baseUrl("http://4.172.252.189:5000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         ApiService apiService = retrofit.create(ApiService.class);
-
         UserLoginData loginData = new UserLoginData(email, password);
 
-        Call<Utilisateur> call = apiService.connectUser(loginData);
-        call.enqueue(new Callback<Utilisateur>() {
+        Call<LoginResponse> call = apiService.connectUser(loginData);
+        call.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<Utilisateur> call, Response<Utilisateur> response) {
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Utilisateur utilisateur = response.body();
-                    String userType = utilisateur.getTypeUtilisateur();
+                    Utilisateur utilisateur = response.body().getUser();
+                    Log.d("LOGIN_TEST", "Réponse complète : " + new Gson().toJson(response.body()));
 
-                    // Enregistrer les informations utilisateur localement
-                    if (userType.equals("customer")) {
+                    Adresse adresse = utilisateur.getAdresse();
+
+                    String userType = utilisateur.getTypeUtilisateur();
+                    Log.d("LOGIN_TEST", "Type utilisateur reçu = " + userType);
+
+                    if ("client".equalsIgnoreCase(userType)) {
                         UtilisateurManager.getInstance(getApplicationContext()).setClient(
                                 utilisateur.getIdUtilisateur(),
                                 utilisateur.getNom(),
@@ -106,8 +102,28 @@ public class LoginActivity extends AppCompatActivity {
                                 utilisateur.getEmail(),
                                 "token_placeholder"
                         );
+
+                        if (adresse != null) {
+                            Log.d("LOGIN_TEST", "Adresse récupérée : " +
+                                    adresse.getCivic() + ", " +
+                                    adresse.getStreet() + ", " +
+                                    adresse.getCity() + ", " +
+                                    adresse.getPostalCode());
+
+                            UtilisateurManager.getInstance(getApplicationContext()).setAdresse(
+                                    adresse.getCivic(),
+                                    adresse.getApartment(),
+                                    adresse.getStreet(),
+                                    adresse.getCity(),
+                                    adresse.getPostalCode()
+                            );
+                        } else {
+                            Log.d("LOGIN_TEST", "Adresse est NULL");
+                        }
+
                         openActivity(ClientHomeActivity.class);
-                    } else if (userType.equals("deliverer")) {
+
+                    } else if ("carrier".equalsIgnoreCase(userType)) {
                         UtilisateurManager.getInstance(getApplicationContext()).setLivreur(
                                 utilisateur.getIdUtilisateur(),
                                 utilisateur.getNom(),
@@ -118,19 +134,21 @@ public class LoginActivity extends AppCompatActivity {
                                 utilisateur.getNumeroPermis()
                         );
                         openActivity(LivreurHomeActivity.class);
-                    } else if (userType.equals("admin")) {
-                        showToast("Connexion admin non implémentée");
+
                     } else {
-                        showToast("Type d'utilisateur non reconnu");
+                        showToast("Type d'utilisateur non pris en charge");
+                        Log.w("LOGIN_TEST", "Type utilisateur inconnu : " + userType);
                     }
                 } else {
-                    showToast("Erreur : Identifiants incorrects.");
+                    showToast("Erreur : Identifiants incorrects");
+                    Log.d("LOGIN_TEST", "Réponse non réussie ou body nul");
                 }
             }
 
             @Override
-            public void onFailure(Call<Utilisateur> call, Throwable t) {
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
                 showToast("Erreur de connexion : " + t.getMessage());
+                Log.e("LOGIN_TEST", "Erreur réseau : " + t.getMessage());
             }
         });
     }

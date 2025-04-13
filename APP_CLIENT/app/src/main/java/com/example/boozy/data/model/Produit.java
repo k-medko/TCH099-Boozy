@@ -1,12 +1,27 @@
 package com.example.boozy.data.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Produit {
+
+    @SerializedName("product_id")
     private int id;
+
+    @SerializedName("name")
     private String name;
+
+    @SerializedName("description")
     private String description;
+
+    @SerializedName("price")
     private double price;
+
+    @SerializedName("category")
     private String category;
+
     private int quantity;
+
+    @SerializedName("image")
     private String imageName;
 
     public Produit(int id, String name, String description, double price, String category, int quantity, String imageName) {
@@ -19,6 +34,11 @@ public class Produit {
         this.imageName = imageName;
     }
 
+    public Produit(int id, String name, String description, double price, String category) {
+        this(id, name, description, price, category, 1, null);
+    }
+
+    // Getters
     public int getId() {
         return id;
     }
@@ -43,11 +63,16 @@ public class Produit {
         return quantity;
     }
 
+    public String getImageName() {
+        return imageName;
+    }
+
+    // Setters
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 
-    public String getImageName() {
-        return imageName;
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
     }
 }

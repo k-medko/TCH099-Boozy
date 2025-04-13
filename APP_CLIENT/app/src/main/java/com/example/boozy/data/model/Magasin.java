@@ -1,24 +1,29 @@
 package com.example.boozy.data.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Magasin {
-    private int store_id;
+    @SerializedName("shop_id")
+    private int shopId;
+
+    @SerializedName("name")
     private String name;
-    private int address_id;
-    private String image_nom;
 
-    public Magasin(int store_id, String name, int address_id, String image_nom) {
-        this.store_id = store_id;
+    @SerializedName("address")
+    private String address;
+
+    public Magasin(int shopId, String name, String address) {
+        this.shopId = shopId;
         this.name = name;
-        this.address_id = address_id;
-        this.image_nom = image_nom;
+        this.address = address;
     }
 
-    public int getStoreId() {
-        return store_id;
+    public int getShopId() {
+        return shopId;
     }
 
-    public void setStoreId(int store_id) {
-        this.store_id = store_id;
+    public void setShopId(int shopId) {
+        this.shopId = shopId;
     }
 
     public String getName() {
@@ -29,19 +34,11 @@ public class Magasin {
         this.name = name;
     }
 
-    public int getAddressId() {
-        return address_id;
+    public String getAddress() {
+        return address;
     }
 
-    public void setAddressId(int address_id) {
-        this.address_id = address_id;
-    }
-
-    public String getImageNom() {
-        return image_nom;
-    }
-
-    public void setImageNom(String image_nom) {
-        this.image_nom = image_nom;
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

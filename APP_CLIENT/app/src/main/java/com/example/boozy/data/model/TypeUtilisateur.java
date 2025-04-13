@@ -2,24 +2,25 @@ package com.example.boozy.data.model;
 
 public enum TypeUtilisateur {
     CLIENT("client"),
-    LIVREUR("livreur");
+    LIVREUR("carrier");
 
-    private final String typeUtilisateur;
+    private final String type;
 
-    TypeUtilisateur(String typeUtilisateur) {
-        this.typeUtilisateur = typeUtilisateur;
+    TypeUtilisateur(String type) {
+        this.type = type;
     }
 
     public String getType() {
-        return typeUtilisateur;
+        return type;
     }
 
-    public static TypeUtilisateur fromString(String text) {
-        for (TypeUtilisateur t : TypeUtilisateur.values()) {
-            if (t.typeUtilisateur.equalsIgnoreCase(text)) {
+    public static TypeUtilisateur fromString(String type) {
+        if (type == null) return CLIENT;
+        for (TypeUtilisateur t : values()) {
+            if (t.getType().equalsIgnoreCase(type)) {
                 return t;
             }
         }
-        throw new IllegalArgumentException("Type d'utilisateur inconnu : " + text);
+        return CLIENT;
     }
 }

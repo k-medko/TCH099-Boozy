@@ -1,59 +1,75 @@
 package com.example.boozy.data.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Adresse {
-    private int idAdresse;
-    private String numeroCivique;
-    private String rue;
-    private String codePostal;
-    private String ville;
 
-    public Adresse(int idAdresse, String numeroCivique, String rue, String codePostal, String ville) {
-        this.idAdresse = idAdresse;
-        this.numeroCivique = numeroCivique;
-        this.rue = rue;
-        this.codePostal = codePostal;
-        this.ville = ville;
+    @SerializedName("civic")
+    private String civic;
+
+    @SerializedName("apartment")
+    private String apartment;
+
+    @SerializedName("street")
+    private String street;
+
+    @SerializedName("city")
+    private String city;
+
+    @SerializedName("postal_code")
+    private String postalCode;
+
+    // Constructeur avec paramètres
+    public Adresse(String civic, String apartment, String street, String city, String postalCode) {
+        this.civic = civic;
+        this.apartment = apartment;
+        this.street = street;
+        this.city = city;
+        this.postalCode = postalCode;
     }
 
-    // Getters et setters
-    public int getIdAdresse() {
-        return idAdresse;
+    // Constructeur vide
+    public Adresse() {}
+
+    // Getters
+    public String getCivic() {
+        return civic;
     }
 
-    public void setIdAdresse(int idAdresse) {
-        this.idAdresse = idAdresse;
+    public String getApartment() {
+        return apartment;
     }
 
-    public String getNumeroCivique() {
-        return numeroCivique;
+    public String getStreet() {
+        return street;
     }
 
-    public void setNumeroCivique(String numeroCivique) {
-        this.numeroCivique = numeroCivique;
+    public String getCity() {
+        return city;
     }
 
-    public String getRue() {
-        return rue;
+    public String getPostalCode() {
+        return postalCode;
     }
 
-    public void setRue(String rue) {
-        this.rue = rue;
+    public void setCivic(String civic) {
+        this.civic = civic;
     }
 
-    public String getCodePostal() {
-        return codePostal;
+    public void setApartment(String apartment) {
+        this.apartment = apartment;
     }
 
-    public void setCodePostal(String codePostal) {
-        this.codePostal = codePostal;
+    public void setStreet(String street) {
+        this.street = street;
     }
 
-    public String getVille() {
-        return ville;
+    public void setCity(String city) {
+        this.city = city;
     }
 
-    public void setVille(String ville) {
-        this.ville = ville;
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
     }
 
 }

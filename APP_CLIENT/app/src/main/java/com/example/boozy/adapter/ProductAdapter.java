@@ -41,7 +41,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.productCategoryText.setText(produit.getCategory());
         holder.productPriceText.setText(String.format("$%.2f", produit.getPrice()));
 
-        String imageUrl = "http://4.172.255.120:5000/images/" + produit.getImageName();
+        String imageUrl = "http://4.172.252.189:5000/images/" + produit.getImageName();
         Glide.with(holder.itemView.getContext())
                 .load(imageUrl)
                 .placeholder(R.drawable.produit)
@@ -55,7 +55,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             Intent intent = new Intent(context, ProductDetailActivity.class);
             intent.putExtra("product_name", produit.getName());
             intent.putExtra("product_price", produit.getPrice());
-            intent.putExtra("product_image_url", "http://4.172.255.120:5000/images/" + produit.getImageName());
+            intent.putExtra("product_image_url", "http://4.172.252.189:5000/images/" + produit.getImageName());
             intent.putExtra("product_description", produit.getDescription());
             context.startActivity(intent);
         });
