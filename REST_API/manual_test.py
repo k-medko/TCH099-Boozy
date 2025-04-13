@@ -3,160 +3,145 @@ import time
 import random
 import string
 
+# Base URL for the API
 BASE_URL = "http://4.172.252.189:5000"
 
-# -------------------------------
+# ANSI Color Codes
+CYAN     = "\033[96m"
+BLUE     = "\033[94m"
+GREEN    = "\033[92m"
+YELLOW   = "\033[93m"
+MAGENTA  = "\033[95m"
+RED      = "\033[91m"
+RESET    = "\033[0m"
+
 # Helper functions for random data
-# -------------------------------
 def random_string(n=8):
     return ''.join(random.choice(string.ascii_lowercase) for _ in range(n))
 
 def random_email():
     return f"{random_string()}@example.com"
 
-# -------------------------------
-# Simple API wrapper functions
-# -------------------------------
-def create_client():
-    client_email = random_email()
-    client_password = random_string(10)
+# Create a user. For the client, also attach an address.
+def create_user(user_type):
     payload = {
-        "email": client_email,
-        "password": client_password,
-        "last_name": "ClientLast",
-        "first_name": "ClientFirst",
+        "email": random_email(),
+        "password": random_string(10),
+        "last_name": "TestLast",
+        "first_name": "TestFirst",
         "phone_number": "5141234567",
-        # Providing minimal address fields to attach an address
+        "user_type": user_type,
         "civic": 123,
-        "street": "Client St",
+        "street": "TestStreet",
         "city": "Montreal",
-        "postal_code": "H1H 1H1",
-        "user_type": "client"
+        "postal_code": "H1H1H1"
     }
-    r = requests.post(f"{BASE_URL}/createUser", json=payload)
-    print("Client created:", r.json())
-    return client_email, client_password
+    if user_type == "carrier":
+        payload["license_plate"] = "XYZ987"  # fixed for simplicity
+        payload["car_brand"] = "Honda"
+    response = requests.post(f"{BASE_URL}/createUser", json=payload)
+    return payload["email"], payload["password"]
 
-def create_carrier():
-    carrier_email = random_email()
-    carrier_password = random_string(10)
-    payload = {
-        "email": carrier_email,
-        "password": carrier_password,
-        "last_name": "CarrierLast",
-        "first_name": "CarrierFirst",
-        "phone_number": "5147654321",
-        "user_type": "carrier",
-        "license_plate": "ABC123",  # For simplicity, using a fixed plate here
-        "car_brand": "Toyota"
-    }
-    r = requests.post(f"{BASE_URL}/createUser", json=payload)
-    print("Carrier created:", r.json())
-    return carrier_email, carrier_password
-
-def get_shop():
-    r = requests.get(f"{BASE_URL}/getShops")
-    shops = r.json()
-    print("Shops available:", shops)
+# Get an existing shop id (without printing its details)
+def get_shop_id():
+    response = requests.get(f"{BASE_URL}/getShops")
+    shops = response.json()
     if not shops:
-        raise Exception("No shops available!")
-    # Pick the first shop
+        raise Exception("No shop available!")
     return shops[0]["shop_id"]
 
-def get_available_product(shop_id):
-    r = requests.get(f"{BASE_URL}/getAvailability", params={"shop_id": shop_id})
-    avail = r.json()
-    print("Shop availability:", avail)
-    if not avail:
-        raise Exception("No products available in shop!")
-    # Pick first available product
-    return avail[0]["product_id"]
-
-def create_order(client_email, client_password, shop_id, product_id):
+# Client creates an order; for simplicity, assume product_id=1 exists.
+def create_order(client_email, client_password, shop_id):
     order_payload = {
         "email": client_email,
         "password": client_password,
         "shop_id": shop_id,
-        "items": [{"product_id": product_id, "quantity": 1}],
+        "items": [{"product_id": 1, "quantity": 1}],
         "payment_method": "credit_card",
         "card_name": "Test Client",
-        "card_number": "1234123412341234",
+        "card_number": "1111222233334444",
         "CVC_card": 123,
         "expiry_date_month": 12,
         "expiry_date_year": 30
     }
-    r = requests.post(f"{BASE_URL}/createOrder", json=order_payload)
-    print("Order created:", r.json())
-    return r.json()
+    response = requests.post(f"{BASE_URL}/createOrder", json=order_payload)
+    return response.json()
 
+# Carrier fetches orders (returns minimal info, per /getOrders)
 def get_orders():
-    r = requests.get(f"{BASE_URL}/getOrders")
-    orders = r.json()
-    print("Orders fetched:", orders)
-    return orders
+    response = requests.get(f"{BASE_URL}/getOrders")
+    return response.json()
 
+# Carrier claims an order (automatically sets status to "InRoute")
 def take_order(carrier_email, carrier_password, order_id):
     payload = {
         "email": carrier_email,
         "password": carrier_password,
         "order_id": order_id
     }
-    r = requests.post(f"{BASE_URL}/takeOrder", json=payload)
-    print("Order claimed by carrier:", r.json())
-    return r.json()
+    response = requests.post(f"{BASE_URL}/takeOrder", json=payload)
+    return response.json()
 
+# Carrier updates the order; for "Shipping", the response returns the client’s info.
 def update_order(carrier_email, carrier_password, new_status):
     payload = {
         "email": carrier_email,
         "password": carrier_password,
         "status": new_status
     }
-    r = requests.post(f"{BASE_URL}/updateOrder", json=payload)
-    print(f"Order updated to {new_status}:", r.json())
-    return r.json()
+    response = requests.post(f"{BASE_URL}/updateOrder", json=payload)
+    return response.json()
 
-# -------------------------------
-# Main flow: step-by-step with 3-second pauses
-# -------------------------------
 def main():
-    print("Creating client...")
-    client_email, client_password = create_client()
+    # Create client and carrier
+    print(f"{CYAN}*** Creating Client...{RESET}")
+    client_email, client_password = create_user("client")
+    print(f"{CYAN}Client created with email: {client_email}{RESET}")
     
-    print("Creating carrier...")
-    carrier_email, carrier_password = create_carrier()
+    print(f"{CYAN}*** Creating Carrier...{RESET}")
+    carrier_email, carrier_password = create_user("carrier")
+    print(f"{CYAN}Carrier created with email: {carrier_email}{RESET}")
     
-    print("Retrieving a shop...")
-    shop_id = get_shop()
+    # Retrieve a shop id (do not output store details)
+    shop_id = get_shop_id()
     
-    print("Retrieving an available product from the shop...")
-    product_id = get_available_product(shop_id)
+    # Client creates an order (order status "Searching")
+    print(f"{GREEN}*** Client creating order...{RESET}")
+    order_resp = create_order(client_email, client_password, shop_id)
+    print(f"{GREEN}Order created (status: Searching).{RESET}")
     
-    print("Client creating an order (status 'Searching')...")
-    order_resp = create_order(client_email, client_password, shop_id, product_id)
+    # Wait 5 seconds between requests
+    time.sleep(5)
     
-    # Pause 3 seconds before carrier actions
-    time.sleep(3)
-    
-    print("Carrier fetching available orders...")
+    # Carrier fetches available orders
+    print(f"{YELLOW}*** Carrier fetching orders...{RESET}")
     orders = get_orders()
-    time.sleep(3)
-    
     if not orders:
-        print("No orders found. Exiting.")
+        print(f"{RED}No orders available. Exiting.{RESET}")
         return
-    first_order = orders[0]
-    order_id = first_order["order_id"]
+    order_id = orders[0]["order_id"]
+    print(f"{YELLOW}Order {order_id} fetched.{RESET}")
     
-    print("Carrier claiming the first order...")
-    take_order(carrier_email, carrier_password, order_id)
-    time.sleep(3)
+    time.sleep(5)
     
-    print("Carrier updating order status to 'Shipped' (reached shop)...")
-    update_order(carrier_email, carrier_password, "Shipped")
-    time.sleep(3)
+    # Carrier claims the order
+    print(f"{BLUE}*** Carrier claiming order {order_id}...{RESET}")
+    take_resp = take_order(carrier_email, carrier_password, order_id)
+    print(f"{BLUE}Order claimed; updated order info: {take_resp}{RESET}")
     
-    print("Carrier updating order status to 'Completed' (delivered to client)...")
-    update_order(carrier_email, carrier_password, "Completed")
+    time.sleep(5)
     
+    # Carrier updates order to "Shipping" (picked up at store)
+    print(f"{MAGENTA}*** Carrier updating order to 'Shipping'...{RESET}")
+    shipping_resp = update_order(carrier_email, carrier_password, "Shipping")
+    print(f"{MAGENTA}Order updated to 'Shipping'. Client info received: {shipping_resp}{RESET}")
+    
+    time.sleep(5)
+    
+    # Carrier updates order to "Completed" (delivered to client)
+    print(f"{GREEN}*** Carrier updating order to 'Completed'...{RESET}")
+    completed_resp = update_order(carrier_email, carrier_password, "Completed")
+    print(f"{GREEN}Order updated to 'Completed'.{RESET}")
+
 if __name__ == "__main__":
     main()

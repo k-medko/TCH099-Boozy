@@ -27,11 +27,11 @@ def get_address_string(address_id):
     return None
 
 def get_dummy_carrier_id():
-    # Try to find an existing dummy carrier
+    # Try to find an existing dummy carrier.
     dummy = execute_query("SELECT user_id FROM UserAccount WHERE email = %s", ("unassigned@boozy.com",))
     if dummy:
         return dummy[0][0]
-    # If not found, create one
+    # If not found, create one.
     dummy_id = execute_query(
         "INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, user_type, total_earnings) VALUES (%s, %s, %s, %s, %s, %s, %s)",
         ("unassigned@boozy.com", "dummy", "Dummy", "Unassigned", "0000000000", "carrier", 0.0),
@@ -148,6 +148,7 @@ def get_availability():
 
 @app.route('/getOrders', methods=['GET'])
 def get_orders():
+    # Only show orders that are "Searching" (not yet claimed).
     orders = execute_query(
         "SELECT co.client_order_id, co.total_amount, co.shop_id, s.name as shop_name, "
         "a.civic, a.apartment, a.street, a.city, a.postal_code "
@@ -169,6 +170,36 @@ def get_orders():
         })
     
     return jsonify(result)
+
+@app.route('/getOrderStatus', methods=['POST'])
+def get_order_status():
+    data = request.get_json()
+    # Validate required fields
+    for field in ["email", "password", "order_id"]:
+        if field not in data:
+            return jsonify({"status": "error", "message": f"Missing required field: {field}"}), 400
+
+    email = data["email"]
+    password = data["password"]
+    order_id = data["order_id"]
+
+    # Verify user credentials
+    user = execute_query("SELECT user_id FROM UserAccount WHERE email = %s AND password = %s", (email, password))
+    if not user:
+        return jsonify({"status": "error", "message": "Invalid credentials"}), 401
+
+    user_id = user[0][0]
+
+    # Retrieve the order and ensure it belongs to the user (client)
+    order = execute_query("SELECT status, client_id FROM ClientOrder WHERE client_order_id = %s", (order_id,))
+    if not order:
+        return jsonify({"status": "error", "message": "Order not found"}), 404
+
+    if order[0][1] != user_id:
+        return jsonify({"status": "error", "message": "This order does not belong to the user"}), 403
+
+    # Return only the enum status of the order
+    return jsonify({"status": "success", "order_status": order[0][0]})
 
 ######## User Routes ########
 @app.route('/createUser', methods=['POST'])
@@ -194,7 +225,7 @@ def create_user():
         license_plate = data["license_plate"]
         car_brand = data.get("car_brand")
     address_id = None
-    # Allow address only if provided during user creation but do not return it
+    # Allow address only if provided during user creation but do not return it.
     if "address" in data and isinstance(data["address"], dict):
         addr = data["address"]
         new_addr_id = execute_query(
@@ -250,7 +281,7 @@ def create_order():
     if not user:
         return jsonify({"status": "error", "message": "Invalid credentials"}), 401
 
-    # Use only the user's attached address; ignore any address provided in the request
+    # Use only the user's attached address; ignore any address provided in the request.
     if not user[0][6]:
         return jsonify({"status": "error", "message": "Delivery address is required"}), 400
     address_id = user[0][6]
@@ -276,7 +307,7 @@ def create_order():
         total_amount += float(prod[0][0]) * qty
 
     creation_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    # Get a valid dummy carrier id
+    # Get a valid dummy carrier id.
     dummy_carrier_id = get_dummy_carrier_id()
     order_id = execute_query(
         "INSERT INTO ClientOrder (creation_date, status, total_amount, address_id, shop_id, client_id, carrier_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
@@ -323,7 +354,7 @@ def cancel_order():
     if not order:
         return jsonify({"status": "error", "message": "Order not found"}), 404
 
-    # Verify order ownership: client_id is assumed to be at index 6
+    # Verify order ownership: client_id is assumed to be at index 6.
     if order[0][6] != user[0][0]:
         return jsonify({"status": "error", "message": "You do not own this order"}), 401
 
@@ -339,7 +370,7 @@ def cancel_order():
     execute_query("UPDATE ClientOrder SET status = 'Cancelled' WHERE client_order_id = %s", (order_id,), fetch=False)
     return jsonify({"status": "success", "message": "Order cancelled successfully"})
 
-######## CARRIER ROUTES #######
+######## CARRIER ROUTES ########
 @app.route('/takeOrder', methods=['POST'])
 def take_order():
     data = request.get_json()
@@ -354,6 +385,7 @@ def take_order():
     if not carrier:
         return jsonify({"status": "error", "message": "Invalid credentials or not a carrier"}), 401
     carrier_id = carrier[0][0]
+    # Ensure the carrier has no active order.
     active_orders = execute_query(
         "SELECT client_order_id FROM ClientOrder WHERE carrier_id = %s AND status IN ('Searching', 'InRoute')",
         (carrier_id,)
@@ -374,7 +406,7 @@ def take_order():
         "UPDATE ClientOrder SET carrier_id = %s, status = 'InRoute' WHERE client_order_id = %s",
         (carrier_id, order_id), fetch=False
     )
-    # Return order info similar to /getOrders response.
+    # Return updated order info (same format as getOrders)
     updated_order = execute_query(
         "SELECT co.client_order_id, co.total_amount, co.shop_id, s.name, CONCAT(a.civic, IF(a.apartment!='', CONCAT(' apt ', a.apartment), ''), ' ', a.street, ', ', a.city, ', ', a.postal_code) as shop_address FROM ClientOrder co JOIN Shop s ON co.shop_id = s.shop_id JOIN AddressLine a ON s.address_id = a.address_id WHERE co.client_order_id = %s",
         (order_id,)
@@ -394,20 +426,18 @@ def take_order():
 @app.route('/updateOrder', methods=['POST'])
 def update_order():
     data = request.get_json()
-    # Check required fields
+    # Check required fields.
     if "email" not in data or "password" not in data:
         return jsonify({"status": "error", "message": "Email and password are required"}), 400
     if "status" not in data:
         return jsonify({"status": "error", "message": "New status is required"}), 400
 
     new_status = data["status"]
-    # Allowed statuses for forward progression (removing InRoute since that is automatic)
+    # Allowed statuses for forward progression: only "Shipping" and "Completed" (plus "Cancelled" at any time).
     allowed_statuses = ["Shipping", "Completed"]
-    # "Cancelled" is allowed at any time.
     if new_status not in allowed_statuses and new_status != "Cancelled":
         return jsonify({"status": "error", "message": "Invalid status. Must be one of: Shipping, Completed or Cancelled"}), 400
 
-    # Get carrier credentials
     carrier = execute_query(
         "SELECT user_id FROM UserAccount WHERE email = %s AND password = %s AND user_type = 'carrier'",
         (data["email"], data["password"])
@@ -425,8 +455,7 @@ def update_order():
         return jsonify({"status": "error", "message": "No active order found"}), 404
     order_id, current_status, client_id = active_order[0][0], active_order[0][1], active_order[0][2]
 
-    # If new status is not Cancelled, ensure valid transitions:
-    # Allowed transitions: InRoute -> Shipping, Shipping -> Completed.
+    # Validate allowed transitions.
     if new_status != "Cancelled":
         valid_transition = False
         if current_status == "InRoute" and new_status == "Shipping":
@@ -437,24 +466,25 @@ def update_order():
         if not valid_transition:
             return jsonify({"status": "error", "message": f"Invalid status transition from {current_status} to {new_status}"}), 400
 
-    # Update the order status
+    # Update the order status.
     execute_query(
         "UPDATE ClientOrder SET status = %s WHERE client_order_id = %s",
         (new_status, order_id), fetch=False
     )
 
-    # If the new status is Shipping, return the client's address info with first and last name and phone number.
+    # If new status is Shipping, return client information.
     if new_status == "Shipping":
         client = execute_query("SELECT first_name, last_name, phone_number, address_id FROM UserAccount WHERE user_id = %s", (client_id,))
         if client:
             client_info = {"first_name": client[0][0], "last_name": client[0][1], "phone_number": client[0][2]}
-            if client[0][3]:
-                addr = execute_query("SELECT civic, apartment, street, city, postal_code FROM AddressLine WHERE address_id = %s", (client[0][3],))
+            addr_id = client[0][3]
+            if addr_id:
+                addr = execute_query("SELECT civic, apartment, street, city, postal_code FROM AddressLine WHERE address_id = %s", (addr_id,))
                 if addr:
                     apt = f" apt {addr[0][1]}" if addr[0][1] else ""
                     client_info["address"] = f"{addr[0][0]}{apt} {addr[0][2]}, {addr[0][3]}, {addr[0][4]}"
             return jsonify({"status": "success", "client_info": client_info})
-    # If new status is Completed, update the carrier’s earnings.
+    # If new status is Completed, update carrier's earnings.
     if new_status == "Completed":
         order = execute_query("SELECT total_amount FROM ClientOrder WHERE client_order_id = %s", (order_id,))
         if order:
