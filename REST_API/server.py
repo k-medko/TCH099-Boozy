@@ -464,16 +464,20 @@ def take_order():
 @app.route('/updateOrder', methods=['POST'])
 def update_order():
     data = request.get_json()
+    # Check required fields
     if "email" not in data or "password" not in data:
         return jsonify({"status": "error", "message": "Email and password are required"}), 400
     if "status" not in data:
         return jsonify({"status": "error", "message": "New status is required"}), 400
 
     new_status = data["status"]
-    valid_statuses = ["InRoute", "Shipped", "Completed"]
-    if new_status not in valid_statuses:
-        return jsonify({"status": "error", "message": f"Invalid status. Must be one of: {', '.join(valid_statuses)}"}), 400
+    # Allowed statuses for forward progression (not counting Cancelled)
+    allowed_statuses = ["InRoute", "Shipped", "Completed"]
+    # "Cancelled" is allowed at any time.
+    if new_status not in allowed_statuses and new_status != "Cancelled":
+        return jsonify({"status": "error", "message": "Invalid status. Must be one of: InRoute, Shipped, Completed or Cancelled"}), 400
 
+    # Get carrier credentials
     carrier = execute_query(
         "SELECT user_id FROM UserAccount WHERE email = %s AND password = %s AND user_type = 'carrier'",
         (data["email"], data["password"])
@@ -482,19 +486,36 @@ def update_order():
         return jsonify({"status": "error", "message": "Invalid credentials or not a carrier"}), 401
     carrier_id = carrier[0][0]
 
+    # Retrieve the active order (any order that is not Completed)
     active_order = execute_query(
-        "SELECT client_order_id FROM ClientOrder WHERE carrier_id = %s AND status IN ('Searching', 'InRoute')",
+        "SELECT client_order_id, status FROM ClientOrder WHERE carrier_id = %s AND status != 'Completed'",
         (carrier_id,)
     )
     if not active_order:
         return jsonify({"status": "error", "message": "No active order found"}), 404
-    order_id = active_order[0][0]
+    order_id, current_status = active_order[0][0], active_order[0][1]
 
+    # If new status is Cancelled, allow it at any time.
+    if new_status != "Cancelled":
+        # Define allowed transitions
+        valid_transition = False
+        if current_status == "Searching" and new_status == "InRoute":
+            valid_transition = True
+        elif current_status == "InRoute" and new_status == "Shipped":
+            valid_transition = True
+        elif current_status == "Shipped" and new_status == "Completed":
+            valid_transition = True
+
+        if not valid_transition:
+            return jsonify({"status": "error", "message": f"Invalid status transition from {current_status} to {new_status}"}), 400
+
+    # Update the order status
     execute_query(
         "UPDATE ClientOrder SET status = %s WHERE client_order_id = %s",
         (new_status, order_id), fetch=False
     )
 
+    # If the order is being completed, update the carrier's earnings.
     if new_status == "Completed":
         order = execute_query("SELECT total_amount FROM ClientOrder WHERE client_order_id = %s", (order_id,))
         if order:
@@ -505,6 +526,7 @@ def update_order():
             )
 
     return jsonify({"status": "success", "message": f"Order status updated to {new_status}"})
+
 
 ######## Admin Routes ########
 @app.route('/admin/createUser', methods=['POST'])
