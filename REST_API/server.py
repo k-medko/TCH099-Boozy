@@ -25,6 +25,18 @@ def get_address_string(address_id):
         apt = f" apt {addr[0][1]}" if addr[0][1] else ""
         return f"{addr[0][0]}{apt} {addr[0][2]}, {addr[0][3]}, {addr[0][4]}"
     return None
+def get_dummy_carrier_id():
+    # Try to find an existing dummy carrier
+    dummy = execute_query("SELECT user_id FROM UserAccount WHERE email = %s", ("unassigned@boozy.com",))
+    if dummy:
+        return dummy[0][0]
+    # If not found, create one
+    dummy_id = execute_query(
+        "INSERT INTO UserAccount (email, password, last_name, first_name, phone_number, user_type, total_earnings) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+        ("unassigned@boozy.com", "dummy", "Dummy", "Unassigned", "0000000000", "carrier", 0.0),
+        fetch=False
+    )
+    return dummy_id
 
 ######## Public Routes ########
 @app.route('/')
@@ -241,7 +253,7 @@ def create_order():
     if not user[0][6]:
         return jsonify({"status": "error", "message": "Delivery address is required"}), 400
     address_id = user[0][6]
-    
+
     shop_id = data["shop_id"]
     items = data["items"]
     payment_method = data["payment_method"]
@@ -263,12 +275,13 @@ def create_order():
         total_amount += float(prod[0][0]) * qty
 
     creation_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # Get a valid dummy carrier id
+    dummy_carrier_id = get_dummy_carrier_id()
     order_id = execute_query(
         "INSERT INTO ClientOrder (creation_date, status, total_amount, address_id, shop_id, client_id, carrier_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-        (creation_date, "Searching", total_amount, address_id, shop_id, user[0][0], 0),
+        (creation_date, "Searching", total_amount, address_id, shop_id, user[0][0], dummy_carrier_id),
         fetch=False
     )
-
 
     for item in items:
         prod_id = item["product_id"]
@@ -289,8 +302,9 @@ def create_order():
         (payment_method, total_amount, creation_date, True, order_id, user[0][0], data["card_name"], data["card_number"], data["CVC_card"], data["expiry_date_month"], data["expiry_date_year"]),
         fetch=False
     )
-    
+
     return jsonify({"status": "success"})
+
 
 @app.route('/cancelOrder', methods=['POST'])
 def cancel_order():
