@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Stock du magasin</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
-  <style>
+ <style>
     :root {
       --primary: #34495e;
       --primary-hover: #2c3e50;
@@ -328,83 +328,95 @@
   </div>
 
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const magasinNom = urlParams.get("nom");
-    document.getElementById("magasinNom").textContent = `Stock – ${magasinNom}`;
+ const urlParams = new URLSearchParams(window.location.search);
+const magasinNom = urlParams.get("nom");
+const storeId = parseInt(urlParams.get("id"));
+document.getElementById("magasinNom").textContent = `Stock – ${magasinNom}`;
 
-    const produitsTous = [
-      { id: 1, nom: "Vin Rouge" },
-      { id: 2, nom: "Tequila" },
-      { id: 3, nom: "Whisky" },
-      { id: 4, nom: "Cidre de glace" },
-      { id: 5, nom: "Gin" }
-    ];
+async function fetchStock() {
+  try {
+    // Requêtes parallèles
+    const [productsRes, allAvailabilityRes, storeAvailabilityRes] = await Promise.all([
+      fetch("http://4.172.255.120:5000/getProducts"),
+      fetch("http://4.172.255.120:5000/getAvailability"),
+      fetch(`http://4.172.255.120:5000/getAvailability?storeId=${storeId}`)
+    ]);
 
-    const produitsVendables = [
-      { id: 1, nom: "Vin Rouge", quantite: 12 },
-      { id: 3, nom: "Whisky", quantite: 7 }
-    ];
+    const allProducts = await productsRes.json();
+    const allAvailability = await allAvailabilityRes.json();
+    const storeAvailability = await storeAvailabilityRes.json();
 
-    function afficherProduits() {
+    // Produits vendus pour CE magasin
+    const produitsVendus = storeAvailability.map(av => {
+      const product = allProducts.find(p => p.id === av.productId);
+      return product ? { ...product, quantite: av.quantity } : null;
+    }).filter(Boolean);
+
+    // Produits disponibles ailleurs (dans d'autres magasins OU ce magasin aussi)
+    const produitsNonVendus = allAvailability.map(av => {
+      const product = allProducts.find(p => p.id === av.productId);
+      return product ? {
+        ...product,
+        quantite: av.quantity,
+        store_name: av.store_name,
+        store_id: av.store_id
+      } : null;
+    }).filter(Boolean);
+
+    renderProducts(produitsVendus, produitsNonVendus);
+  } catch (error) {
+    console.error("Erreur lors du chargement du stock:", error);
+  }
+}
+  
+    function renderProducts(vendus, autres) {
       const divVendables = document.getElementById("produitsVendus");
       const divDisponibles = document.getElementById("produitsDisponibles");
       divVendables.innerHTML = "";
       divDisponibles.innerHTML = "";
-
-      produitsVendables.forEach(prod => {
+  
+      // À gauche — CE magasin
+      vendus.forEach(prod => {
         const ligne = document.createElement("div");
         ligne.className = "product-row";
         ligne.innerHTML = `
-          <span>${prod.nom}</span>
+          <span>${prod.name}</span>
           <div>
             <input type="number" value="${prod.quantite}" min="0" class="quantity-select">
-            <button class="action-btn remove-btn" onclick="retirerDuStock(${prod.id})">Retirer</button>
+            <button class="action-btn remove-btn" onclick="alert('Retirer ${prod.name}')">Retirer</button>
           </div>
         `;
         divVendables.appendChild(ligne);
       });
-
-      const idsVendables = produitsVendables.map(p => p.id);
-      const produitsNonVendables = produitsTous.filter(p => !idsVendables.includes(p.id));
-
-      produitsNonVendables.forEach(prod => {
+  
+      // À droite — AUTRES magasins
+      autres.forEach(prod => {
         const ligne = document.createElement("div");
         ligne.className = "product-row";
         ligne.innerHTML = `
-          <span>${prod.nom}</span>
-          <button class="action-btn add-btn" onclick="ajouterAuStock(${prod.id})">Ajouter</button>
+          <div style="display:flex; flex-direction: column;">
+            <span><strong>${prod.name}</strong></span>
+            <small style="font-size: 12px;">Quantité : ${prod.quantite} (Magasin : ${prod.magasin})</small>
+          </div>
+          <button class="action-btn add-btn" onclick="alert('Importer ${prod.name} depuis ${prod.magasin}')">Ajouter</button>
         `;
         divDisponibles.appendChild(ligne);
       });
     }
-
-    function retirerDuStock(id) {
-      const index = produitsVendables.findIndex(p => p.id === id);
-      if (index !== -1) {
-        produitsVendables.splice(index, 1);
-        afficherProduits();
-      }
-    }
-
-    function ajouterAuStock(id) {
-      const produit = produitsTous.find(p => p.id === id);
-      if (produit) {
-        produitsVendables.push({ ...produit, quantite: 1 });
-        afficherProduits();
-      }
-    }
-
+  
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("show");
       document.getElementById("overlay").classList.toggle("show");
     }
-
+  
     function switchLanguage() {
       window.location.href = "stock_magasin_en.html";
     }
-
-    window.onload = afficherProduits;
+  
+    window.onload = fetchStock;
   </script>
+  
+  
 </body>
 </html>
 

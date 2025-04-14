@@ -183,13 +183,6 @@
 <div class="wrapper">
   <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
   <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-  <nav id="sidebar">
-    <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
-    <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
-    <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
-    <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
-    <a href="users.html" class="active"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
-  </nav>
   <header>
     <div class="logo-container">
       <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Utilisateurs</h1>
@@ -200,9 +193,16 @@
     </div>
   </header>
   <div class="main">
+    <nav id="sidebar">
+      <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
+      <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
+      <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
+      <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
+      <a href="users.html" class="active"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+    </nav>
     <div class="content">
       <div class="form-container">
-        <h2>Créer un compte administrateur</h2>
+        <h2>Créer un compte</h2>
         <input type="email" id="email" placeholder="Email" required>
         <input type="password" id="password" placeholder="Mot de passe" required>
         <input type="text" id="firstName" placeholder="Prénom" required>
@@ -211,6 +211,7 @@
         <select id="userType" onchange="toggleDriverFields()">
           <option value="customer">Client</option>
           <option value="deliverer">Livreur</option>
+          <option value="customer">Admin</option>
         </select>
         <div id="driverFields" style="display: none;">
           <input type="text" id="licensePlate" placeholder="Plaque d'immatriculation">
@@ -244,64 +245,55 @@
     document.getElementById('driverFields').style.display = isDriver ? 'block' : 'none';
   }
 
-  async function creerUtilisateurAdmin() {
-    const adminEmail = "admin.one@example.com";
-    const adminPassword = "Admin";
+  function creerUtilisateurAdmin() {
+  const adminEmail = "admin.one@example.com";
+  const adminPassword = "Admin";
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
-    const firstName = document.getElementById("firstName").value.trim();
-    const lastName = document.getElementById("lastName").value.trim();
-    const phoneNumber = document.getElementById("phoneNumber").value.trim();
-    const userType = document.getElementById("userType").value;
-    const licensePlate = document.getElementById("licensePlate")?.value.trim();
-    const licenseNumber = document.getElementById("licenseNumber")?.value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const firstName = document.getElementById("firstName").value.trim();
+  const lastName = document.getElementById("lastName").value.trim();
+  const phoneNumber = document.getElementById("phoneNumber").value.trim();
+  const userType = document.getElementById("userType").value;
+  const licensePlate = document.getElementById("licensePlate")?.value.trim();
+  const licenseNumber = document.getElementById("licenseNumber")?.value.trim();
 
-    const phonePattern = /^\d{3}-\d{3}-\d{4}$/;
-    if (!phonePattern.test(phoneNumber)) {
-      alert("Le numéro de téléphone doit être au format 514-666-7788");
-      return;
-    }
+  const data = {
+    adminEmail,
+    adminPassword,
+    email,
+    password,
+    firstName,
+    lastName,
+    phoneNumber,
+    userType,
+    licensePlate: userType === "deliverer" ? licensePlate : undefined,
+    licenseNumber: userType === "deliverer" ? licenseNumber : undefined
+  };
 
-    const data = {
-      adminEmail,
-      adminPassword,
-      email,
-      password,
-      firstName,
-      lastName,
-      phoneNumber,
-      userType,
-      licensePlate: userType === 'deliverer' ? licensePlate : undefined,
-      licenseNumber: userType === 'deliverer' ? licenseNumber : undefined
-    };
+  fetch("http://4.172.252.189:5000/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  })
+  .then(response => {
+    if (!response.ok) throw new Error("Erreur API");
+    return response.json();
+  })
+  .then(result => {
+    alert("Utilisateur créé avec succès !");
+    console.log(result);
+    // Tu peux ensuite ajouter dynamiquement la carte dans l'UI
+  })
+  .catch(err => {
+    console.error("Erreur réseau :", err);
+    alert("Erreur lors de la création de l'utilisateur.");
+  });
 
-    try {
-      const response = await fetch("http://4.172.255.120:5000/admin/createUser", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        const userCard = document.createElement("div");
-        userCard.className = "user-card";
-        userCard.innerHTML = `
-          <p><strong>Nom:</strong> ${firstName} ${lastName}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Rôle:</strong> ${userType}</p>
-        `;
-        document.getElementById("userList").appendChild(userCard);
-        alert("Utilisateur créé avec succès ! ID: " + result.userId);
-      } else {
-        alert("Erreur lors de la création de l'utilisateur.");
-      }
-    } catch (error) {
-      console.error("Erreur réseau:", error);
-      alert("Erreur de connexion au serveur");
-    }
-  }
+}
+  
 </script>
 </body>
 </html>

@@ -398,33 +398,63 @@
     window.location.href = url;
   }
   function createStoreEntry(store) {
-    const div = document.createElement("div");
-    div.className = "store-entry";
-    div.innerHTML = `
+  const div = document.createElement("div");
+  div.className = "store-entry";
+
+  // On prépare un container pour l'image (chargée dynamiquement)
+  const imageElement = document.createElement("img");
+  imageElement.alt = `Image du magasin ${store.name}`;
+  imageElement.style.width = "80px";
+  imageElement.style.height = "80px";
+  imageElement.style.borderRadius = "8px";
+  imageElement.style.objectFit = "cover";
+  imageElement.style.marginRight = "10px";
+
+  // Charger l'image depuis l'API
+  fetch(`http://4.172.252.189:5000/getImages/store/${store.store_id}`)
+    .then(res => {
+      if (!res.ok) throw new Error("Erreur image");
+      return res.blob();
+    })
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      imageElement.src = url;
+    })
+    .catch(() => {
+      imageElement.src = "assets/image/default-store.png"; // Image fallback si erreur
+    });
+
+  div.innerHTML = `
+    <div style="display:flex; align-items:center;">
+      ${imageElement.outerHTML}
       <div>
         <p><strong>Nom:</strong> <span class="store-nom">${store.name}</span></p>
         <p><strong>Adresse:</strong> <span class="store-adresse">${store.address}</span></p>
       </div>
-      <div class="entry-actions">
-        <button class="edit-btn modifier">Modifier</button>
-        <button class="edit-btn stock">Produits</button>
-        <button class="delete-btn">Supprimer</button>
-      </div>
-    `;
-    div.querySelector(".modifier").addEventListener("click", () => {
-      currentEditStore = { div, store };
-      document.getElementById("edit-nom").value = store.name;
-      document.getElementById("edit-num").value = store.civic_number;
-      document.getElementById("edit-rue").value = store.address.split(',')[0].split(' ').slice(1).join(' ');
-      document.getElementById("edit-ville").value = store.address.split(',')[1].trim();
-      document.getElementById("modal").style.display = "block";
-    });
-    div.querySelector(".stock").addEventListener("click", () => {
-      ouvrirStockPage(store.name, store.civic_number, store.address.split(' ')[1], 'Montréal');
-    });
-    div.querySelector(".delete-btn").addEventListener("click", () => div.remove());
-    document.getElementById("storeList").appendChild(div);
-  }
+    </div>
+    <div class="entry-actions">
+      <button class="edit-btn modifier">Modifier</button>
+      <button class="edit-btn stock">Produits</button>
+      <button class="delete-btn">Supprimer</button>
+    </div>
+  `;
+
+  div.querySelector(".modifier").addEventListener("click", () => {
+    currentEditStore = { div, store };
+    document.getElementById("edit-nom").value = store.name;
+    document.getElementById("edit-num").value = store.civic_number;
+    document.getElementById("edit-rue").value = store.address.split(',')[0].split(' ').slice(1).join(' ');
+    document.getElementById("edit-ville").value = store.address.split(',')[1].trim();
+    document.getElementById("modal").style.display = "block";
+  });
+
+  div.querySelector(".stock").addEventListener("click", () => {
+    ouvrirStockPage(store.name, store.civic_number, store.address.split(' ')[1], 'Montréal');
+  });
+
+  div.querySelector(".delete-btn").addEventListener("click", () => div.remove());
+  document.getElementById("storeList").appendChild(div);
+}
 
   function validerModification() {
   if (!currentEditStore) return;
@@ -446,7 +476,7 @@
   }
 }
   function fetchStoresFromAPI() {
-    fetch("http://4.172.255.120:5000/getStores")
+    fetch("http://4.172.252.189:5000/getStores")
       .then(response => response.json())
       .then(data => {
         document.getElementById("storeList").innerHTML = "";

@@ -63,6 +63,17 @@
     .delete-btn { background-color: var(--danger); color: white; }
     .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 1000; }
     .modal input { margin-bottom: 10px; width: 100%; padding: 8px; border: 1px solid var(--gray-border); border-radius: 6px; }
+    .form-btn {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
   </style>
 </head>
 <body>
@@ -89,9 +100,7 @@
     <div class="main">
       <div class="form-box">
         <h2>Ajouter un produit</h2>
-        <input type="text" id="productCode" placeholder="Code produit (ID)">
         <input type="text" id="productName" placeholder="Nom">
-        <input type="text" id="productDesc" placeholder="Description">
         <select id="productCategory">
           <option>Vin</option><option>Spiritueux</option><option>Champagne et mousseux</option>
           <option>Cooler et cocktail prémixé</option><option>Cidre</option><option>Porto et vin fortifié</option>
@@ -99,12 +108,8 @@
           <option>Apéritif</option><option>Hydromel</option><option>Cadeaux et accessoires</option>
           <option>Poiré</option>
         </select>
+        <input type="text" id="productDesc" placeholder="Description">
         <input type="text" id="productPrice" placeholder="Prix">
-        <input type="text" id="productAvailability" placeholder="Disponibilité">
-        <input type="text" id="promoCode" placeholder="Code promo">
-        <input type="text" id="promoDesc" placeholder="Description promo">
-        <input type="text" id="promoReduction" placeholder="Réduction (%)">
-        <input type="date" id="promoExpiration">
         <button onclick="addProduct()">Ajouter</button>
       </div>
 
@@ -113,17 +118,28 @@
 
     <div class="modal" id="editModal">
       <h3>Modifier le produit</h3>
-      <input type="text" id="editCode" placeholder="Code produit">
+    
+      <label for="editName">Nom</label>
       <input type="text" id="editName" placeholder="Nom">
+    
+      <label for="editDesc">Description</label>
       <input type="text" id="editDesc" placeholder="Description">
+    
+      <label for="editPrice">Prix</label>
       <input type="text" id="editPrice" placeholder="Prix">
-      <input type="text" id="editAvailability" placeholder="Disponibilité">
-      <input type="text" id="editPromoCode" placeholder="Code promo">
-      <input type="text" id="editPromoDesc" placeholder="Description promo">
-      <input type="text" id="editPromoReduction" placeholder="Réduction (%)">
-      <input type="date" id="editPromoExpiration">
-      <button onclick="validerEditionProduit()">Valider</button>
+    
+      <label for="editCategory">Catégorie</label>
+      <select id="editCategory">
+        <option>Vin</option><option>Spiritueux</option><option>Champagne et mousseux</option>
+        <option>Cooler et cocktail prémixé</option><option>Cidre</option><option>Porto et vin fortifié</option>
+        <option>Bière</option><option>Saké</option><option>Vin de dessert</option>
+        <option>Apéritif</option><option>Hydromel</option><option>Cadeaux et accessoires</option>
+        <option>Poiré</option>
+      </select>
+    
+      <button class="form-btn" onclick="validerEditionProduit()">Valider</button>
     </div>
+    
   
 
     <footer>
@@ -140,7 +156,7 @@
     let produitActuel = null;
 
     function fetchProductsFromAPI() {
-      fetch("http://4.172.255.120:5000/getProducts")
+      fetch("http://4.172.252.189:5000/getProducts")
         .then(res => res.json())
         .then(data => {
           data.forEach(product => {
@@ -165,9 +181,7 @@
               <p><strong>Nom:</strong> ${product.name}</p>
               <p><strong>Catégorie:</strong> ${cat}</p>
               <p><strong>Description:</strong> ${product.description}</p>
-              <p><strong>Prix:</strong> ${product.price}</p>
-              <p><strong>Disponibilité:</strong> ${product.availability}</p>
-              ${product.promo ? `<p><strong>Promo:</strong> ${product.promo.code} - ${product.promo.reduction}%</p>` : ''}
+              <p><strong>Prix:</strong> ${product.price}$</p>
             </div>
             <div class="entry-actions">
               <button class="edit-btn" onclick="editProduct('${cat}', ${index})">Modifier</button>
@@ -184,61 +198,36 @@
     }
 
     function editProduct(cat, index) {
-      produitActuel = { cat, index };
-      const produit = categories[cat][index];
-      document.getElementById('editCode').value = produit.id;
-      document.getElementById('editName').value = produit.name;
-      document.getElementById('editDesc').value = produit.description;
-      document.getElementById('editPrice').value = produit.price;
-      document.getElementById('editAvailability').value = produit.availability;
-      document.getElementById('editPromoCode').value = produit.promo?.code || '';
-      document.getElementById('editPromoDesc').value = produit.promo?.desc || '';
-      document.getElementById('editPromoReduction').value = produit.promo?.reduction || '';
-      document.getElementById('editPromoExpiration').value = produit.promo?.expiration || '';
-      document.getElementById('editModal').style.display = 'block';
-    }
+  produitActuel = { cat, index };
+  const produit = categories[cat][index];
+  document.getElementById('editName').value = produit.name;
+  document.getElementById('editCategory').value = cat;
+  document.getElementById('editDesc').value = produit.description;
+  document.getElementById('editPrice').value = produit.price;
+  document.getElementById('editModal').style.display = 'block';
+}
+
 
     function validerEditionProduit() {
       if (!produitActuel) return;
       const { cat, index } = produitActuel;
       const produit = categories[cat][index];
-      produit.id = document.getElementById('editCode').value;
       produit.name = document.getElementById('editName').value;
+      produit.category = document.getElementById('editCategory').value;
       produit.description = document.getElementById('editDesc').value;
       produit.price = document.getElementById('editPrice').value;
-      produit.availability = document.getElementById('editAvailability').value;
-      const code = document.getElementById('editPromoCode').value;
-      produit.promo = code ? {
-        code,
-        desc: document.getElementById('editPromoDesc').value,
-        reduction: document.getElementById('editPromoReduction').value,
-        expiration: document.getElementById('editPromoExpiration').value
-      } : null;
-
       document.getElementById('editModal').style.display = 'none';
       renderAllProducts();
     }
 
     function addProduct() {
-      const id = document.getElementById('productCode').value;
       const name = document.getElementById('productName').value;
       const description = document.getElementById('productDesc').value;
       const category = document.getElementById('productCategory').value;
       const price = document.getElementById('productPrice').value;
-      const availability = document.getElementById('productAvailability').value;
-      const promoCode = document.getElementById('promoCode').value;
-      const promoDesc = document.getElementById('promoDesc').value;
-      const promoReduction = document.getElementById('promoReduction').value;
-      const promoExpiration = document.getElementById('promoExpiration').value;
 
       const product = {
-        id, name, description, price, availability,
-        promo: promoCode ? {
-          code: promoCode,
-          desc: promoDesc,
-          reduction: promoReduction,
-          expiration: promoExpiration
-        } : null
+        id, name, description, price, 
       };
 
       if (!categories[category]) categories[category] = [];
