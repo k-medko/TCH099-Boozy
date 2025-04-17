@@ -24,7 +24,7 @@ CREATE TABLE UserAccount (
     password VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
     first_name VARCHAR(255) NOT NULL,
-    phone_number VARCHAR(15) NOT NULL UNIQUE,
+    phone_number VARCHAR(15) NOT NULL,
     address_id INT(10),
     user_type ENUM('client','carrier','admin') NOT NULL,
     license_plate VARCHAR(25) UNIQUE,
