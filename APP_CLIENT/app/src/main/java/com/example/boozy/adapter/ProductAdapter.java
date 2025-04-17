@@ -48,18 +48,17 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 .error(R.drawable.produit)
                 .into(holder.productImage);
 
-        System.out.println("Product Image URL: " + imageUrl);
-
         holder.itemView.setOnClickListener(v -> {
             Context context = v.getContext();
             Intent intent = new Intent(context, ProductDetailActivity.class);
+            intent.putExtra("product_id", produit.getId());
             intent.putExtra("product_name", produit.getName());
             intent.putExtra("product_price", produit.getPrice());
-            intent.putExtra("product_image_url", "http://4.172.252.189:5000/images/" + produit.getImageName());
+            intent.putExtra("product_image_name", produit.getImageName());
             intent.putExtra("product_description", produit.getDescription());
+            intent.putExtra("shop_id", produit.getShopId());
             context.startActivity(intent);
         });
-
     }
 
     @Override

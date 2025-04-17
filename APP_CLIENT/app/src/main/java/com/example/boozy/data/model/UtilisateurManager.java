@@ -10,11 +10,12 @@ public class UtilisateurManager {
     private static final String KEY_NOM = "nom";
     private static final String KEY_PRENOM = "prenom";
     private static final String KEY_EMAIL = "email";
+    private static final String KEY_PASSWORD = "password";
     private static final String KEY_TYPE = "type_utilisateur";
     private static final String KEY_TOKEN = "token";
 
     private static final String KEY_NUM_TEL = "num_tel";
-    private static final String KEY_NUMERO_PERMIS = "numero_permis";
+    private static final String KEY_PLAQUE = "plaque";
 
     private static final String KEY_CIVIC = "civic";
     private static final String KEY_APARTMENT = "apartment";
@@ -26,17 +27,19 @@ public class UtilisateurManager {
 
     private SharedPreferences prefs;
     private SharedPreferences.Editor editor;
+    private Context context;
 
     private static UtilisateurManager instance;
 
     private UtilisateurManager(Context context) {
+        this.context = context.getApplicationContext();
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         editor = prefs.edit();
     }
 
     public static synchronized UtilisateurManager getInstance(Context context) {
         if (instance == null) {
-            instance = new UtilisateurManager(context.getApplicationContext());
+            instance = new UtilisateurManager(context);
         }
         return instance;
     }
@@ -50,12 +53,12 @@ public class UtilisateurManager {
         editor.putString(KEY_TYPE, TypeUtilisateur.CLIENT.getType());
         editor.putString(KEY_TOKEN, token);
         editor.remove(KEY_NUM_TEL);
-        editor.remove(KEY_NUMERO_PERMIS);
+        editor.remove(KEY_PLAQUE);
         editor.apply();
     }
 
     // ======== LIVREUR ========
-    public void setLivreur(int id, String nom, String prenom, String email, String token, String numTel, String numeroPermis) {
+    public void setLivreur(int id, String nom, String prenom, String email, String token, String numTel, String plaque) {
         editor.putInt(KEY_ID, id);
         editor.putString(KEY_NOM, nom);
         editor.putString(KEY_PRENOM, prenom);
@@ -63,7 +66,7 @@ public class UtilisateurManager {
         editor.putString(KEY_TYPE, TypeUtilisateur.LIVREUR.getType());
         editor.putString(KEY_TOKEN, token);
         editor.putString(KEY_NUM_TEL, numTel);
-        editor.putString(KEY_NUMERO_PERMIS, numeroPermis);
+        editor.putString(KEY_PLAQUE, plaque);
         editor.apply();
     }
 
@@ -119,6 +122,10 @@ public class UtilisateurManager {
         return prefs.getString(KEY_EMAIL, "");
     }
 
+    public String getPassword() {
+        return prefs.getString(KEY_PASSWORD, "");
+    }
+
     public String getToken() {
         return prefs.getString(KEY_TOKEN, "");
     }
@@ -127,8 +134,8 @@ public class UtilisateurManager {
         return prefs.getString(KEY_NUM_TEL, "");
     }
 
-    public String getNumeroPermis() {
-        return prefs.getString(KEY_NUMERO_PERMIS, "");
+    public String getPlaque() {
+        return prefs.getString(KEY_PLAQUE, "");
     }
 
     public TypeUtilisateur getType() {
@@ -142,13 +149,44 @@ public class UtilisateurManager {
 
     // ======== LOGOUT ========
     public void logout() {
+        PanierManager.getInstance(context).clearCart(); // Vide le panier à la déconnexion
         editor.clear();
         editor.apply();
     }
 
-    // ======== SETTER TYPE ========
+    // ======== SETTERS INDIVIDUELS ========
     public void setType(TypeUtilisateur typeUtilisateur) {
         editor.putString(KEY_TYPE, typeUtilisateur.getType());
+        editor.apply();
+    }
+
+    public void setNom(String nom) {
+        editor.putString(KEY_NOM, nom);
+        editor.apply();
+    }
+
+    public void setPrenom(String prenom) {
+        editor.putString(KEY_PRENOM, prenom);
+        editor.apply();
+    }
+
+    public void setEmail(String email) {
+        editor.putString(KEY_EMAIL, email);
+        editor.apply();
+    }
+
+    public void setPassword(String password) {
+        editor.putString(KEY_PASSWORD, password);
+        editor.apply();
+    }
+
+    public void setNumTel(String numTel) {
+        editor.putString(KEY_NUM_TEL, numTel);
+        editor.apply();
+    }
+
+    public void setPlaque(String plaque) {
+        editor.putString(KEY_PLAQUE, plaque);
         editor.apply();
     }
 }

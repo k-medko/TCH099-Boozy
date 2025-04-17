@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,11 +17,11 @@ import com.example.boozy.R;
 import com.example.boozy.adapter.CategoryAdapter;
 import com.example.boozy.adapter.ProductAdapter;
 import com.example.boozy.data.api.ApiService;
+import com.example.boozy.data.model.AvailabilityResponse;
 import com.example.boozy.data.model.Produit;
 import com.example.boozy.ui.client.ClientHomeActivity;
 import com.example.boozy.ui.client.PaiementActivity;
 import com.example.boozy.ui.client.ProfilClientActivity;
-import com.example.boozy.ui.order.CommandeEnCoursActivity;
 import com.example.boozy.ui.order.SuiviCommandeActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -99,29 +98,41 @@ public class ShopDetailActivity extends AppCompatActivity {
         categoryRecyclerView.setAdapter(categoryAdapter);
     }
 
-    private void fetchProductsFromAPI(int storeId) {
+    private void fetchProductsFromAPI(int shopId) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://4.172.252.189:5000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         ApiService apiService = retrofit.create(ApiService.class);
-        Call<List<Produit>> call = apiService.getProducts(storeId);
+        Call<List<AvailabilityResponse>> call = apiService.getAvailabilityByShop(shopId);
 
-        call.enqueue(new Callback<>() {
+        call.enqueue(new Callback<List<AvailabilityResponse>>() {
             @Override
-            public void onResponse(@NonNull Call<List<Produit>> call, @NonNull Response<List<Produit>> response) {
+            public void onResponse(@NonNull Call<List<AvailabilityResponse>> call, @NonNull Response<List<AvailabilityResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     produitList.clear();
-                    produitList.addAll(response.body());
-                    productAdapter.notifyDataSetChanged();
 
+                    for (AvailabilityResponse availability : response.body()) {
+                        Produit produit = new Produit(
+                                availability.getProductId(),
+                                availability.getProduct().getName(),
+                                availability.getProduct().getDescription(),
+                                availability.getProduct().getPrice(),
+                                availability.getProduct().getCategory(),
+                                String.valueOf(availability.getShopId())
+                        );
+                        produit.setQuantity(1);
+                        produitList.add(produit);
+                    }
+
+                    productAdapter.notifyDataSetChanged();
                     updateCategoriesFromProducts();
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<Produit>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<List<AvailabilityResponse>> call, @NonNull Throwable t) {
                 t.printStackTrace();
             }
         });
@@ -167,12 +178,10 @@ public class ShopDetailActivity extends AppCompatActivity {
             } else if (id == R.id.nav_orders) {
                 navigateToCart();
                 return true;
-            }
-            else if (id == R.id.nav_profile) {
+            } else if (id == R.id.nav_profile) {
                 navigateToProfil();
                 return true;
-            }
-            else if (id == R.id.nav_notifications) {
+            } else if (id == R.id.nav_notifications) {
                 navigateToOrder();
                 return true;
             }

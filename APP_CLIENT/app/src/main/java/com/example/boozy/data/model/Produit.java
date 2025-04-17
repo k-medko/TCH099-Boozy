@@ -19,12 +19,15 @@ public class Produit {
     @SerializedName("category")
     private String category;
 
+    @SerializedName("shop_id")
+    private String shopId;
+
     private int quantity;
 
     @SerializedName("image")
     private String imageName;
 
-    public Produit(int id, String name, String description, double price, String category, int quantity, String imageName) {
+    public Produit(int id, String name, String description, double price, String category, int quantity, String imageName, String shopId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -32,10 +35,11 @@ public class Produit {
         this.category = category;
         this.quantity = quantity;
         this.imageName = imageName;
+        this.shopId = shopId;
     }
 
-    public Produit(int id, String name, String description, double price, String category) {
-        this(id, name, description, price, category, 1, null);
+    public Produit(int id, String name, String description, double price, String category, String shopId) {
+        this(id, name, description, price, category, 1, null, shopId);
     }
 
     // Getters
@@ -59,6 +63,10 @@ public class Produit {
         return category;
     }
 
+    public String getShopId() {
+        return shopId;
+    }
+
     public int getQuantity() {
         return quantity;
     }
@@ -74,5 +82,9 @@ public class Produit {
 
     public void setImageName(String imageName) {
         this.imageName = imageName;
+    }
+
+    public void setShopId(String shopId) {
+        this.shopId = shopId;
     }
 }

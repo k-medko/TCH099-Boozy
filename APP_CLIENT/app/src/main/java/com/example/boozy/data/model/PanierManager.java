@@ -13,6 +13,8 @@ public class PanierManager {
 
     private static final String PREF_NAME = "boozy_prefs";
     private static final String CART_KEY = "cart";
+    private static final String CURRENT_SHOP_ID_KEY = "current_shop_id";
+
     private static PanierManager instance;
     private SharedPreferences prefs;
 
@@ -28,16 +30,28 @@ public class PanierManager {
     }
 
     public void addProduct(Produit product) {
+        String currentShopId = getCurrentShopId();
+
+        if (currentShopId == null) {
+            setCurrentShopId(product.getShopId());
+        }
+
+        else if (!currentShopId.equals(product.getShopId())) {
+            clearCart();
+            setCurrentShopId(product.getShopId());
+        }
+
         List<Produit> panier = getCart();
         panier.add(product);
         saveCart(panier);
     }
 
+
+
     public void removeProduct(Produit product) {
         List<Produit> panier = getCart();
         panier.remove(product);
         saveCart(panier);
-
     }
 
     public List<Produit> getCart() {
@@ -48,11 +62,32 @@ public class PanierManager {
     }
 
     public void clearCart() {
-        prefs.edit().remove(CART_KEY).apply();
+        prefs.edit()
+                .remove(CART_KEY)
+                .remove(CURRENT_SHOP_ID_KEY)
+                .apply();
     }
 
     private void saveCart(List<Produit> panier) {
         String json = new Gson().toJson(panier);
         prefs.edit().putString(CART_KEY, json).apply();
     }
+
+    public void setCurrentShopId(String shopId) {
+        prefs.edit().putString(CURRENT_SHOP_ID_KEY, shopId).apply();
+    }
+
+    public String getCurrentShopId() {
+        return prefs.getString(CURRENT_SHOP_ID_KEY, null);
+    }
+
+    public void clearCurrentShopId() {
+        prefs.edit().remove(CURRENT_SHOP_ID_KEY).apply();
+    }
+
+    public boolean canAddProductFromShop(String shopId) {
+        String currentShopId = getCurrentShopId();
+        return currentShopId == null || currentShopId.equals(shopId);
+    }
+
 }

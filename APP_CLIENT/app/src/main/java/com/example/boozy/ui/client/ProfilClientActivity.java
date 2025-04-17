@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.boozy.R;
@@ -32,7 +33,8 @@ public class ProfilClientActivity extends AppCompatActivity {
         findViewById(R.id.backButton).setOnClickListener(v -> onBackPressed());
 
         findViewById(R.id.btnModifierCarte).setOnClickListener(v -> {
-            startActivity(new Intent(this, ModifierProfilClientActivity.class));
+            Intent intent = new Intent(this, ModifierProfilClientActivity.class);
+            startActivityForResult(intent, 1001);
         });
 
         btnDeconnexion.setOnClickListener(v -> logout());
@@ -66,12 +68,19 @@ public class ProfilClientActivity extends AppCompatActivity {
 
         Adresse adr = userManager.getAdresse();
         if (adr != null) {
-            String adresseComplete = adr.getCivic() + " " + adr.getStreet() + ", " +
-                    adr.getCity() + ", " + adr.getPostalCode();
+            String adresseComplete = "";
+
+            if (!adr.getApartment().isEmpty()) {
+                adresseComplete += adr.getApartment() + "-";
+            }
+
+            adresseComplete += adr.getCivic() + " " + adr.getStreet() + ", " + adr.getCity() + ", " + adr.getPostalCode();
+
             adresseText.setText(adresseComplete.trim().equals(", ,") ? "Aucune adresse" : adresseComplete);
         } else {
             adresseText.setText("Aucune adresse");
         }
+
 
         String stripeCard = userManager.getCarteStripe();
         carteText.setText(stripeCard.isEmpty() ? "Aucune carte" : stripeCard);
@@ -83,5 +92,13 @@ public class ProfilClientActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1001 && resultCode == RESULT_OK) {
+            loadUserProfile();
+        }
     }
 }

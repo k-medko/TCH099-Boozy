@@ -16,8 +16,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 import com.example.boozy.R;
 import com.example.boozy.adapter.PanierAdapter;
+import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.Adresse;
 import com.example.boozy.data.model.Commande;
 import com.example.boozy.data.model.PanierManager;
@@ -108,8 +119,14 @@ public class PaiementActivity extends AppCompatActivity {
     private void initAdresseLocale() {
         Adresse adresse = UtilisateurManager.getInstance(getApplicationContext()).getAdresse();
         if (adresse != null) {
-            String adresseComplete = adresse.getCivic() + " " + adresse.getStreet() + ", "
+            String adresseComplete = "";
+            if (!adresse.getApartment().isEmpty()) {
+                adresseComplete += adresse.getApartment() + "-";
+            }
+
+            adresseComplete += adresse.getCivic() + " " + adresse.getStreet() + ", "
                     + adresse.getCity() + ", " + adresse.getPostalCode();
+
             adresseText.setText(adresseComplete);
         } else {
             adresseText.setText("Adresse non disponible");
@@ -137,14 +154,25 @@ public class PaiementActivity extends AppCompatActivity {
     }
 
     private void updateCart(List<Produit> updatedList) {
-        PanierManager.getInstance(getApplicationContext()).clearCart();
-        for (Produit produit : updatedList) {
-            PanierManager.getInstance(getApplicationContext()).addProduct(produit);
+        PanierManager panierManager = PanierManager.getInstance(getApplicationContext());
+        panierManager.clearCart();
+
+        if (!updatedList.isEmpty()) {
+            String shopId = updatedList.get(0).getShopId();
+            panierManager.setCurrentShopId(shopId);
+
+            for (Produit produit : updatedList) {
+                panierManager.addProduct(produit);
+            }
         }
-        panierAdapter.updateProductList(updatedList);
+
+        panierAdapter.updateProductList(panierManager.getCart());
         panierAdapter.notifyDataSetChanged();
-        updateTotals(updatedList);
+        updateTotals(panierManager.getCart());
     }
+
+
+
 
     private void updateTotals(List<Produit> panier) {
         double sousTotal = 0;
@@ -173,18 +201,57 @@ public class PaiementActivity extends AppCompatActivity {
             return;
         }
 
-        Commande commande = new Commande(
-                numeroCommande,
-                null,
-                null,
-                totalText.getText().toString(),
-                null
-        );
+        String email = UtilisateurManager.getInstance(this).getEmail();
+        String password = UtilisateurManager.getInstance(this).getPassword();
+        int shopId = Integer.parseInt(panier.get(0).getShopId());
 
-        PanierManager.getInstance(getApplicationContext()).clearCart();
+        ArrayList<Map<String, Object>> items = new ArrayList<>();
+        for (Produit produit : panier) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("product_id", produit.getId());
+            item.put("quantity", produit.getQuantity());
+            items.add(item);
+        }
 
-        Intent intent = new Intent(PaiementActivity.this, SuiviCommandeActivity.class);
-        intent.putExtra("commande", commande);
-        startActivity(intent);
+        Map<String, Object> body = new HashMap<>();
+        body.put("email", email);
+        body.put("password", password);
+        body.put("shop_id", shopId);
+        body.put("items", items);
+        body.put("payment_method", "credit_card");
+        body.put("card_name", "John Doe");
+        body.put("card_number", "4111111111111111");
+        body.put("CVC_card", "123");
+        body.put("expiry_date_month", 5);
+        body.put("expiry_date_year", 2026);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://4.172.252.189:5000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        ApiService api = retrofit.create(ApiService.class);
+        Call<Map<String, Object>> call = api.createOrder(body);
+
+        call.enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if (response.isSuccessful()) {
+                    PanierManager.getInstance(getApplicationContext()).clearCart();
+                    Toast.makeText(PaiementActivity.this, "Commande envoyée avec succès", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(PaiementActivity.this, SuiviCommandeActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(PaiementActivity.this, "Erreur lors de la commande", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                Toast.makeText(PaiementActivity.this, "Échec de connexion", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 }

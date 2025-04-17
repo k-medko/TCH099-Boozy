@@ -178,6 +178,28 @@
             </LinearLayout>
             <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
 
+            <!-- Plaque -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/num_de_plaque"
+                    android:textStyle="bold"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/plaqueText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#000000" />
+            </LinearLayout>
+
             <!-- Courriel -->
             <LinearLayout
                 android:layout_width="match_parent"

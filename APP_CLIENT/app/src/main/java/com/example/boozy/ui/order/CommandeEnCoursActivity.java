@@ -81,6 +81,7 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
     private void loadCommandeDetails() {
         // APPEL À L'API ICI
         // Récupérer les informations de la commande depuis le serveur via un appel GET.
+        // # de la commande, nom du client, adresse du client, adresse du magasin.
 
     }
 

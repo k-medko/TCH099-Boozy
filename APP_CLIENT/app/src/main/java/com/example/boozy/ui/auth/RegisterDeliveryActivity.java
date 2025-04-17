@@ -16,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.boozy.R;
 import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.Utilisateur;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -87,9 +89,18 @@ public class RegisterDeliveryActivity extends AppCompatActivity {
         livreur.setPassword(mdp);
         livreur.setTypeUtilisateur("carrier");
 
+        // Log JSON
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .setPrettyPrinting()
+                .create();
+        String json = gson.toJson(livreur);
+        Log.d("JSON_LIVREUR", json);
+
+        // Retrofit
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://4.172.252.189:5000/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
         ApiService apiService = retrofit.create(ApiService.class);
@@ -104,7 +115,7 @@ public class RegisterDeliveryActivity extends AppCompatActivity {
                     try {
                         String errorBody = response.errorBody() != null ? response.errorBody().string() : "Erreur inconnue";
                         Log.e("REGISTER_DELIVERY", "Erreur " + response.code() + ": " + errorBody);
-                        showToast("Erreur lors de la création : " + errorBody);
+                        showToast("Erreur lors de la création : " + response.code());
                     } catch (Exception e) {
                         e.printStackTrace();
                         showToast("Erreur inconnue");

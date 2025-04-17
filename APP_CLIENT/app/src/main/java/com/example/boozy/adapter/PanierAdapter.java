@@ -117,9 +117,19 @@ public class PanierAdapter extends RecyclerView.Adapter<PanierAdapter.ViewHolder
     }
 
     private void updateCartPersistence() {
-        PanierManager.getInstance(context).clearCart();
-        for (Produit p : productList) {
-            PanierManager.getInstance(context).addProduct(p);
+        PanierManager panierManager = PanierManager.getInstance(context);
+        panierManager.clearCart();
+
+        if (!productList.isEmpty()) {
+            String shopId = productList.get(0).getShopId();
+            panierManager.setCurrentShopId(shopId);
+
+            for (Produit produit : productList) {
+                panierManager.addProduct(produit);
+            }
         }
     }
+
+
+
 }

@@ -18,6 +18,8 @@ import com.example.boozy.R;
 import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.Adresse;
 import com.example.boozy.data.model.Utilisateur;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -96,56 +98,58 @@ public class RegisterClientActivity extends AppCompatActivity {
 
         Adresse adresse = new Adresse(streetNumber, appartment, streetName, city, postalCode);
 
-        Utilisateur user = new Utilisateur();
-        user.setNom(nom);
-        user.setPrenom(prenom);
-        user.setEmail(courriel);
-        user.setNumTel("");
-        user.setPassword(motDePasse);
-        user.setTypeUtilisateur("client");
-        user.setAdresse(adresse);
+        Utilisateur utilisateur = new Utilisateur();
+        utilisateur.setNom(nom);
+        utilisateur.setPrenom(prenom);
+        utilisateur.setEmail(courriel);
+        utilisateur.setPassword(motDePasse);
+        utilisateur.setNumTel("5140000000");
+        utilisateur.setTypeUtilisateur("client");
+        utilisateur.setAdresse(adresse);
+
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .setPrettyPrinting()
+                .create();
+
+        String json = gson.toJson(utilisateur);
+        Log.d("JSON_CLIENT", json);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://4.172.252.189:5000/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
         ApiService apiService = retrofit.create(ApiService.class);
+        Call<Void> call = apiService.createUser(utilisateur);
 
-        Call<Void> call = apiService.createUser(user);
-        call.enqueue(new Callback<Void>() {
+        call.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     navigateToLogin();
                 } else {
                     try {
-                        String errorBody = response.errorBody().string();
-                        Log.e("REGISTER_ERROR", "Code: " + response.code() + " - Body: " + errorBody);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    try {
                         String error = response.errorBody() != null ? response.errorBody().string() : "Réponse vide";
-                        showToast("Erreur " + response.code() + ": " + error);
+                        Log.e("REGISTER_CLIENT", "Erreur " + response.code() + ": " + error);
+                        showToast("Erreur : " + response.code());
                     } catch (Exception e) {
-                        e.printStackTrace();
                         showToast("Erreur inconnue");
+                        e.printStackTrace();
                     }
-
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
                 showToast("Erreur réseau : " + t.getMessage());
-                Log.e("REGISTER_ERROR", "Erreur réseau : ", t);
+                Log.e("REGISTER_CLIENT", "Erreur réseau : ", t);
             }
         });
     }
 
     private void navigateToLogin() {
-        showToast("Compte créé avec succès. Veuillez vous connecter.");
+        showToast("Compte client créé avec succès.");
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
         finish();

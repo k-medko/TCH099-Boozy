@@ -87,6 +87,12 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Utilisateur utilisateur = response.body().getUser();
+                    getSharedPreferences("boozy_prefs", MODE_PRIVATE)
+                            .edit()
+                            .putString("email", utilisateur.getEmail())
+                            .putString("password", password)
+                            .apply();
+
                     Log.d("LOGIN_TEST", "Réponse complète : " + new Gson().toJson(response.body()));
 
                     Adresse adresse = utilisateur.getAdresse();
@@ -101,6 +107,8 @@ public class LoginActivity extends AppCompatActivity {
                                 utilisateur.getEmail(),
                                 "token_placeholder"
                         );
+                        UtilisateurManager.getInstance(getApplicationContext()).setPassword(password);
+
 
                         if (adresse != null) {
                             UtilisateurManager.getInstance(getApplicationContext()).setAdresse(
@@ -125,6 +133,7 @@ public class LoginActivity extends AppCompatActivity {
                                 utilisateur.getNumTel(),
                                 utilisateur.getPlaqueAuto()
                         );
+                        UtilisateurManager.getInstance(getApplicationContext()).setPassword(password);
                         openActivity(LivreurHomeActivity.class);
 
                     } else {

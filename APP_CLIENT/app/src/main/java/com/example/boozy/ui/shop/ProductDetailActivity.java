@@ -12,13 +12,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.boozy.R;
+import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.PanierManager;
 import com.example.boozy.data.model.Produit;
 import com.example.boozy.ui.client.PaiementActivity;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ProductDetailActivity extends AppCompatActivity {
 
@@ -28,7 +38,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     private ImageView productImageView;
 
     private int productId;
-    private String productName, productDescription, productImageName;
+    private String productName, productDescription = "", productImageName, shopId;
     private double productPrice;
 
     @Override
@@ -39,6 +49,7 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         initViews();
         getProductFromIntent();
+        fetchProductDescription();
         displayProductData();
         setupQuantityButtons();
         setupAddToCart();
@@ -66,9 +77,34 @@ public class ProductDetailActivity extends AppCompatActivity {
     private void getProductFromIntent() {
         productId = getIntent().getIntExtra("product_id", 0);
         productName = getIntent().getStringExtra("product_name");
-        productDescription = getIntent().getStringExtra("product_description");
         productPrice = getIntent().getDoubleExtra("product_price", 0.0);
         productImageName = getIntent().getStringExtra("product_image_name");
+        shopId = getIntent().getStringExtra("shop_id");
+    }
+
+    private void fetchProductDescription() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://4.172.252.189:5000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        ApiService api = retrofit.create(ApiService.class);
+        Call<List<Produit>> call = api.getProductsById(productId);
+
+        call.enqueue(new Callback<List<Produit>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<Produit>> call, @NonNull Response<List<Produit>> response) {
+                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                    productDescription = response.body().get(0).getDescription();
+                    productDescriptionText.setText(productDescription);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<Produit>> call, @NonNull Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 
     private void displayProductData() {
@@ -104,17 +140,44 @@ public class ProductDetailActivity extends AppCompatActivity {
     private void setupAddToCart() {
         Button addToCartButton = findViewById(R.id.buttonAddToCart);
         addToCartButton.setOnClickListener(v -> {
-            Produit produit = new Produit(productId, productName, productDescription, productPrice, productImageName);
+            Produit produit = new Produit(productId, productName, productDescription, productPrice, null, shopId);
             produit.setQuantity(quantity);
-            PanierManager.getInstance(getApplicationContext()).addProduct(produit);
+            produit.setImageName(productImageName);
 
-            Toast.makeText(this, "Ajouté au panier", Toast.LENGTH_SHORT).show();
+            PanierManager panierManager = PanierManager.getInstance(getApplicationContext());
+            String currentShopId = panierManager.getCurrentShopId();
 
-            Intent intent = new Intent(ProductDetailActivity.this, PaiementActivity.class);
-            intent.putExtra("refresh", true);
-            startActivity(intent);
-            finish();
+            if (currentShopId != null && !currentShopId.equals(shopId)) {
+                new androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("Changer de magasin ?")
+                        .setMessage("L’ajout de ce produit videra le panier actuel du magasin précédent.\nSouhaitez-vous continuer ?")
+                        .setPositiveButton("Oui", (dialog, which) -> {
+                            panierManager.clearCart();
+                            panierManager.setCurrentShopId(shopId);
+                            panierManager.addProduct(produit);
+
+                            Toast.makeText(this, "Produit ajouté au nouveau panier", Toast.LENGTH_SHORT).show();
+                            goToPaiement();
+                        })
+                        .setNegativeButton("Annuler", null)
+                        .show();
+            } else {
+                if (currentShopId == null) {
+                    panierManager.setCurrentShopId(shopId);
+                }
+
+                panierManager.addProduct(produit);
+                Toast.makeText(this, "Ajouté au panier", Toast.LENGTH_SHORT).show();
+                goToPaiement();
+            }
         });
+    }
+
+    private void goToPaiement() {
+        Intent intent = new Intent(ProductDetailActivity.this, PaiementActivity.class);
+        intent.putExtra("refresh", true);
+        startActivity(intent);
+        finish();
     }
 
     private void setupBackButton() {
