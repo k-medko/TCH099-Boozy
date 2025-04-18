@@ -73,6 +73,39 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background-color: var(--white);
+      border: 1px solid var(--gray-border);
+      border-radius: 999px;
+      padding: 4px 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .search-bar input {
+      border: none;
+      outline: none;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 999px;
+      width: 160px;
+    }
+    .search-bar button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+    .search-bar button:hover {
+      background-color: white;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
   </style>
 </head>
 <body>
@@ -89,6 +122,10 @@
     <header>
       <div class="logo-container">
         <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Produits SAQ</h1>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="searchBar" placeholder="Rechercher...">
+        <button type="submit">Recherche</button>
       </div>
       <div class="header-controls">
         <button onclick="switchLanguage()" class="lang-btn">🌐 EN</button>
@@ -141,19 +178,24 @@
     let produitActuel = null;
 
     function fetchProductsFromAPI() {
-      fetch("http://4.172.252.189:5000/getProducts")
-        .then(res => res.json())
-        .then(data => {
-          data.forEach(product => {
-            const cat = product.category || 'Inconnu';
-            if (!categories[cat]) categories[cat] = [];
-            categories[cat].push(product);
-          });
-          remplirCategoriesDansSelect();
-          renderAllProducts();
-        })
-        .catch(err => console.error("Erreur lors de la récupération des produits:", err));
-    }
+  const productList = document.getElementById('productList');
+  productList.innerHTML = "";
+  for (const key in categories) delete categories[key]; // 👈 Vider proprement
+
+  fetch("http://4.172.252.189:5000/getProducts")
+    .then(res => res.json())
+    .then(data => {
+      data.forEach(product => {
+        const cat = product.category || 'Inconnu';
+        if (!categories[cat]) categories[cat] = [];
+        categories[cat].push(product);
+      });
+      remplirCategoriesDansSelect();
+      renderAllProducts();
+    })
+    .catch(err => console.error("Erreur lors de la récupération des produits:", err));
+}
+
 
     function remplirCategoriesDansSelect() {
       const selectEdit = document.getElementById('editCategory');
@@ -173,28 +215,44 @@
       });
     }
 
-    function renderAllProducts() {
-      const productList = document.getElementById('productList');
-      productList.innerHTML = '';
-      Object.entries(categories).forEach(([cat, products]) => {
-        products.forEach((product, index) => {
-          const div = document.createElement('div');
-          div.className = 'product-entry';
-          div.innerHTML = `
-            <div>
-              <p><strong>Nom:</strong> ${product.name}</p>
-              <p><strong>Catégorie:</strong> ${cat}</p>
-              <p><strong>Description:</strong> ${product.description}</p>
-              <p><strong>Prix:</strong> ${product.price}$</p>
-            </div>
-            <div class="entry-actions">
-              <button class="edit-btn" onclick="editProduct('${cat}', ${index})">Modifier</button>
-              <button class="delete-btn" onclick="deleteProduct('${cat}', ${index})">Supprimer</button>
-            </div>`;
-          productList.appendChild(div);
-        });
-      });
-    }
+    function renderAllProducts(filtreTexte = "") {
+  const productList = document.getElementById('productList');
+  productList.innerHTML = '';
+
+  const filtre = filtreTexte.trim().toLowerCase();
+
+  Object.entries(categories).forEach(([cat, products]) => {
+    products.forEach((product, index) => {
+      const nom = product.name.toLowerCase();
+      const desc = product.description.toLowerCase();
+      const prix = String(product.price).toLowerCase();
+      const catLower = cat.toLowerCase();
+
+      if (
+        nom.includes(filtre) ||
+        desc.includes(filtre) ||
+        prix.includes(filtre) ||
+        catLower.includes(filtre)
+      ) {
+        const div = document.createElement('div');
+        div.className = 'product-entry';
+        div.innerHTML = `
+          <div>
+            <p><strong>Nom:</strong> ${product.name}</p>
+            <p><strong>Catégorie:</strong> ${cat}</p>
+            <p><strong>Description:</strong> ${product.description}</p>
+            <p><strong>Prix:</strong> ${product.price}$</p>
+          </div>
+          <div class="entry-actions">
+            <button class="edit-btn" onclick="editProduct('${cat}', ${index})">Modifier</button>
+            <button class="delete-btn" onclick="deleteProduct('${cat}', ${index})">Supprimer</button>
+          </div>`;
+        productList.appendChild(div);
+      }
+    });
+  });
+}
+
 
     function deleteProduct(cat, index) {
       categories[cat].splice(index, 1);
@@ -214,58 +272,121 @@
     function validerEditionProduit() {
   if (!produitActuel) return;
   const { cat, index } = produitActuel;
+  const produit = categories[cat][index];
 
   const newName = document.getElementById('editName').value;
   const newCategory = document.getElementById('editCategory').value;
   const newDesc = document.getElementById('editDesc').value;
-  const newPrice = document.getElementById('editPrice').value;
+  const newPrice = parseFloat(document.getElementById('editPrice').value);
 
-  const produit = categories[cat][index];
+  const updatedData = {
+    admin_email: "edwar@boozy.com",
+    admin_password: "adminpass",
+    product_id: produit.product_id, // identifiant requis pour la modification
+    name: newName,
+    description: newDesc,
+    price: newPrice,
+    category: newCategory,
+    alcohol: produit.alcohol || 0 // ou un input si tu veux le modifier aussi
+  };
 
-  // Mise à jour de l’objet
-  produit.name = newName;
-  produit.category = newCategory;
-  produit.description = newDesc;
-  produit.price = newPrice;
-
-  // Si la catégorie n’a pas changé
-  if (cat === newCategory) {
-    categories[cat][index] = produit;
-  } else {
-    // Sinon, on déplace vers la nouvelle catégorie
-    categories[cat].splice(index, 1);
-    if (!categories[newCategory]) categories[newCategory] = [];
-    categories[newCategory].push(produit);
-  }
-
-  produitActuel = null;
-  document.getElementById('editModal').style.display = 'none';
-  renderAllProducts();
-  alert("Produit modifié avec succès !");
+  modifierProduit(updatedData).then(response => {
+    if (response.status === "success") {
+      alert("Produit modifié avec succès !");
+      fetchProductsFromAPI(); // recharge depuis l'API
+      produitActuel = null;
+      document.getElementById('editModal').style.display = 'none';
+    } else {
+      alert("Échec de la modification !");
+      console.error("Erreur serveur:", response);
+    }
+  }).catch(error => {
+    alert("Erreur réseau !");
+    console.error(error);
+  });
 }
 
 
-    function addProduct() {
-      const name = document.getElementById('productName').value;
-      const description = document.getElementById('productDesc').value;
-      const category = document.getElementById('productCategory').value;
-      const price = document.getElementById('productPrice').value;
 
-      const product = {
-        product_id: Date.now(),
-        name,
-        description,
-        category,
-        price
-      };
+function addProduct() {
+  const name = document.getElementById('productName').value;
+  const description = document.getElementById('productDesc').value;
+  const category = document.getElementById('productCategory').value;
+  const price = parseFloat(document.getElementById('productPrice').value);
 
-      if (!categories[category]) categories[category] = [];
-      categories[category].push(product);
-      renderAllProducts();
+  const productData = {
+    admin_email: "edwar@boozy.com",
+    admin_password: "adminpass",
+    name: name,
+    description: description,
+    category: category,
+    price: price,
+    alcohol: 0 // ou tu peux ajouter un champ input pour cette valeur
+  };
 
-      document.querySelectorAll('.form-box input').forEach(i => i.value = '');
-      document.getElementById('productCategory').selectedIndex = 0;
+  fetch("http://4.172.252.189:5000/admin/createProduct", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(productData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log("Produit créé:", data);
+    alert("Produit ajouté avec succès !");
+    fetchProductsFromAPI(); // pour rafraîchir la liste
+    document.querySelectorAll('.form-box input').forEach(i => i.value = '');
+    document.getElementById('productCategory').selectedIndex = 0;
+  })
+  .catch(error => {
+    console.error("Erreur lors de l'ajout du produit:", error);
+    alert("Échec de l'ajout !");
+  });
+}
+
+function modifierProduit(productData) {
+  return fetch("http://4.172.252.189:5000/admin/modifyProduct", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(productData)
+  }).then(res => res.json());
+}
+
+function deleteProduct(cat, index) {
+  const produit = categories[cat][index];
+
+  if (!confirm(`Supprimer le produit : ${produit.name} ?`)) return;
+
+  fetch("http://4.172.252.189:5000/admin/deleteProduct", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      admin_email: "edwar@boozy.com",
+      admin_password: "adminpass",
+      product_id: produit.product_id
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === "success") {
+      alert("Produit supprimé avec succès !");
+      fetchProductsFromAPI(); // Recharge la liste à jour
+    } else {
+      alert("Échec de la suppression.");
+      console.error("Réponse:", data);
     }
+  })
+  .catch(err => {
+    alert("Erreur réseau !");
+    console.error(err);
+  });
+}
+
+
+document.getElementById('searchBar').addEventListener('input', function () {
+  const value = this.value;
+  renderAllProducts(value);
+});
+
 
     window.onload = fetchProductsFromAPI;
   </script>

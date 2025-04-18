@@ -366,6 +366,10 @@
           <input type="text" id="rue" name="rue" placeholder="ex: Rue Sainte-Catherine" required>
           <label for="ville">Ville</label>
           <input type="text" id="ville" name="ville" placeholder="ex: Montréal" required>
+          <label for="appartement">Appartement</label>
+          <input type="text" id="appartement" name="appartement" placeholder="ex: 3B">
+          <label for="postal_code">Code postal</label>
+          <input type="text" id="postal_code" name="postal_code" placeholder="ex: H3A 1A1">
           <button type="submit">Ajouter le magasin</button>
         </form>
       </div>
@@ -383,8 +387,14 @@
   <input type="text" id="edit-num" placeholder="Numéro civique">
   <input type="text" id="edit-rue" placeholder="Nom de la rue">
   <input type="text" id="edit-ville" placeholder="Ville">
-  <button onclick="validerModification()">Valider</button>
+  <input type="text" id="edit-appartement" placeholder="Appartement">
+  <input type="text" id="edit-postal" placeholder="Code Postal">
+  <div style="display: flex; gap: 10px; margin-top: 12px;">
+    <button onclick="validerModification()">Valider</button>
+    <button style="background-color: #6b7280;" onclick="document.getElementById('modal').style.display='none'">Fermer</button>
+  </div>
 </div>
+
 <script>
   function switchLanguage() {
     window.location.href = "stores_en.html";
@@ -393,8 +403,16 @@
     document.getElementById("sidebar").classList.toggle("show");
     document.getElementById("overlay").classList.toggle("show");
   }
+
+  document.getElementById("searchBar").addEventListener("input", () => {
+  const keyword = document.getElementById("searchBar").value.toLowerCase();
+  filtrerMagasins(keyword);
+});
+
+
   function ouvrirStockPage(nom, num_civique, rue, ville) {
-    const url = `stock_magasin.html?nom=${encodeURIComponent(nom)}&num_civique=${encodeURIComponent(num_civique)}&rue=${encodeURIComponent(rue)}&ville=${encodeURIComponent(ville)}`;
+    const url = `stock_magasin.html?nom=${encodeURIComponent(store.name)}&id=${store.shop_id}`;
+
     window.location.href = url;
   }
   function createStoreEntry(store) {
@@ -411,7 +429,7 @@
   imageElement.style.marginRight = "10px";
 
   // Charger l'image depuis l'API
-  fetch(`http://4.172.252.189:5000/getImages/store/${store.store_id}`)
+  fetch(`http://4.172.252.189:5000/getImages/shop/${store.store_id}`)
     .then(res => {
       if (!res.ok) throw new Error("Erreur image");
       return res.blob();
@@ -424,59 +442,117 @@
       imageElement.src = "assets/image/default-store.png"; // Image fallback si erreur
     });
 
-  div.innerHTML = `
-    <div style="display:flex; align-items:center;">
-      ${imageElement.outerHTML}
-      <div>
-        <p><strong>Nom:</strong> <span class="store-nom">${store.name}</span></p>
-        <p><strong>Adresse:</strong> <span class="store-adresse">${store.address}</span></p>
-      </div>
+    div.innerHTML = `
+  <div style="display:flex; align-items:center;">
+    ${imageElement.outerHTML}
+    <div>
+      <p><strong>Nom:</strong> <span class="store-nom">${store.name}</span></p>
+      <p><strong>Adresse complète:</strong><br>
+        ${store.address_components?.civic || ''} 
+        ${store.address_components?.apartment ? ', Apt. ' + store.address_components.apartment : ''}<br>
+        ${store.address_components?.street || ''}<br>
+        ${store.address_components?.city || ''}, ${store.address_components?.postal_code || ''}
+      </p>
     </div>
-    <div class="entry-actions">
-      <button class="edit-btn modifier">Modifier</button>
-      <button class="edit-btn stock">Produits</button>
-      <button class="delete-btn">Supprimer</button>
-    </div>
-  `;
+  </div>
+  <div class="entry-actions">
+    <button class="edit-btn modifier">Modifier</button>
+    <button class="edit-btn stock">Produits</button>
+    <button class="delete-btn">Supprimer</button>
+  </div>
+`;
 
-  div.querySelector(".modifier").addEventListener("click", () => {
-    currentEditStore = { div, store };
-    document.getElementById("edit-nom").value = store.name;
-    document.getElementById("edit-num").value = store.civic_number;
-    document.getElementById("edit-rue").value = store.address.split(',')[0].split(' ').slice(1).join(' ');
-    document.getElementById("edit-ville").value = store.address.split(',')[1].trim();
-    document.getElementById("modal").style.display = "block";
-  });
 
-  div.querySelector(".stock").addEventListener("click", () => {
-    ouvrirStockPage(store.name, store.civic_number, store.address.split(' ')[1], 'Montréal');
-  });
+div.querySelector(".modifier").addEventListener("click", () => {
+  currentEditStore = {
+    div,
+    store: {
+      shop_id: store.shop_id,
+      name: store.name,
+      civic: store.address_components?.civic || "",
+      apartment: store.address_components?.apartment || "",
+      street: store.address_components?.street || "",
+      city: store.address_components?.city || "",
+      postal_code: store.address_components?.postal_code || ""
+    }
+  };
 
-  div.querySelector(".delete-btn").addEventListener("click", () => div.remove());
+  document.getElementById("edit-nom").value = store.name;
+  document.getElementById("edit-num").value = store.address_components?.civic || "";
+  document.getElementById("edit-rue").value = store.address_components?.street || "";
+  document.getElementById("edit-ville").value = store.address_components?.city || "";
+  document.getElementById("edit-appartement").value = store.address_components?.apartment || "";
+  document.getElementById("edit-postal").value = store.address_components?.postal_code || "";
+
+  document.getElementById("modal").style.display = "block";
+});
+
+
+div.querySelector(".stock").addEventListener("click", () => {
+  const url = `stock_magasin.html?nom=${encodeURIComponent(store.name)}&id=${store.shop_id}`;
+  window.location.href = url;
+});
+
+
+
+
+  div.querySelector(".delete-btn").addEventListener("click", () => {
+  if (confirm("Voulez-vous vraiment supprimer ce magasin ?")) {
+    supprimerMagasin(store.shop_id)
+      .then(data => {
+        if (data.status === "success") {
+          alert("Magasin supprimé !");
+          fetchStoresFromAPI(); // Recharge la liste
+        } else {
+          alert("Erreur lors de la suppression !");
+          console.error("Réponse API:", data);
+        }
+      })
+      .catch(err => {
+        alert("Erreur réseau !");
+        console.error("Erreur:", err);
+      });
+  }
+});
+
   document.getElementById("storeList").appendChild(div);
 }
 
-  function validerModification() {
+function validerModification() {
   if (!currentEditStore) return;
+
   const { div, store } = currentEditStore;
-  const newNom = document.getElementById("edit-nom").value;
-  const newNum = document.getElementById("edit-num").value;
-  const newRue = document.getElementById("edit-rue").value;
-  const newVille = document.getElementById("edit-ville").value;
-  if (newNom && newNum && newRue && newVille) {
-    store.nom = newNom;
-    store.num_civique = newNum;
-    store.rue = newRue;
-    store.ville = newVille;
-    div.querySelector(".store-nom").textContent = store.nom;
-    div.querySelector(".store-adresse").textContent = `${store.num_civique} ${store.rue}, ${store.ville}`;
-    document.getElementById("modal").style.display = "none";
-    document.getElementById("modal").style.display = "none";
-    currentEditStore = null;
-  }
+
+  const updatedStore = {
+    shop_id: store.shop_id,
+    name: document.getElementById("edit-nom").value,
+    civic: document.getElementById("edit-num").value,
+    street: document.getElementById("edit-rue").value,
+    city: document.getElementById("edit-ville").value,
+    apartment: document.getElementById("edit-appartement").value,
+    postal_code: document.getElementById("edit-postal").value,
+  };
+
+  modifierMagasin(updatedStore)
+    .then(data => {
+      if (data.status === "success") {
+        alert("Magasin modifié !");
+        fetchStoresFromAPI();
+        document.getElementById("modal").style.display = "none";
+        currentEditStore = null;
+      } else {
+        alert("Erreur lors de la modification !");
+        console.error("Réponse API:", data);
+      }
+    })
+    .catch(err => {
+      alert("Erreur réseau !");
+      console.error("Erreur:", err);
+    });
 }
+
   function fetchStoresFromAPI() {
-    fetch("http://4.172.252.189:5000/getStores")
+    fetch("http://4.172.252.189:5000/getShops")
       .then(response => response.json())
       .then(data => {
         document.getElementById("storeList").innerHTML = "";
@@ -487,6 +563,103 @@
         document.getElementById("storeList").innerHTML = "<p style='padding:20px;'>Impossible de charger les magasins.</p>";
       });
   }
+
+  function filtrerMagasins(keyword) {
+  const magasins = document.querySelectorAll(".store-entry");
+
+  magasins.forEach(entry => {
+    const nom = entry.querySelector(".store-nom")?.textContent.toLowerCase() || "";
+    const adresse = entry.querySelector(".store-adresse")?.textContent.toLowerCase() || "";
+    
+    // On filtre aussi par tous les éléments visibles dans la carte
+    const textGlobal = entry.textContent.toLowerCase();
+
+    if (
+      nom.includes(keyword) ||
+      adresse.includes(keyword) ||
+      textGlobal.includes(keyword)
+    ) {
+      entry.style.display = "flex";
+    } else {
+      entry.style.display = "none";
+    }
+  });
+}
+
+
+
+  function addStore(event) {
+  event.preventDefault();
+
+  const name = document.getElementById("nom").value;
+  const civic = document.getElementById("num_civique").value;
+  const street = document.getElementById("rue").value;
+  const city = document.getElementById("ville").value;
+
+  const storeData = {
+    admin_email: "edwar@boozy.com",
+    admin_password: "adminpass",
+    name: name,
+    civic: civic,
+    apartment: document.getElementById("appartement").value,
+    street: street,
+    city: city,
+    postal_code: document.getElementById("postal_code").value,
+  };
+
+  fetch("http://4.172.252.189:5000/admin/createShop", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(storeData)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === "success") {
+      alert("Magasin ajouté !");
+      fetchStoresFromAPI(); // Recharge la liste
+      document.querySelector("form").reset();
+    } else {
+      alert("Erreur lors de l'ajout !");
+      console.error("Réponse API:", data);
+    }
+  })
+  .catch(err => {
+    alert("Erreur réseau !");
+    console.error("Erreur:", err);
+  });
+}
+
+function modifierMagasin(shopData) {
+  return fetch("http://4.172.252.189:5000/admin/modifyShop", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      admin_email: "edwar@boozy.com",
+      admin_password: "adminpass",
+      shop_id: shopData.shop_id,
+      name: shopData.name,
+      civic: shopData.civic,
+      apartment: shopData.apartment,
+      street: shopData.street,
+      city: shopData.city,
+      postal_code: shopData.postal_code
+    })
+  }).then(res => res.json());
+}
+
+function supprimerMagasin(shop_id) {
+  return fetch("http://4.172.252.189:5000/admin/deleteShop", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      admin_email: "edwar@boozy.com",
+      admin_password: "adminpass",
+      shop_id: shop_id
+    })
+  }).then(res => res.json());
+}
+
+
   window.onload = fetchStoresFromAPI;
   </script>
 </body>

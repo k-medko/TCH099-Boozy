@@ -328,93 +328,107 @@
   </div>
 
   <script>
- const urlParams = new URLSearchParams(window.location.search);
-const magasinNom = urlParams.get("nom");
-const storeId = parseInt(urlParams.get("id"));
-document.getElementById("magasinNom").textContent = `Stock – ${magasinNom}`;
+    const urlParams = new URLSearchParams(window.location.search);
+    const magasinNom = urlParams.get("nom");
+    const storeId = parseInt(urlParams.get("id"));
 
-async function fetchStock() {
-  try {
-    // Requêtes parallèles
-    const [productsRes, allAvailabilityRes, storeAvailabilityRes] = await Promise.all([
-      fetch("http://4.172.255.120:5000/getProducts"),
-      fetch("http://4.172.255.120:5000/getAvailability"),
-      fetch(`http://4.172.255.120:5000/getAvailability?storeId=${storeId}`)
-    ]);
+    document.getElementById("magasinNom").textContent = `Stock – ${magasinNom}`;
 
-    const allProducts = await productsRes.json();
-    const allAvailability = await allAvailabilityRes.json();
-    const storeAvailability = await storeAvailabilityRes.json();
+    let produitsMagasin = [];
+    let produitsAutres = [];
 
-    // Produits vendus pour CE magasin
-    const produitsVendus = storeAvailability.map(av => {
-      const product = allProducts.find(p => p.id === av.productId);
-      return product ? { ...product, quantite: av.quantity } : null;
-    }).filter(Boolean);
+    async function fetchStock() {
+      try {
+        const res = await fetch("http://4.172.252.189:5000/getAvailability");
+        const data = await res.json();
 
-    // Produits disponibles ailleurs (dans d'autres magasins OU ce magasin aussi)
-    const produitsNonVendus = allAvailability.map(av => {
-      const product = allProducts.find(p => p.id === av.productId);
-      return product ? {
-        ...product,
-        quantite: av.quantity,
-        store_name: av.store_name,
-        store_id: av.store_id
-      } : null;
-    }).filter(Boolean);
+        produitsMagasin = data.filter(item => item.shop_id === storeId);
+        produitsAutres = data.filter(item => item.shop_id !== storeId);
 
-    renderProducts(produitsVendus, produitsNonVendus);
-  } catch (error) {
-    console.error("Erreur lors du chargement du stock:", error);
-  }
-}
-  
+        renderProducts(produitsMagasin, produitsAutres);
+      } catch (error) {
+        console.error("❌ Erreur lors du chargement du stock:", error);
+      }
+    }
+
     function renderProducts(vendus, autres) {
       const divVendables = document.getElementById("produitsVendus");
       const divDisponibles = document.getElementById("produitsDisponibles");
       divVendables.innerHTML = "";
       divDisponibles.innerHTML = "";
-  
-      // À gauche — CE magasin
-      vendus.forEach(prod => {
+
+      vendus.forEach(item => {
         const ligne = document.createElement("div");
         ligne.className = "product-row";
         ligne.innerHTML = `
-          <span>${prod.name}</span>
+          <span>${item.product.name}</span>
           <div>
-            <input type="number" value="${prod.quantite}" min="0" class="quantity-select">
-            <button class="action-btn remove-btn" onclick="alert('Retirer ${prod.name}')">Retirer</button>
+            <input type="number" value="${item.quantity}" min="0" class="quantity-select" id="vendu-${item.product_id}">
+            <button class="action-btn remove-btn" onclick="modifierQuantite(${item.product_id}, 0, '${item.product.name}')">Retirer</button>
           </div>
         `;
         divVendables.appendChild(ligne);
       });
-  
-      // À droite — AUTRES magasins
-      autres.forEach(prod => {
+
+      autres.forEach(item => {
         const ligne = document.createElement("div");
         ligne.className = "product-row";
         ligne.innerHTML = `
           <div style="display:flex; flex-direction: column;">
-            <span><strong>${prod.name}</strong></span>
-            <small style="font-size: 12px;">Quantité : ${prod.quantite} (Magasin : ${prod.magasin})</small>
+            <span><strong>${item.product.name}</strong></span>
+            <small style="font-size: 12px;">Quantité : ${item.quantity} (Magasin : ${item.shop?.name || 'ID ' + item.shop_id})</small>
           </div>
-          <button class="action-btn add-btn" onclick="alert('Importer ${prod.name} depuis ${prod.magasin}')">Ajouter</button>
+          <button class="action-btn add-btn" onclick="modifierQuantite(${item.product_id}, 1, '${item.product.name}')">Ajouter</button>
         `;
         divDisponibles.appendChild(ligne);
       });
     }
-  
+
+    function modifierQuantite(productId, quantity, productName) {
+      const body = {
+        admin_email: "edwar@boozy.com",
+        admin_password: "adminpass",
+        shop_id: storeId,
+        products: [
+          {
+            product_id: productId,
+            quantity: quantity
+          }
+        ]
+      };
+
+      fetch("http://4.172.252.189:5000/admin/modifyAvailability", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          alert(`✅ Produit modifié : ${productName}`);
+          fetchStock();
+        } else {
+          alert(`❌ Erreur : ${data.message || 'modification échouée'}`);
+        }
+      })
+      .catch(error => {
+        console.error("❌ Erreur réseau:", error);
+        alert("❌ Erreur de communication avec le serveur.");
+      });
+    }
+
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("show");
       document.getElementById("overlay").classList.toggle("show");
     }
-  
+
     function switchLanguage() {
       window.location.href = "stock_magasin_en.html";
     }
-  
+
     window.onload = fetchStock;
   </script>
+  
   
   
 </body>

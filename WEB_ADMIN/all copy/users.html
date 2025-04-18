@@ -4,242 +4,324 @@
   <meta charset="UTF-8">
   <title>Gestion des utilisateurs</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
-  <style>
-    /* STYLES SIMILAIRES À L'IMAGE */
-    :root {
-      --primary: #34495e;
-      --primary-hover: #2c3e50;
-      --danger: #DC2626;
-      --white: #ffffff;
-      --gray-dark: #2c3e50;
-      --gray-border: #d0d7de;
-      --gray-light: #f4f6f9;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body, html {
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--gray-light);
-      height: 100%;
-    }
-    .wrapper { display: flex; flex-direction: column; min-height: 100vh; }
-  
-      /* Styles globaux */
-    header {
+ 
+<style>
+  :root {
+    --primary: #34495e;
+    --primary-hover: #2c3e50;
+    --gray-light: #f4f6f8;
+    --gray-dark: #2c3e50;
+    --white: #ffffff;
+    --gray-border: #d0d7de;
+    --danger: #dc2626;
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body, html {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--gray-light);
+    height: 100%;
+  }
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background-color: var(--white);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 40px;
+  }
+  header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--gray-dark);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  nav {
+    width: 300px;
+    max-width: 80%;
+    background-color: var(--white);
+    position: fixed;
+    top: 0;
+    left: -100%;
+    height: 100vh;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    z-index: 100;
+    box-shadow: 4px 0 12px rgba(0,0,0,0.2);
+    transition: left 0.3s ease;
+  }
+  nav.show { left: 0; }
+  nav a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    font-size: 16px;
+    color: var(--gray-dark);
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s;
+    font-weight: 500;
+  }
+  nav a:hover, nav a.active { background-color: var(--gray-light); }
+  nav a img { width: 20px; height: 20px; }
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 98;
+    display: none;
+  }
+  .sidebar-overlay.show { display: block; }
+  .sidebar-toggle {
+    position: fixed;
+    top: 28px;
+    left: 16px;
+    z-index: 99;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .lang-btn, .logout {
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .lang-btn {
+    background: transparent;
+    border: 1.5px solid var(--gray-dark);
+    color: var(--gray-dark);
+  }
+  .lang-btn:hover {
+    background-color: var(--gray-dark);
+    color: white;
+  }
+  .logout {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+  }
+  .logout:hover {
+    background-color: var(--primary-hover);
+  }
+  footer {
+    background-color: var(--primary);
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    padding: 10px;
+    text-align: center;
+  }
+  footer a {
+    color: #ffc0cb;
+    text-decoration: none;
+  }
+  footer a:hover {
+    text-decoration: underline;
+  }
+  .main {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap; /* pour s'assurer que ça passe bien en responsive */
+}
+
+.content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.form-container {
+  flex: 1 1 400px;
+  max-width: 400px;
+  background-color: var(--white);
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+}
+
+.user-list-container {
+  flex: 1 1 500px;
+  background-color: var(--gray-dark);
+  border-radius: 16px;
+  padding: 16px;
+  color: white;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+
+
+  .form-container input,
+  .form-container select {
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-border);
+  }
+  .form-container button {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .user-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--white);
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 12px;
+  }
+  .user-card p {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    color: var(--gray-dark);
+  }
+  .entry-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .entry-actions button {
+    padding: 8px 12px;
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    font-weight: 500;
+  }
+  .edit-btn {
+    background-color: var(--gray-dark);
+    color: white;
+  }
+  .delete-btn {
+    background-color: var(--danger);
+    color: white;
+  }
+
+  .modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.modal-overlay#editModal.flex {
+  display: flex;
+}
+.modal {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 500px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.modal input, .modal select {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid var(--gray-border);
+  border-radius: 8px;
+}
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+.modal-actions button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+.edit-btn { background-color: var(--gray-dark); color: white; }
+.delete-btn { background-color: var(--danger); color: white; }
+
+.search-bar {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 16px 24px;
       background-color: var(--white);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-    .logo-container {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-left: 40px;
-    }
-    header h1 {
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--gray-dark);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .lang-btn, .logout {
-      font-size: 14px;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    .lang-btn {
-      background: transparent;
-      border: 1.5px solid var(--gray-dark);
-      color: var(--gray-dark);
-    }
-    .lang-btn:hover {
-      background-color: var(--gray-dark);
-      color: white;
-    }
-    .logout {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-    }
-    .logout:hover {
-      background-color: var(--primary-hover);
-    }
-    nav {
-      width: 300px;
-      max-width: 80%;
-      background-color: var(--white);
-      position: fixed;
-      top: 0;
-      left: -100%;
-      height: 100vh;
-      padding: 40px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-      z-index: 100;
-      box-shadow: 4px 0 12px rgba(0,0,0,0.2);
-      transition: left 0.3s ease;
-    }
-    nav.show { left: 0; }
-    nav a {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 14px 20px;
-      font-size: 16px;
-      color: var(--gray-dark);
-      text-decoration: none;
-      border-radius: 12px;
-      transition: all 0.3s;
-      font-weight: 500;
-    }
-    nav a:hover, nav a.active { background-color: var(--gray-light); }
-    nav a img { width: 20px; height: 20px; }
-    .sidebar-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0,0,0,0.5);
-      z-index: 98;
-      display: none;
-    }
-    .sidebar-overlay.show { display: block; }
-    .sidebar-toggle {
-      position: fixed;
-      top: 28px;
-      left: 16px;
-      z-index: 99;
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 12px;
-      cursor: pointer;
-    }
-    .main { flex: 1; padding: 24px; display: flex; gap: 24px; }
-    .content {
-      display: flex;
-      flex-wrap: wrap;
-      width: 100%;
-      justify-content: space-between;
-    }
-    .form-container, .user-list-container {
-      background-color: var(--white);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.05);
-      width: 48%;
-      max-height: 600px;
-      overflow-y: auto;
-    }
-    .form-container h2, .user-list-container h2 {
-      margin-bottom: 16px;
-      color: var(--gray-dark);
-    }
-    input, select {
-      width: 100%;
-      margin-bottom: 12px;
-      padding: 10px;
       border: 1px solid var(--gray-border);
-      border-radius: 8px;
+      border-radius: 999px;
+      padding: 4px 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    button {
+    .search-bar input {
+      border: none;
+      outline: none;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 999px;
+      width: 160px;
+    }
+    .search-bar button {
       background-color: var(--primary);
       color: white;
       border: none;
-      padding: 12px 20px;
-      font-size: 14px;
-      font-weight: 500;
-      border-radius: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
       cursor: pointer;
-    }
-    footer {
-      background-color: var(--primary);
-      color: white;
-      text-align: center;
-      padding: 16px 20px;
-      font-size: 14px;
-    }
-    footer a {
-      color: #ffc0cb;
-      text-decoration: none;
-      margin: 0 10px;
-    }
-    footer a:hover { text-decoration: underline; }
-    .user-card {
-      background: var(--white);
-      padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      margin-bottom: 12px;
-    }
-    .user-card p { margin: 4px 0; font-size: 14px; color: var(--gray-dark); }
-    .entry-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .entry-actions button {
-      padding: 8px 12px;
-      font-size: 13px;
-      border-radius: 6px;
-      cursor: pointer;
-      border: none;
       font-weight: 500;
+      transition: 0.3s;
     }
-    .edit-btn { background-color: var(--gray-dark); color: white; }
-    .delete-btn { background-color: var(--danger); color: white; }
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.5);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
+    .search-bar button:hover {
+      background-color: white;
+      color: var(--primary);
+      border: 1px solid var(--primary);
     }
-    .modal {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      width: 400px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .modal input, .modal select {
-      width: 100%;
-      margin-bottom: 10px;
-      padding: 10px;
-      border: 1px solid var(--gray-border);
-      border-radius: 8px;
-    }
-    .modal-actions {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 12px;
-    }
-    .modal-actions button {
-      padding: 10px 16px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 500;
-    }
-    .edit-btn { background-color: var(--gray-dark); color: white; }
-    .delete-btn { background-color: var(--danger); color: white; }
-  </style>
+</style>
+
 </head>
 <body>
   <div class="wrapper">
@@ -249,12 +331,16 @@
       <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
       <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
       <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
-      <a href="products.html" class="active"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
-      <a href="users.html"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+      <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
+      <a href="users.html" class="active"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
     </nav>
    <header>
       <div class="logo-container">
         <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Utilisateurs</h1>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="searchBar" placeholder="Rechercher...">
+        <button type="submit">Recherche</button>
       </div>
       <div class="header-controls">
         <button onclick="switchLanguage()" class="lang-btn">🌐 EN</button>
@@ -298,6 +384,7 @@
       <div class="modal">
         <h3>Modifier l'utilisateur</h3>
         <input id="editEmail" placeholder="Email">
+        <input id="editPassword" placeholder="Mot de passe">
         <input id="editFirstName" placeholder="Prénom">
         <input id="editLastName" placeholder="Nom">
         <input id="editPhone" placeholder="Téléphone">
@@ -310,6 +397,8 @@
           <input id="editLicense" placeholder="Plaque">
           <input id="editBrand" placeholder="Marque">
         </div>
+        <input id="editCivic" placeholder="Numéro civique">
+        <input id="editApartment" placeholder="Appartement">
         <input id="editStreet" placeholder="Rue">
         <input id="editCity" placeholder="Ville">
         <input id="editPostal" placeholder="Code Postal">
@@ -320,6 +409,7 @@
       </div>
     </div>
   </div>
+  <div>
     <footer>
       <p>&copy; 2025 Boozy Inc. Tous droits réservés.</p>
       <p><a href="mailto:support@boozy.com">support@boozy.com</a> | <a href="tel:+15146523145">514-652-3145</a></p>
@@ -339,31 +429,88 @@
     }
 
     async function creerUtilisateur(userData) {
-      const response = await fetch("http://4.172.252.189:5000/admin/createUser", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...userData, admin_email: ADMIN_EMAIL, admin_password: ADMIN_PASSWORD })
-      });
-      return response.json();
-    }
+  const response = await fetch("http://4.172.252.189:5000/admin/createUser", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      admin_email: "edwar@boozy.com",             // ton admin
+      admin_password: "adminpass",                // ton mot de passe admin
+      email: userData.email,
+      password: userData.password,
+      last_name: userData.last_name,
+      first_name: userData.first_name,
+      phone_number: userData.phone_number,
+      user_type: userData.user_type,
+      license_plate: userData.license_plate,
+      car_brand: userData.car_brand,
+      address: {
+        civic: userData.address.civic,
+        apartment: userData.address.apartment,
+        street: userData.address.street,
+        city: userData.address.city,
+        postal_code: userData.address.postal_code
+      }
+    })
+  });
+
+  return await response.json();
+}
+
 
     async function modifierUtilisateur(userId, updatedData) {
-      const response = await fetch("http://4.172.252.189:5000/admin/modifyUser", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, ...updatedData, admin_email: ADMIN_EMAIL, admin_password: ADMIN_PASSWORD })
-      });
-      return response.json();
-    }
+  const response = await fetch("http://4.172.252.189:5000/admin/modifyUser", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      admin_email: ADMIN_EMAIL,
+      admin_password: ADMIN_PASSWORD,
+      user_id: userId,
+      email: updatedData.email,
+      password: updatedData.password, // ← assure-toi que ce champ est rempli côté UI si nécessaire
+      last_name: updatedData.last_name,
+      first_name: updatedData.first_name,
+      phone_number: updatedData.phone_number,
+      user_type: updatedData.user_type,
+      license_plate: updatedData.license_plate,
+      car_brand: updatedData.car_brand,
+      total_earnings: updatedData.total_earnings || 0, // valeur par défaut
+      address: {
+        civic: updatedData.address.civic,
+        apartment: updatedData.address.apartment,
+        street: updatedData.address.street,
+        city: updatedData.address.city,
+        postal_code: updatedData.address.postal_code
+      }
+    })
+  });
+  return response.json();
+}
 
-    async function supprimerUtilisateur(userId) {
-      const response = await fetch("http://4.172.252.189:5000/admin/deleteUser", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, admin_email: ADMIN_EMAIL, admin_password: ADMIN_PASSWORD })
-      });
-      return response.json();
-    }
+
+async function supprimerUtilisateur(userId) {
+  const response = await fetch("http://4.172.252.189:5000/admin/deleteUser", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: userId,
+      admin_email: ADMIN_EMAIL,
+      admin_password: ADMIN_PASSWORD
+    })
+  });
+
+  const result = await response.json();
+
+  if (result.status === "success") {
+    alert("Utilisateur supprimé !");
+  } else {
+    alert("Échec de la suppression !");
+  }
+
+  return result;
+}
+
 
     async function getUtilisateurs() {
       const response = await fetch("http://4.172.252.189:5000/admin/getUsers", {
@@ -381,30 +528,110 @@
     }
 
     function afficherUtilisateurDansListe(user) {
-      const userList = document.getElementById("userList");
-      const card = document.createElement("div");
-      card.className = "user-card";
-      card.innerHTML = `
-        <p><strong>Nom:</strong> ${user.last_name} ${user.first_name}</p>
-        <p><strong>Email:</strong> ${user.email}</p>
-        <p><strong>Téléphone:</strong> ${user.phone_number}</p>
-        <p><strong>Type:</strong> ${user.user_type}</p>
-        <p><strong>Adresse:</strong> ${user.address?.street || ""}, ${user.address?.city || ""}, ${user.address?.postal_code || ""}</p>
-        <div class="entry-actions">
-          <button class="edit-btn" onclick='lancerEdition(${JSON.stringify(user)})'>Modifier</button>
-          <button class="delete-btn" onclick="handleDelete(${user.user_id})">Supprimer</button>
-        </div>
-      `;
-      userList.appendChild(card);
-    }
+  const userList = document.getElementById("userList");
+  const card = document.createElement("div");
+  card.className = "user-card";
 
-    function lancerEdition(user) {
-      const nom = prompt("Modifier le nom:", user.last_name);
-      if (nom !== null) {
-        const updated = { last_name: nom };
-        modifierUtilisateur(user.user_id, updated).then(() => getUtilisateurs());
+  const adresse = user.address
+    ? `
+      Numéro civique: ${user.address.civic || ''}<br>
+      Appartement: ${user.address.apartment || ''}<br>
+      Rue: ${user.address.street || ''}<br>
+      Ville: ${user.address.city || ''}<br>
+      Code postal: ${user.address.postal_code || ''}<br>
+      Adresse complète: ${user.address.fullAddress || ''}
+    `
+    : 'Non spécifiée';
+
+  card.innerHTML = `
+    <div>
+      <p><strong>Nom:</strong> ${user.last_name} ${user.first_name}</p>
+      <p><strong>Email:</strong> ${user.email}</p>
+      <p><strong>Mot de passe:</strong> ${user.password}</p>
+      <p><strong>Téléphone:</strong> ${user.phone_number}</p>
+      <p><strong>Type:</strong> ${user.user_type}</p>
+      ${user.user_type === "carrier" ? `
+        <p><strong>Plaque:</strong> ${user.license_plate || ''}</p>
+        <p><strong>Voiture:</strong> ${user.car_brand || ''}</p>` : ''
       }
+      <p><strong>Adresse:</strong><br>${adresse}</p>
+    </div>
+    <div class="entry-actions">
+      <button class="edit-btn" onclick='lancerEdition(${JSON.stringify(user)})'>Modifier</button>
+      <button class="delete-btn" onclick="handleDelete(${user.user_id})">Supprimer</button>
+    </div>
+  `;
+  userList.appendChild(card);
+}
+
+
+
+function lancerEdition(user) {
+  document.getElementById("editEmail").value = user.email;
+  document.getElementById("editFirstName").value = user.first_name;
+  document.getElementById("editLastName").value = user.last_name;
+  document.getElementById("editPhone").value = user.phone_number;
+  document.getElementById("editUserType").value = user.user_type;
+  document.getElementById("editCivic").value = user.address?.civic || "";
+  document.getElementById("editApartment").value = user.address?.apartment || "";
+  document.getElementById("editStreet").value = user.address?.street || "";
+  document.getElementById("editCity").value = user.address?.city || "";
+  document.getElementById("editPostal").value = user.address?.postal_code || "";
+
+  toggleModalDriverFields();
+
+  if (user.user_type === "carrier") {
+    document.getElementById("editLicense").value = user.license_plate || "";
+    document.getElementById("editBrand").value = user.car_brand || "";
+  }
+
+  document.getElementById("editModal").style.display = "flex";
+  document.getElementById("editModal").dataset.userId = user.user_id;
+}
+
+function toggleModalDriverFields() {
+  const type = document.getElementById("editUserType").value;
+  const driverFields = document.getElementById("modalDriverFields");
+  if (type === "carrier") {
+    driverFields.style.display = "block";
+  } else {
+    driverFields.style.display = "none";
+  }
+}
+
+function closeModal() {
+  document.getElementById("editModal").style.display = "none";
+}
+
+function saveUserEdit() {
+  const userId = document.getElementById("editModal").dataset.userId;
+  const updatedData = {
+    email: document.getElementById("editEmail").value,
+    password: document.getElementById("editPassword")?.value || "", // ← ajoute ce champ
+    first_name: document.getElementById("editFirstName").value,
+    last_name: document.getElementById("editLastName").value,
+    phone_number: document.getElementById("editPhone").value,
+    user_type: document.getElementById("editUserType").value,
+    license_plate: document.getElementById("editLicense")?.value || "",
+    car_brand: document.getElementById("editBrand")?.value || "",
+    total_earnings: 0, // par défaut
+    address: {
+      civic: document.getElementById("editCivic").value,
+      apartment: document.getElementById("editApartment").value,
+      street: document.getElementById("editStreet").value,
+      city: document.getElementById("editCity").value,
+      postal_code: document.getElementById("editPostal").value
     }
+  };
+
+  modifierUtilisateur(userId, updatedData).then(() => {
+    getUtilisateurs();
+    closeModal();
+    alert("Utilisateur modifié avec succès !");
+  });
+}
+
+
 
     function handleDelete(userId) {
       if (confirm("Supprimer cet utilisateur?")) {
@@ -413,35 +640,52 @@
     }
 
     function soumettreFormulaire() {
-      const user = {
-        email: document.getElementById("email").value,
-        password: document.getElementById("password").value,
-        first_name: document.getElementById("firstName").value,
-        last_name: document.getElementById("lastName").value,
-        phone_number: document.getElementById("phoneNumber").value,
-        user_type: document.getElementById("userType").value,
-        license_plate: document.getElementById("licensePlate")?.value || "",
-        car_brand: document.getElementById("carBrand")?.value || "",
-        address: {
-          civic: document.getElementById("civic").value,
-          apartment: document.getElementById("apartment").value,
-          street: document.getElementById("street").value,
-          city: document.getElementById("city").value,
-          postal_code: document.getElementById("postalCode").value
-        }
-      };
-      creerUtilisateur(user).then(res => {
-        if (res.user) {
-          getUtilisateurs();
-          alert("Utilisateur ajouté avec succès !");
-        } else {
-          alert("Erreur lors de l'ajout de l'utilisateur.");
-        }
-      }).catch(err => {
-        console.error("Erreur de création :", err);
-        alert("Échec de l'ajout !");
-      });
+  const user = {
+    email: document.getElementById("email").value,
+    password: document.getElementById("password").value,
+    first_name: document.getElementById("firstName").value,
+    last_name: document.getElementById("lastName").value,
+    phone_number: document.getElementById("phoneNumber").value,
+    user_type: document.getElementById("userType").value,
+    license_plate: document.getElementById("licensePlate")?.value || "",
+    car_brand: document.getElementById("carBrand")?.value || "",
+    address: {
+      civic: document.getElementById("civic").value,
+      apartment: document.getElementById("apartment").value,
+      street: document.getElementById("street").value,
+      city: document.getElementById("city").value,
+      postal_code: document.getElementById("postalCode").value
     }
+  };
+
+  creerUtilisateur(user).then(res => {
+    if (res.status === "success") {
+      alert("Utilisateur créé !");
+      getUtilisateurs();
+    } else {
+      alert("Erreur lors de la création !");
+    }
+  }).catch(err => {
+    console.error("Erreur API:", err);
+    alert("Erreur réseau !");
+  });
+}
+
+// 🔍 Ajoutez ceci dans votre script juste avant window.onload :
+document.getElementById("searchBar").addEventListener("input", function () {
+  const filtre = this.value.toLowerCase();
+  const users = document.querySelectorAll("#userList .user-card");
+
+  users.forEach(userCard => {
+    const contenuTexte = userCard.textContent.toLowerCase();
+    if (contenuTexte.includes(filtre)) {
+      userCard.style.display = "flex";
+    } else {
+      userCard.style.display = "none";
+    }
+  });
+});
+
 
     window.onload = getUtilisateurs;
   </script>
