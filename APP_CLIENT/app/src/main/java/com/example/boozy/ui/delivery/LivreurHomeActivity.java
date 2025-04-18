@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,7 +21,6 @@ import com.example.boozy.data.model.OrderResponse;
 import com.example.boozy.data.model.UtilisateurManager;
 import com.example.boozy.ui.order.CommandeEnCoursActivity;
 import com.example.boozy.ui.order.HistoriqueActivity;
-import com.example.boozy.ui.delivery.ProfilLivreurActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,10 +35,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LivreurHomeActivity extends AppCompatActivity {
 
+    private static final String TAG = "DEBUG_COMMANDE";
+
     private RecyclerView recyclerView;
     private CommandeDisponibleAdapter adapter;
     private List<Commande> commandeList;
-    private Retrofit retrofit;
     private ApiService api;
 
     @Override
@@ -53,14 +52,10 @@ public class LivreurHomeActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerCommandes);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         commandeList = new ArrayList<>();
-
-        adapter = new CommandeDisponibleAdapter(commandeList, commande -> {
-            takeOrderAndRedirect(commande);
-        });
-
+        adapter = new CommandeDisponibleAdapter(commandeList, this::takeOrderAndRedirect);
         recyclerView.setAdapter(adapter);
 
-        retrofit = new Retrofit.Builder()
+        Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://4.172.252.189:5000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -69,9 +64,24 @@ public class LivreurHomeActivity extends AppCompatActivity {
 
         loadCommandesFromServer();
 
-        findViewById(R.id.buttonHistorique).setOnClickListener(v -> startActivity(new Intent(this, HistoriqueActivity.class)));
-        findViewById(R.id.buttonCommandesEnCours).setOnClickListener(v -> startActivity(new Intent(this, CommandeEnCoursActivity.class)));
-        findViewById(R.id.buttonProfil).setOnClickListener(v -> startActivity(new Intent(this, ProfilLivreurActivity.class)));
+        findViewById(R.id.buttonHistorique).setOnClickListener(v ->
+                startActivity(new Intent(this, HistoriqueActivity.class)));
+
+        findViewById(R.id.buttonCommandesEnCours).setOnClickListener(v -> {
+            if (UtilisateurManager.getInstance(this).hasCommandeActive()) {
+                Intent intent = new Intent(this, CommandeEnCoursActivity.class);
+                intent.putExtra("orderId", UtilisateurManager.getInstance(this).getOrderId());
+                intent.putExtra("shopName", UtilisateurManager.getInstance(this).getShopName());
+                intent.putExtra("shopAddress", UtilisateurManager.getInstance(this).getShopAddress());
+                intent.putExtra("totalAmount", UtilisateurManager.getInstance(this).getTotalAmount());
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Aucune commande active", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        findViewById(R.id.buttonProfil).setOnClickListener(v ->
+                startActivity(new Intent(this, ProfilLivreurActivity.class)));
     }
 
     private void setupFullScreen() {
@@ -85,23 +95,22 @@ public class LivreurHomeActivity extends AppCompatActivity {
     }
 
     private void loadCommandesFromServer() {
-        Call<List<OrderResponse>> call = api.getOrders();
-
-        call.enqueue(new Callback<List<OrderResponse>>() {
+        Log.d(TAG, "Chargement des commandes disponibles...");
+        api.getOrders().enqueue(new Callback<List<OrderResponse>>() {
             @Override
             public void onResponse(Call<List<OrderResponse>> call, Response<List<OrderResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     commandeList.clear();
                     for (OrderResponse res : response.body()) {
-                        String montant = "0$ (a faire)";
-                        Commande c = new Commande(
+                        String montant = String.format("Total payé : %.2f$", res.getTotalAmount());
+                        Commande commande = new Commande(
                                 String.valueOf(res.getOrderId()),
                                 res.getShopName(),
                                 res.getShopAddress(),
                                 montant,
                                 "Calcul en cours..."
                         );
-                        commandeList.add(c);
+                        commandeList.add(commande);
                     }
                     adapter.notifyDataSetChanged();
                 } else {
@@ -121,11 +130,6 @@ public class LivreurHomeActivity extends AppCompatActivity {
         String password = UtilisateurManager.getInstance(this).getPassword();
         int orderId = Integer.parseInt(commande.getNumeroCommande());
 
-        Log.d("TAKE_ORDER", "Tentative d’acceptation de commande");
-        Log.d("TAKE_ORDER", "Email: " + email);
-        Log.d("TAKE_ORDER", "Password: " + password);
-        Log.d("TAKE_ORDER", "Order ID: " + orderId);
-
         Map<String, Object> body = new HashMap<>();
         body.put("email", email);
         body.put("password", password);
@@ -134,32 +138,38 @@ public class LivreurHomeActivity extends AppCompatActivity {
         api.takeOrder(body).enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Log.d("TAKE_ORDER", "Réponse succès : " + response.body());
-                    Toast.makeText(LivreurHomeActivity.this, "Commande acceptée", Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful() && response.body() != null && "success".equals(response.body().get("status"))) {
+                    Map<String, Object> orderMap = (Map<String, Object>) response.body().get("order");
+                    int newOrderId = ((Double) orderMap.get("order_id")).intValue();
+                    String shopName = (String) orderMap.get("shop_name");
+                    String shopAddress = (String) orderMap.get("shop_address");
+                    double totalAmount = (Double) orderMap.get("total_amount");
+
+                    UtilisateurManager.getInstance(LivreurHomeActivity.this).setDerniereCommande(newOrderId, shopName, shopAddress, totalAmount);
+
+                    for (int i = 0; i < commandeList.size(); i++) {
+                        if (commandeList.get(i).getNumeroCommande().equals(String.valueOf(newOrderId))) {
+                            commandeList.remove(i);
+                            adapter.notifyItemRemoved(i);
+                            break;
+                        }
+                    }
+
                     Intent intent = new Intent(LivreurHomeActivity.this, CommandeEnCoursActivity.class);
-                    intent.putExtra("numeroCommande", commande.getNumeroCommande());
-                    intent.putExtra("magasin", commande.getMagasin());
-                    intent.putExtra("adresse", commande.getAdresseLivraison());
-                    intent.putExtra("montant", commande.getMontant());
+                    intent.putExtra("orderId", newOrderId);
+                    intent.putExtra("shopName", shopName);
+                    intent.putExtra("shopAddress", shopAddress);
+                    intent.putExtra("totalAmount", totalAmount);
                     startActivity(intent);
                 } else {
-                    Log.e("TAKE_ORDER", "Échec response code: " + response.code());
-                    try {
-                        Log.e("TAKE_ORDER", "Erreur: " + response.errorBody().string());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
                     Toast.makeText(LivreurHomeActivity.this, "Échec de l'acceptation", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Map<String, Object>> call, Throwable t) {
-                Log.e("TAKE_ORDER", "Erreur réseau: " + t.getMessage());
                 Toast.makeText(LivreurHomeActivity.this, "Erreur réseau", Toast.LENGTH_SHORT).show();
             }
         });
     }
-
 }

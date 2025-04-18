@@ -1,12 +1,14 @@
 package com.example.boozy.ui.order;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -19,9 +21,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.example.boozy.R;
+import com.example.boozy.data.api.ApiService;
+import com.example.boozy.data.model.UtilisateurManager;
 import com.example.boozy.ui.delivery.LivreurHomeActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CommandeEnCoursActivity extends AppCompatActivity {
 
@@ -31,6 +44,9 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
     private String adresseMagasin;
     private String adresseLivraison;
     private FusedLocationProviderClient fusedLocationClient;
+    private ApiService api;
+    private int orderId;
+    private boolean shippingDejaFait = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,17 +57,29 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
         initializeViews();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Charger les informations de la commande depuis l'API
-        loadCommandeDetails();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://4.172.252.189:5000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        api = retrofit.create(ApiService.class);
 
-        // Bouton retour
+        orderId = getIntent().getIntExtra("orderId", -1);
+        if (orderId == -1) {
+            Toast.makeText(this, "Commande invalide", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        afficherCommandeDepuisExtras();
+
         buttonBack.setOnClickListener(v -> navigateBack());
-
-        // Bouton itinéraire
-        buttonDemarrer.setOnClickListener(v -> openGoogleMaps());
-
-        // Bouton commande livrée
-        buttonLivree.setOnClickListener(v -> markAsDelivered());
+        buttonDemarrer.setOnClickListener(v -> {
+            if (!shippingDejaFait) {
+                updateOrderStatus("Shipping");
+            } else {
+                showNavigationOptions();
+            }
+        });
+        buttonLivree.setOnClickListener(v -> updateOrderStatus("Completed"));
     }
 
     private void setupFullScreen() {
@@ -64,7 +92,6 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
         }
     }
 
-    // Initialisation des vues
     private void initializeViews() {
         textNumeroCommande = findViewById(R.id.textNumeroCommande);
         textClient = findViewById(R.id.textClient);
@@ -75,61 +102,111 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
         buttonBack = findViewById(R.id.buttonBack);
     }
 
-    /**
-     * Charger les détails de la commande depuis l'API
-     */
-    private void loadCommandeDetails() {
-        // APPEL À L'API ICI
-        // Récupérer les informations de la commande depuis le serveur via un appel GET.
-        // # de la commande, nom du client, adresse du client, adresse du magasin.
+    private void afficherCommandeDepuisExtras() {
+        orderId = getIntent().getIntExtra("orderId", -1);
+        String shopName = getIntent().getStringExtra("shopName");
+        String shopAddress = getIntent().getStringExtra("shopAddress");
+        double totalAmount = getIntent().getDoubleExtra("totalAmount", 0.0);
 
+        textNumeroCommande.setText("Commande #" + orderId);
+        textClient.setText("Client : Information privée");
+        textRecuperation.setText("Récupération : " + shopAddress);
+        textDestination.setText("Destination : sera disponible après Démarrer");
+
+        adresseMagasin = shopAddress;
+        adresseLivraison = "Adresse du client (à afficher après Shipping)";
     }
 
-    // Retour à la page précédente
-    private void navigateBack() {
-        Intent intent = new Intent(CommandeEnCoursActivity.this, LivreurHomeActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(intent);
-        finish();
-    }
+    private void updateOrderStatus(String status) {
+        String email = UtilisateurManager.getInstance(this).getEmail();
+        String password = UtilisateurManager.getInstance(this).getPassword();
 
-    // Démarrer l'itinéraire avec Google Maps
-    private void openGoogleMaps() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            return;
-        }
+        Map<String, Object> body = new HashMap<>();
+        body.put("email", email);
+        body.put("password", password);
+        body.put("status", status);
 
-        fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
-            if (location != null) {
-                double lat = location.getLatitude();
-                double lon = location.getLongitude();
+        api.updateOrder(body).enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if (response.isSuccessful() && response.body() != null && "success".equals(response.body().get("status"))) {
+                    Toast.makeText(CommandeEnCoursActivity.this, "Statut mis à jour : " + status, Toast.LENGTH_SHORT).show();
 
-                String uri = "https://www.google.com/maps/dir/?api=1"
-                        + "&origin=" + lat + "," + lon
-                        + "&waypoints=" + Uri.encode(adresseMagasin)
-                        + "&destination=" + Uri.encode(adresseLivraison);
+                    if ("Shipping".equals(status)) {
+                        shippingDejaFait = true;
+                        Map<String, Object> clientInfo = (Map<String, Object>) response.body().get("client_info");
+                        if (clientInfo != null) {
+                            String nomClient = clientInfo.get("first_name") + " " + clientInfo.get("last_name");
+                            String adresseClient = (String) clientInfo.get("address");
+                            textClient.setText("Client : " + nomClient);
+                            textDestination.setText("Destination : " + adresseClient);
+                            adresseLivraison = adresseClient;
+                            textDestination.setOnClickListener(v -> showNavigationOptions());
+                        }
+                    }
 
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                intent.setPackage("com.google.android.apps.maps");
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "Localisation introuvable", Toast.LENGTH_SHORT).show();
+                    if ("Completed".equals(status)) {
+                        UtilisateurManager.getInstance(CommandeEnCoursActivity.this).clearCommandeActive();
+                        navigateBack();
+                    }
+
+                } else {
+                    Toast.makeText(CommandeEnCoursActivity.this,
+                            "Échec de la mise à jour : " +
+                                    (response.body() != null ? response.body().get("message") : "erreur inconnue"),
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                Toast.makeText(CommandeEnCoursActivity.this, "Erreur réseau", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    private void showNavigationOptions() {
+        View view = LayoutInflater.from(this).inflate(R.layout.popup_itineraire, null);
 
-    /**
-     * Marquer la commande comme livrée et mettre à jour le statut sur le serveur
-     */
-    private void markAsDelivered() {
-        // APPEL À L'API ICI
-        // Mettre à jour le statut de la commande en tant que "Livrée" sur le serveur via un appel POST.
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(view)
+                .create();
 
-        Toast.makeText(this, "Commande livrée !", Toast.LENGTH_SHORT).show();
-        navigateBack();
+        view.findViewById(R.id.buttonGoogleMaps).setOnClickListener(v -> {
+            dialog.dismiss();
+            openInGoogleMaps();
+        });
+
+        view.findViewById(R.id.buttonWaze).setOnClickListener(v -> {
+            dialog.dismiss();
+            openInWaze();
+        });
+
+        dialog.show();
+    }
+
+    private void openInGoogleMaps() {
+        String uri = "https://www.google.com/maps/dir/?api=1&destination=" + Uri.encode(adresseLivraison);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+        intent.setPackage("com.google.android.apps.maps");
+        startActivity(intent);
+    }
+
+    private void openInWaze() {
+        try {
+            String uri = "waze://?q=" + Uri.encode(adresseLivraison);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(this, "Waze non installé", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void navigateBack() {
+        Intent intent = new Intent(this, LivreurHomeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        finish();
     }
 
     @Override

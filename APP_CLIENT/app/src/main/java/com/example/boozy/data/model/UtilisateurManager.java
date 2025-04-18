@@ -25,6 +25,11 @@ public class UtilisateurManager {
 
     private static final String KEY_STRIPE_CARD = "stripe_card";
 
+    private static final String KEY_ORDER_ID = "last_order_id";
+    private static final String KEY_SHOP_NAME = "last_shop_name";
+    private static final String KEY_SHOP_ADDRESS = "last_shop_address";
+    private static final String KEY_TOTAL_AMOUNT = "last_total_amount";
+
     private SharedPreferences prefs;
     private SharedPreferences.Editor editor;
     private Context context;
@@ -102,6 +107,43 @@ public class UtilisateurManager {
 
     public void clearCarteStripe() {
         editor.remove(KEY_STRIPE_CARD);
+        editor.apply();
+    }
+
+    // ======== COMMANDE EN COURS (Livreur) ========
+    public void setDerniereCommande(int orderId, String shopName, String shopAddress, double totalAmount) {
+        editor.putInt(KEY_ORDER_ID, orderId);
+        editor.putString(KEY_SHOP_NAME, shopName);
+        editor.putString(KEY_SHOP_ADDRESS, shopAddress);
+        editor.putFloat(KEY_TOTAL_AMOUNT, (float) totalAmount);
+        editor.apply();
+    }
+
+    public boolean hasCommandeActive() {
+        return prefs.getInt(KEY_ORDER_ID, -1) != -1;
+    }
+
+    public int getOrderId() {
+        return prefs.getInt(KEY_ORDER_ID, -1);
+    }
+
+    public String getShopName() {
+        return prefs.getString(KEY_SHOP_NAME, "");
+    }
+
+    public String getShopAddress() {
+        return prefs.getString(KEY_SHOP_ADDRESS, "");
+    }
+
+    public double getTotalAmount() {
+        return (double) prefs.getFloat(KEY_TOTAL_AMOUNT, 0f);
+    }
+
+    public void clearCommandeActive() {
+        editor.remove(KEY_ORDER_ID);
+        editor.remove(KEY_SHOP_NAME);
+        editor.remove(KEY_SHOP_ADDRESS);
+        editor.remove(KEY_TOTAL_AMOUNT);
         editor.apply();
     }
 

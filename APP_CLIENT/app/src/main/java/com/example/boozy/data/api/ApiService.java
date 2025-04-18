@@ -46,8 +46,14 @@ public interface ApiService {
     @GET("/getOrders")
     Call<List<OrderResponse>> getOrders();
 
+    @POST("/getOrderStatus")
+    Call<OrderResponse> getOrderStatus(@Body Map<String, Object> body);
+
     @POST("/takeOrder")
     Call<Map<String, Object>> takeOrder(@Body Map<String, Object> body);
+
+    @POST("/updateOrder")
+    Call<Map<String, Object>> updateOrder(@Body Map<String, Object> body);
 
 
 }
