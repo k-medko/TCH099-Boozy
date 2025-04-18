@@ -64,16 +64,15 @@
     .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 1000; }
     .modal input { margin-bottom: 10px; width: 100%; padding: 8px; border: 1px solid var(--gray-border); border-radius: 6px; }
     .form-btn {
-  background-color: var(--primary);
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -101,57 +100,43 @@
       <div class="form-box">
         <h2>Ajouter un produit</h2>
         <input type="text" id="productName" placeholder="Nom">
-        <select id="productCategory">
-          <option>Vin</option><option>Spiritueux</option><option>Champagne et mousseux</option>
-          <option>Cooler et cocktail prémixé</option><option>Cidre</option><option>Porto et vin fortifié</option>
-          <option>Bière</option><option>Saké</option><option>Vin de dessert</option>
-          <option>Apéritif</option><option>Hydromel</option><option>Cadeaux et accessoires</option>
-          <option>Poiré</option>
-        </select>
+        <select id="productCategory"></select>
         <input type="text" id="productDesc" placeholder="Description">
         <input type="text" id="productPrice" placeholder="Prix">
         <button onclick="addProduct()">Ajouter</button>
       </div>
-
       <div class="product-list-box" id="productList"></div>
     </div>
 
     <div class="modal" id="editModal">
       <h3>Modifier le produit</h3>
-    
       <label for="editName">Nom</label>
       <input type="text" id="editName" placeholder="Nom">
-    
+
+      <label for="editCategory">Catégorie</label>
+      <select id="editCategory"></select>
+
       <label for="editDesc">Description</label>
       <input type="text" id="editDesc" placeholder="Description">
-    
+
       <label for="editPrice">Prix</label>
       <input type="text" id="editPrice" placeholder="Prix">
-    
-      <label for="editCategory">Catégorie</label>
-      <select id="editCategory">
-        <option>Vin</option><option>Spiritueux</option><option>Champagne et mousseux</option>
-        <option>Cooler et cocktail prémixé</option><option>Cidre</option><option>Porto et vin fortifié</option>
-        <option>Bière</option><option>Saké</option><option>Vin de dessert</option>
-        <option>Apéritif</option><option>Hydromel</option><option>Cadeaux et accessoires</option>
-        <option>Poiré</option>
-      </select>
-    
+
       <button class="form-btn" onclick="validerEditionProduit()">Valider</button>
     </div>
-    
-  
 
     <footer>
       <p><strong>© 2025 Boozy Inc.</strong> Tous droits réservés.</p>
       <p><a href="mailto:support@boozy.com">support@boozy.com</a> &nbsp; | &nbsp; 514-652-3145</p>
     </footer>
   </div>
+
   <script>
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("show");
       document.getElementById("overlay").classList.toggle("show");
     }
+
     const categories = {};
     let produitActuel = null;
 
@@ -164,9 +149,28 @@
             if (!categories[cat]) categories[cat] = [];
             categories[cat].push(product);
           });
+          remplirCategoriesDansSelect();
           renderAllProducts();
         })
         .catch(err => console.error("Erreur lors de la récupération des produits:", err));
+    }
+
+    function remplirCategoriesDansSelect() {
+      const selectEdit = document.getElementById('editCategory');
+      const selectAdd = document.getElementById('productCategory');
+      selectEdit.innerHTML = '';
+      selectAdd.innerHTML = '';
+
+      const uniqueCategories = Object.keys(categories).sort((a, b) => a.localeCompare(b));
+      uniqueCategories.forEach(cat => {
+        const optionEdit = document.createElement('option');
+        const optionAdd = document.createElement('option');
+        optionEdit.value = cat;
+        optionAdd.value = cat;
+        optionEdit.textContent = optionAdd.textContent = cat;
+        selectEdit.appendChild(optionEdit);
+        selectAdd.appendChild(optionAdd);
+      });
     }
 
     function renderAllProducts() {
@@ -198,27 +202,48 @@
     }
 
     function editProduct(cat, index) {
-  produitActuel = { cat, index };
-  const produit = categories[cat][index];
-  document.getElementById('editName').value = produit.name;
-  document.getElementById('editCategory').value = cat;
-  document.getElementById('editDesc').value = produit.description;
-  document.getElementById('editPrice').value = produit.price;
-  document.getElementById('editModal').style.display = 'block';
-}
-
+      produitActuel = { cat, index };
+      const produit = categories[cat][index];
+      document.getElementById('editName').value = produit.name;
+      document.getElementById('editCategory').value = produit.category;
+      document.getElementById('editDesc').value = produit.description;
+      document.getElementById('editPrice').value = produit.price;
+      document.getElementById('editModal').style.display = 'block';
+    }
 
     function validerEditionProduit() {
-      if (!produitActuel) return;
-      const { cat, index } = produitActuel;
-      const produit = categories[cat][index];
-      produit.name = document.getElementById('editName').value;
-      produit.category = document.getElementById('editCategory').value;
-      produit.description = document.getElementById('editDesc').value;
-      produit.price = document.getElementById('editPrice').value;
-      document.getElementById('editModal').style.display = 'none';
-      renderAllProducts();
-    }
+  if (!produitActuel) return;
+  const { cat, index } = produitActuel;
+
+  const newName = document.getElementById('editName').value;
+  const newCategory = document.getElementById('editCategory').value;
+  const newDesc = document.getElementById('editDesc').value;
+  const newPrice = document.getElementById('editPrice').value;
+
+  const produit = categories[cat][index];
+
+  // Mise à jour de l’objet
+  produit.name = newName;
+  produit.category = newCategory;
+  produit.description = newDesc;
+  produit.price = newPrice;
+
+  // Si la catégorie n’a pas changé
+  if (cat === newCategory) {
+    categories[cat][index] = produit;
+  } else {
+    // Sinon, on déplace vers la nouvelle catégorie
+    categories[cat].splice(index, 1);
+    if (!categories[newCategory]) categories[newCategory] = [];
+    categories[newCategory].push(produit);
+  }
+
+  produitActuel = null;
+  document.getElementById('editModal').style.display = 'none';
+  renderAllProducts();
+  alert("Produit modifié avec succès !");
+}
+
 
     function addProduct() {
       const name = document.getElementById('productName').value;
@@ -227,21 +252,22 @@
       const price = document.getElementById('productPrice').value;
 
       const product = {
-        id, name, description, price, 
+        product_id: Date.now(),
+        name,
+        description,
+        category,
+        price
       };
 
       if (!categories[category]) categories[category] = [];
       categories[category].push(product);
       renderAllProducts();
+
       document.querySelectorAll('.form-box input').forEach(i => i.value = '');
-      document.getElementById('productCategory').value = 'Vin';
+      document.getElementById('productCategory').selectedIndex = 0;
     }
 
     window.onload = fetchProductsFromAPI;
   </script>
 </body>
 </html>
-
-
-
-

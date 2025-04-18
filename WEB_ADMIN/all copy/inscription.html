@@ -1,4 +1,4 @@
-<!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -11,29 +11,31 @@
       background-color: #F4F6F9;
       height: 100vh;
       display: flex;
+      flex-direction: column;
+    }
+    .form-wrapper {
+      flex: 1;
+      display: flex;
       justify-content: center;
       align-items: center;
-      position: relative;
+      overflow: hidden;
     }
-
     .form-container {
       background: white;
       padding: 40px;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       width: 400px;
+      height: 500px;
+      overflow-y: auto;
     }
-
     .top-bar {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      right: 20px;
+      padding: 10px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background-color: #F4F6F9;
     }
-
     .logo-circle {
       background-color: #ffffff;
       border-radius: 50%;
@@ -46,12 +48,10 @@
       width: 60px;
       text-decoration: none;
     }
-
     .logo-circle img {
       height: 40px;
       width: auto;
     }
-
     .lang-btn {
       font-size: 14px;
       background: transparent;
@@ -62,28 +62,23 @@
       cursor: pointer;
       transition: 0.3s;
     }
-
     .lang-btn:hover {
       background-color: #1F2937;
       color: white;
     }
-
     h1 {
       text-align: center;
       color: #1F2937;
     }
-
     .form-group {
       margin-bottom: 20px;
     }
-
     label {
       display: block;
       margin-bottom: 6px;
       font-weight: 600;
       color: #374151;
     }
-
     input, select {
       width: 100%;
       padding: 10px;
@@ -91,7 +86,6 @@
       border: 1px solid #ccc;
       font-size: 14px;
     }
-
     button[type="submit"] {
       width: 100%;
       padding: 12px;
@@ -103,12 +97,9 @@
       cursor: pointer;
       margin-top: 10px;
     }
-
     button[type="submit"]:hover {
       background-color: #111827;
     }
-
-    /* Modal QR Code */
     #qrModal {
       display: none;
       position: fixed;
@@ -118,7 +109,6 @@
       justify-content: center;
       align-items: center;
     }
-
     .modal-content {
       background-color: white;
       padding: 30px;
@@ -126,110 +116,87 @@
       text-align: center;
       width: 300px;
     }
-
-    .modal-content h2 {
-      margin-top: 0;
-    }
-
     .modal-content img {
       width: 150px;
       height: 150px;
       margin: 20px 0;
     }
-
-    .modal-content button {
-      background-color: #1F2937;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .modal-content button:hover {
-      background-color: #111827;
-    }
   </style>
 </head>
 <body>
-  <div class="top-bar" style="top: 5px;">
+  <div class="top-bar">
     <a href="accueil.html" class="logo-circle">
-      <img src="assets/image/LOGO 1.png" alt="Logo Boozy" style="
-      width: 100px;
-      height: 100px;
-  ">
+      <img src="assets/image/LOGO 1.png" alt="Logo Boozy">
     </a>
     <button class="lang-btn" onclick="switchLanguage()">EN</button>
   </div>
-
-  <div class="form-container">
-    <h1>Créer un compte</h1>
-    <form onsubmit="return handleSubmit(event)">
-      <div class="form-group">
-        <label>Nom</label>
-        <input type="text" required>
-      </div>
-      <div class="form-group">
-        <label>Prénom</label>
-        <input type="text" required>
-      </div>
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" required>
-      </div>
-      <div class="form-group">
-        <label>Numéro de téléphone</label>
-        <input type="tel" required>
-      </div>
-      <div class="form-group">
-        <label>Mot de passe</label>
-        <input type="password" required>
-      </div>
-      <div class="form-group">
-        <label>Type d'utilisateur</label>
-        <select required>
-          <option value="">Choisir...</option>
-          <option value="client">Client</option>
-          <option value="livreur">Livreur</option>
-        </select>
-      </div>
-      <button type="submit">S'inscrire</button>
-    </form>
-  </div>
-
-  <!-- QR Code Popup -->
-  <div id="qrModal">
-    <div class="modal-content">
-      <h2>Connexion via l'application</h2>
-      <p>Scannez ce code pour vous connecter via l'application mobile.</p>
-      <img id="qrImage" src="" alt="QR Code">
-      <br>
-      <button onclick="closeModal()">Fermer</button>
+  <div class="form-wrapper">
+    <div class="form-container">
+      <h1>Créer un compte</h1>
+      <form onsubmit="return handleSubmit(event)">
+        <div class="form-group"><label>Nom</label><input type="text" id="last_name" required></div>
+        <div class="form-group"><label>Prénom</label><input type="text" id="first_name" required></div>
+        <div class="form-group"><label>Email</label><input type="email" id="email" required></div>
+        <div class="form-group"><label>Numéro de téléphone</label><input type="tel" id="phone_number" required></div>
+        <div class="form-group"><label>Mot de passe</label><input type="password" id="password" required></div>
+        <div class="form-group"><label>Type d'utilisateur</label><select id="user_type" required onchange="toggleLivreurFields()"><option value="">Choisir...</option><option value="client">Client</option><option value="carrier">Livreur</option></select></div>
+        <div class="form-group" id="livreurFields" style="display:none;">
+          <label>Numéro de plaque</label><input type="text" id="license_plate">
+          <label>Marque du véhicule</label><input type="text" id="car_brand">
+        </div>
+        <div class="form-group"><label>Adresse - Numéro civique</label><input type="text" id="civic"></div>
+        <div class="form-group"><label>Appartement</label><input type="text" id="apartment"></div>
+        <div class="form-group"><label>Rue</label><input type="text" id="street"></div>
+        <div class="form-group"><label>Ville</label><input type="text" id="city"></div>
+        <div class="form-group"><label>Code postal</label><input type="text" id="postal_code"></div>
+        <button type="submit">S'inscrire</button>
+      </form>
     </div>
   </div>
-
+  <div id="qrModal"><div class="modal-content"><h2>Connexion via l'application</h2><p>Scannez ce code pour vous connecter via l'application mobile.</p><img id="qrImage" src="" alt="QR Code"><br><button onclick="closeModal()">Fermer</button></div></div>
   <script>
     function handleSubmit(event) {
       event.preventDefault();
-
-      // QR Code de démo — à remplacer par un vrai token plus tard
-      const fakeToken = "DEMO_TOKEN_123456";
-      const qrImage = document.getElementById("qrImage");
-      qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(fakeToken)}&size=150x150`;
-
-      // Affiche la popup
-      document.getElementById("qrModal").style.display = "flex";
-
+      const payload = {
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+        last_name: document.getElementById("last_name").value,
+        first_name: document.getElementById("first_name").value,
+        phone_number: document.getElementById("phone_number").value,
+        user_type: document.getElementById("user_type").value,
+        license_plate: document.getElementById("license_plate")?.value || "",
+        car_brand: document.getElementById("car_brand")?.value || "",
+        civic: document.getElementById("civic").value,
+        apartment: document.getElementById("apartment").value,
+        street: document.getElementById("street").value,
+        city: document.getElementById("city").value,
+        postal_code: document.getElementById("postal_code").value
+      };
+      fetch("http://4.172.252.189:5000/createUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Échec de l'inscription");
+        return res.json();
+      })
+      .then(data => {
+        document.getElementById("qrImage").src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(data.token || "Compte créé")}&size=150x150`;
+        document.getElementById("qrModal").style.display = "flex";
+      })
+      .catch(err => {
+        alert("Erreur lors de l'inscription : " + err.message);
+        console.error(err);
+      });
       return false;
     }
-
-    function closeModal() {
-      document.getElementById("qrModal").style.display = "none";
+    function toggleLivreurFields() {
+      const value = document.getElementById("user_type").value;
+      document.getElementById("livreurFields").style.display = value === "carrier" ? "block" : "none";
     }
-
-    function switchLanguage() {
-      window.location.href = 'inscription_en.html'; // Version anglaise
-    }
+    function closeModal() { document.getElementById("qrModal").style.display = "none"; }
+    function switchLanguage() { window.location.href = 'inscription_en.html'; }
   </script>
 </body>
 </html>

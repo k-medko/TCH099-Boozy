@@ -5,6 +5,7 @@
   <title>Gestion des utilisateurs</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
   <style>
+    /* STYLES SIMILAIRES À L'IMAGE */
     :root {
       --primary: #34495e;
       --primary-hover: #2c3e50;
@@ -21,6 +22,8 @@
       height: 100%;
     }
     .wrapper { display: flex; flex-direction: column; min-height: 100vh; }
+  
+      /* Styles globaux */
     header {
       display: flex;
       justify-content: space-between;
@@ -43,7 +46,35 @@
       align-items: center;
       gap: 12px;
     }
-    .main { flex: 1; padding: 24px; display: flex; gap: 24px; }
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .lang-btn, .logout {
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .lang-btn {
+      background: transparent;
+      border: 1.5px solid var(--gray-dark);
+      color: var(--gray-dark);
+    }
+    .lang-btn:hover {
+      background-color: var(--gray-dark);
+      color: white;
+    }
+    .logout {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+    }
+    .logout:hover {
+      background-color: var(--primary-hover);
+    }
     nav {
       width: 300px;
       max-width: 80%;
@@ -98,30 +129,7 @@
       padding: 8px 12px;
       cursor: pointer;
     }
-    .lang-btn, .logout {
-      font-size: 14px;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    .lang-btn {
-      background: transparent;
-      border: 1.5px solid var(--gray-dark);
-      color: var(--gray-dark);
-      transition: 0.3s;
-    }
-    .lang-btn:hover {
-      background-color: var(--gray-dark);
-      color: white;
-    }
-    .logout {
-      background-color: var(--primary);
-      color: white;
-      text-decoration: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-    }
+    .main { flex: 1; padding: 24px; display: flex; gap: 24px; }
     .content {
       display: flex;
       flex-wrap: wrap;
@@ -134,6 +142,8 @@
       padding: 24px;
       box-shadow: 0 6px 12px rgba(0,0,0,0.05);
       width: 48%;
+      max-height: 600px;
+      overflow-y: auto;
     }
     .form-container h2, .user-list-container h2 {
       margin-bottom: 16px;
@@ -177,123 +187,263 @@
       margin-bottom: 12px;
     }
     .user-card p { margin: 4px 0; font-size: 14px; color: var(--gray-dark); }
+    .entry-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .entry-actions button {
+      padding: 8px 12px;
+      font-size: 13px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      font-weight: 500;
+    }
+    .edit-btn { background-color: var(--gray-dark); color: white; }
+    .delete-btn { background-color: var(--danger); color: white; }
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      width: 400px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .modal input, .modal select {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid var(--gray-border);
+      border-radius: 8px;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+    .modal-actions button {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 500;
+    }
+    .edit-btn { background-color: var(--gray-dark); color: white; }
+    .delete-btn { background-color: var(--danger); color: white; }
   </style>
 </head>
 <body>
-<div class="wrapper">
-  <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
-  <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-  <header>
-    <div class="logo-container">
-      <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Utilisateurs</h1>
-    </div>
-    <div class="header-controls">
-      <button onclick="switchLanguage()" class="lang-btn">🌐 EN</button>
-      <a href="dashboard.html" class="logout">← Retour</a>
-    </div>
-  </header>
-  <div class="main">
+  <div class="wrapper">
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
     <nav id="sidebar">
       <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
       <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
       <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
-      <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
-      <a href="users.html" class="active"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+      <a href="products.html" class="active"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
+      <a href="users.html"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
     </nav>
-    <div class="content">
-      <div class="form-container">
-        <h2>Créer un compte</h2>
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="password" id="password" placeholder="Mot de passe" required>
-        <input type="text" id="firstName" placeholder="Prénom" required>
-        <input type="text" id="lastName" placeholder="Nom" required>
-        <input type="tel" id="phoneNumber" placeholder="Numéro de téléphone (111-111-1111)" pattern="\\d{3}-\\d{3}-\\d{4}" required>
-        <select id="userType" onchange="toggleDriverFields()">
-          <option value="customer">Client</option>
-          <option value="deliverer">Livreur</option>
-          <option value="customer">Admin</option>
-        </select>
-        <div id="driverFields" style="display: none;">
-          <input type="text" id="licensePlate" placeholder="Plaque d'immatriculation">
-          <input type="text" id="licenseNumber" placeholder="Numéro de permis">
-        </div>
-        <button onclick="creerUtilisateurAdmin()">Créer l'utilisateur</button>
+   <header>
+      <div class="logo-container">
+        <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Utilisateurs</h1>
       </div>
-      <div class="user-list-container">
-        <h2>Liste des utilisateurs</h2>
-        <div id="userList"></div>
+      <div class="header-controls">
+        <button onclick="switchLanguage()" class="lang-btn">🌐 EN</button>
+        <a href="dashboard.html" class="logout">← Retour</a>
+      </div>
+    </header>
+    <!-- FORMULAIRE DE CRÉATION -->
+    <div class="main">
+      <div class="content">
+        <div class="form-container">
+          <h2>Créer un compte</h2>
+          <input type="email" id="email" placeholder="Email">
+          <input type="password" id="password" placeholder="Mot de passe">
+          <input type="text" id="firstName" placeholder="Prénom">
+          <input type="text" id="lastName" placeholder="Nom">
+          <input type="tel" id="phoneNumber" placeholder="Numéro de téléphone">
+          <select id="userType" onchange="toggleDriverFields()">
+            <option value="client">Client</option>
+            <option value="carrier">Livreur</option>
+            <option value="admin">Admin</option>
+          </select>
+          <div id="driverFields" style="display:none;">
+            <input type="text" id="licensePlate" placeholder="Plaque d'immatriculation">
+            <input type="text" id="carBrand" placeholder="Marque de voiture">
+          </div>
+          <input type="text" id="civic" placeholder="Numéro civique">
+          <input type="text" id="apartment" placeholder="Appartement">
+          <input type="text" id="street" placeholder="Rue">
+          <input type="text" id="city" placeholder="Ville">
+          <input type="text" id="postalCode" placeholder="Code postal">
+          <button onclick="soumettreFormulaire()">Créer</button>
+        </div>
+        <!-- LISTE DES UTILISATEURS -->
+        <div class="user-list-container">
+          <h2>Liste des utilisateurs</h2>
+          <div id="userList"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay" id="editModal">
+      <div class="modal">
+        <h3>Modifier l'utilisateur</h3>
+        <input id="editEmail" placeholder="Email">
+        <input id="editFirstName" placeholder="Prénom">
+        <input id="editLastName" placeholder="Nom">
+        <input id="editPhone" placeholder="Téléphone">
+        <select id="editUserType" onchange="toggleModalDriverFields()">
+          <option value="client">Client</option>
+          <option value="carrier">Livreur</option>
+          <option value="admin">Admin</option>
+        </select>
+        <div id="modalDriverFields" style="display:none;">
+          <input id="editLicense" placeholder="Plaque">
+          <input id="editBrand" placeholder="Marque">
+        </div>
+        <input id="editStreet" placeholder="Rue">
+        <input id="editCity" placeholder="Ville">
+        <input id="editPostal" placeholder="Code Postal">
+        <div class="modal-actions">
+          <button onclick="closeModal()">Annuler</button>
+          <button onclick="saveUserEdit()">Valider</button>
+        </div>
       </div>
     </div>
   </div>
-  <footer>
-    <p>&copy; 2025 Boozy Inc. Tous droits réservés.</p>
-    <p><a href="mailto:support@boozy.com">support@boozy.com</a> | <a href="tel:+15146523145">514-652-3145</a></p>
-  </footer>
-</div>
-<script>
-  function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("show");
-    document.getElementById("overlay").classList.toggle("show");
-  }
+    <footer>
+      <p>&copy; 2025 Boozy Inc. Tous droits réservés.</p>
+      <p><a href="mailto:support@boozy.com">support@boozy.com</a> | <a href="tel:+15146523145">514-652-3145</a></p>
+    </footer>
+  </div>
+  <script>
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("show");
+      document.getElementById("overlay").classList.toggle("show");
+    }
+    const ADMIN_EMAIL = "edwar@boozy.com";
+    const ADMIN_PASSWORD = "adminpass";
 
-  function switchLanguage() {
-    window.location.href = "users_en.html";
-  }
+    function toggleDriverFields() {
+      const type = document.getElementById("userType").value;
+      document.getElementById("driverFields").style.display = type === "carrier" ? "block" : "none";
+    }
 
-  function toggleDriverFields() {
-    const isDriver = document.getElementById('userType').value === 'deliverer';
-    document.getElementById('driverFields').style.display = isDriver ? 'block' : 'none';
-  }
+    async function creerUtilisateur(userData) {
+      const response = await fetch("http://4.172.252.189:5000/admin/createUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...userData, admin_email: ADMIN_EMAIL, admin_password: ADMIN_PASSWORD })
+      });
+      return response.json();
+    }
 
-  function creerUtilisateurAdmin() {
-  const adminEmail = "admin.one@example.com";
-  const adminPassword = "Admin";
+    async function modifierUtilisateur(userId, updatedData) {
+      const response = await fetch("http://4.172.252.189:5000/admin/modifyUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, ...updatedData, admin_email: ADMIN_EMAIL, admin_password: ADMIN_PASSWORD })
+      });
+      return response.json();
+    }
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const firstName = document.getElementById("firstName").value.trim();
-  const lastName = document.getElementById("lastName").value.trim();
-  const phoneNumber = document.getElementById("phoneNumber").value.trim();
-  const userType = document.getElementById("userType").value;
-  const licensePlate = document.getElementById("licensePlate")?.value.trim();
-  const licenseNumber = document.getElementById("licenseNumber")?.value.trim();
+    async function supprimerUtilisateur(userId) {
+      const response = await fetch("http://4.172.252.189:5000/admin/deleteUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, admin_email: ADMIN_EMAIL, admin_password: ADMIN_PASSWORD })
+      });
+      return response.json();
+    }
 
-  const data = {
-    adminEmail,
-    adminPassword,
-    email,
-    password,
-    firstName,
-    lastName,
-    phoneNumber,
-    userType,
-    licensePlate: userType === "deliverer" ? licensePlate : undefined,
-    licenseNumber: userType === "deliverer" ? licenseNumber : undefined
-  };
+    async function getUtilisateurs() {
+      const response = await fetch("http://4.172.252.189:5000/admin/getUsers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ admin_email: ADMIN_EMAIL, admin_password: ADMIN_PASSWORD })
+      });
+      const res = await response.json();
+      if (res.status === "success") {
+        document.getElementById("userList").innerHTML = "";
+        res.users.forEach(u => afficherUtilisateurDansListe(u));
+      } else {
+        alert("Échec de récupération des utilisateurs");
+      }
+    }
 
-  fetch("http://4.172.252.189:5000/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  })
-  .then(response => {
-    if (!response.ok) throw new Error("Erreur API");
-    return response.json();
-  })
-  .then(result => {
-    alert("Utilisateur créé avec succès !");
-    console.log(result);
-    // Tu peux ensuite ajouter dynamiquement la carte dans l'UI
-  })
-  .catch(err => {
-    console.error("Erreur réseau :", err);
-    alert("Erreur lors de la création de l'utilisateur.");
-  });
+    function afficherUtilisateurDansListe(user) {
+      const userList = document.getElementById("userList");
+      const card = document.createElement("div");
+      card.className = "user-card";
+      card.innerHTML = `
+        <p><strong>Nom:</strong> ${user.last_name} ${user.first_name}</p>
+        <p><strong>Email:</strong> ${user.email}</p>
+        <p><strong>Téléphone:</strong> ${user.phone_number}</p>
+        <p><strong>Type:</strong> ${user.user_type}</p>
+        <p><strong>Adresse:</strong> ${user.address?.street || ""}, ${user.address?.city || ""}, ${user.address?.postal_code || ""}</p>
+        <div class="entry-actions">
+          <button class="edit-btn" onclick='lancerEdition(${JSON.stringify(user)})'>Modifier</button>
+          <button class="delete-btn" onclick="handleDelete(${user.user_id})">Supprimer</button>
+        </div>
+      `;
+      userList.appendChild(card);
+    }
 
-}
-  
-</script>
+    function lancerEdition(user) {
+      const nom = prompt("Modifier le nom:", user.last_name);
+      if (nom !== null) {
+        const updated = { last_name: nom };
+        modifierUtilisateur(user.user_id, updated).then(() => getUtilisateurs());
+      }
+    }
+
+    function handleDelete(userId) {
+      if (confirm("Supprimer cet utilisateur?")) {
+        supprimerUtilisateur(userId).then(() => getUtilisateurs());
+      }
+    }
+
+    function soumettreFormulaire() {
+      const user = {
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+        first_name: document.getElementById("firstName").value,
+        last_name: document.getElementById("lastName").value,
+        phone_number: document.getElementById("phoneNumber").value,
+        user_type: document.getElementById("userType").value,
+        license_plate: document.getElementById("licensePlate")?.value || "",
+        car_brand: document.getElementById("carBrand")?.value || "",
+        address: {
+          civic: document.getElementById("civic").value,
+          apartment: document.getElementById("apartment").value,
+          street: document.getElementById("street").value,
+          city: document.getElementById("city").value,
+          postal_code: document.getElementById("postalCode").value
+        }
+      };
+      creerUtilisateur(user).then(res => {
+        if (res.user) {
+          getUtilisateurs();
+          alert("Utilisateur ajouté avec succès !");
+        } else {
+          alert("Erreur lors de l'ajout de l'utilisateur.");
+        }
+      }).catch(err => {
+        console.error("Erreur de création :", err);
+        alert("Échec de l'ajout !");
+      });
+    }
+
+    window.onload = getUtilisateurs;
+  </script>
 </body>
 </html>
