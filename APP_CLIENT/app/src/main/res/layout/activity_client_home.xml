@@ -141,7 +141,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_margin="16dp">
+                android:background="@drawable/image_border"
+                android:layout_margin="16dp"
+                android:padding="4dp">
 
                 <ImageView
                     android:id="@+id/banner"
@@ -152,17 +154,17 @@
                     android:src="@drawable/banner" />
             </FrameLayout>
 
+            <!-- Liste des magasins -->
             <TextView
                 android:id="@+id/shopListTitle"
+                style="@style/TextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
                 android:text="@string/magasins_dispo"
-                android:textStyle="bold"
                 android:textSize="16sp"
-                android:layout_marginStart="16dp"
-                style="@style/TextStyle"/>
+                android:textStyle="bold" />
 
-            <!-- Liste des magasins -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/shopRecyclerView"
                 android:layout_width="match_parent"

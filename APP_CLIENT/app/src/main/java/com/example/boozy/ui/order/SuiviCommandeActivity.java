@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -28,5 +29,11 @@ public class SuiviCommandeActivity extends AppCompatActivity {
 
         // A IMPLEMENTER en fonction du statut de la commande
 
+        setupBackButton();
+    }
+
+    private void setupBackButton() {
+        ImageButton backButton = findViewById(R.id.buttonBack);
+        backButton.setOnClickListener(v -> finish());
     }
 }

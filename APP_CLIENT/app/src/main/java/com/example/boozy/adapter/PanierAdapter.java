@@ -25,26 +25,18 @@ public class PanierAdapter extends RecyclerView.Adapter<PanierAdapter.ViewHolder
     private OnQuantityChangeListener listener;
     private OnPanierChangedListener panierChangedListener;
 
-    // Interface pour la quantité
     public interface OnQuantityChangeListener {
         void onQuantityChanged(List<Produit> updatedList);
     }
 
-    // Interface pour la suppression
     public interface OnPanierChangedListener {
         void onPanierUpdated(List<Produit> updatedList);
     }
 
-    //  Constructeur
     public PanierAdapter(Context context, List<Produit> produits, OnQuantityChangeListener listener) {
         this.context = context;
         this.productList = produits;
         this.listener = listener;
-    }
-
-    // Setter du listener de suppression (?)
-    public void setOnPanierChangedListener(OnPanierChangedListener listener) {
-        this.panierChangedListener = listener;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -75,9 +67,11 @@ public class PanierAdapter extends RecyclerView.Adapter<PanierAdapter.ViewHolder
 
         holder.quantiteText.setText(String.valueOf(produit.getQuantity()));
         holder.produitText.setText(produit.getName());
-        holder.prixText.setText(String.format("%.2f $", produit.getPrice() / 100.0));
 
-        // Ajouter quantité
+        double price = produit.getPrice();
+
+        holder.prixText.setText(String.format("%.2f $", price));
+
         holder.buttonPlus.setOnClickListener(v -> {
             produit.setQuantity(produit.getQuantity() + 1);
             notifyItemChanged(position);
@@ -85,7 +79,6 @@ public class PanierAdapter extends RecyclerView.Adapter<PanierAdapter.ViewHolder
             updateCartPersistence();
         });
 
-        // Diminuer quantité
         holder.buttonMinus.setOnClickListener(v -> {
             if (produit.getQuantity() > 1) {
                 produit.setQuantity(produit.getQuantity() - 1);
@@ -95,37 +88,48 @@ public class PanierAdapter extends RecyclerView.Adapter<PanierAdapter.ViewHolder
             }
         });
 
-        // Supprimer produit
         holder.buttonDelete.setOnClickListener(v -> {
+
             productList.remove(position);
+            updateCartPersistence();
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, productList.size());
-            updateCartPersistence();
 
             if (panierChangedListener != null) {
                 panierChangedListener.onPanierUpdated(new ArrayList<>(productList));
             }
 
+            listener.onQuantityChanged(productList);
+
             Toast.makeText(context, "Produit supprimé", Toast.LENGTH_SHORT).show();
         });
     }
+
 
     @Override
     public int getItemCount() {
         return productList.size();
     }
 
-    // Mise à jour externe de la liste
     public void updateProductList(List<Produit> newList) {
         this.productList = newList;
         notifyDataSetChanged();
     }
 
-    // Mise à jour du panier persistant
     private void updateCartPersistence() {
-        PanierManager.getInstance(context).clearCart();
-        for (Produit p : productList) {
-            PanierManager.getInstance(context).addProduct(p);
+        PanierManager panierManager = PanierManager.getInstance(context);
+        panierManager.clearCart();
+
+        if (!productList.isEmpty()) {
+            String shopId = productList.get(0).getShopId();
+            panierManager.setCurrentShopId(shopId);
+
+            for (Produit produit : productList) {
+                panierManager.addProduct(produit);
+            }
         }
     }
+
+
+
 }

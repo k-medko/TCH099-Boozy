@@ -1,93 +1,90 @@
 package com.example.boozy.data.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Produit {
-    private int idProduit;
+
+    @SerializedName("product_id")
+    private int id;
+
+    @SerializedName("name")
     private String name;
-    private String category;
+
+    @SerializedName("description")
     private String description;
-    private int price;
-    private int imageResId; // a verifier
+
+    @SerializedName("price")
+    private double price;
+
+    @SerializedName("category")
+    private String category;
+
+    @SerializedName("shop_id")
+    private String shopId;
+
     private int quantity;
 
-    // Constructeur pour ShopDetailActivity (nom, catégorie, image)
-    public Produit(int idProduit, String name, String category, int imageResId) {
-        this.idProduit = idProduit;
-        this.name = name;
-        this.category = category;
-        this.imageResId = imageResId;
-    }
+    @SerializedName("image")
+    private String imageName;
 
-    // Constructeur pour ProductDetailActivity (nom, prix, image, description)
-    public Produit(int idProduit, String name, int price, int imageResId, String description) {
-        this.idProduit = idProduit;
+    public Produit(int id, String name, String description, double price, String category, int quantity, String imageName, String shopId) {
+        this.id = id;
         this.name = name;
-        this.price = price;
-        this.imageResId = imageResId;
         this.description = description;
-    }
-
-    // Constructeur pour PaiementActivity (nom, quantité)
-    public Produit(int idProduit, int price, String name, int quantity) {
-        this.idProduit = idProduit;
         this.price = price;
-        this.name = name;
+        this.category = category;
         this.quantity = quantity;
+        this.imageName = imageName;
+        this.shopId = shopId;
     }
 
-    // Getters et Setters
-    public int getIdProduit() {
-        return idProduit;
+    public Produit(int id, String name, String description, double price, String category, String shopId) {
+        this(id, name, description, price, category, 1, null, shopId);
     }
 
-    public void setIdProduit(int idProduit) {
-        this.idProduit = idProduit;
+    // Getters
+    public int getId() {
+        return id;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getDescription() {
+        return description;
+    }
+
+    public double getPrice() {
+        return price;
     }
 
     public String getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
-    }
-
-    public int getImageResId() {
-        return imageResId;
-    }
-
-    public void setImageResId(int imageResId) {
-        this.imageResId = imageResId;
+    public String getShopId() {
+        return shopId;
     }
 
     public int getQuantity() {
         return quantity;
     }
 
+    public String getImageName() {
+        return imageName;
+    }
+
+    // Setters
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    public void setShopId(String shopId) {
+        this.shopId = shopId;
     }
 }

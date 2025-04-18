@@ -6,15 +6,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.boozy.R;
+import com.example.boozy.data.model.Adresse;
+import com.example.boozy.data.model.UtilisateurManager;
 import com.example.boozy.ui.auth.AuthChoiceActivity;
-
 
 public class ProfilClientActivity extends AppCompatActivity {
 
@@ -26,27 +26,17 @@ public class ProfilClientActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil_client);
 
-        // Effet plein écran
         setupFullScreen();
-
-        // Initialiser les vues
         initializeViews();
-
-        // Charger les informations utilisateur depuis le serveur
         loadUserProfile();
 
-        // Retour à la page précédente lorsque la flèche est cliquée
-        ImageView backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(v -> onBackPressed());
+        findViewById(R.id.backButton).setOnClickListener(v -> onBackPressed());
 
-        // Ouvre l’activité de modification de profil
-        LinearLayout btnModifierCarte = findViewById(R.id.btnModifierCarte);
-        btnModifierCarte.setOnClickListener(v -> {
+        findViewById(R.id.btnModifierCarte).setOnClickListener(v -> {
             Intent intent = new Intent(this, ModifierProfilClientActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, 1001);
         });
 
-        // Déconnexion
         btnDeconnexion.setOnClickListener(v -> logout());
     }
 
@@ -60,34 +50,55 @@ public class ProfilClientActivity extends AppCompatActivity {
         }
     }
 
-    // Initialiser les vues
     private void initializeViews() {
         nomText = findViewById(R.id.nomText);
         prenomText = findViewById(R.id.prenomText);
         adresseText = findViewById(R.id.adresseText);
         emailText = findViewById(R.id.emailText);
         carteText = findViewById(R.id.carteText);
-        btnDeconnexion = findViewById(R.id.btnDeconnexion);  // Bouton de déconnexion
+        btnDeconnexion = findViewById(R.id.btnDeconnexion);
     }
 
-    /**
-     * Charger les informations utilisateur depuis le serveur
-     */
     private void loadUserProfile() {
-        // APPEL À L'API ICI
-        // Effectuer une requête GET pour récupérer les informations utilisateur depuis le serveur.
+        UtilisateurManager userManager = UtilisateurManager.getInstance(this);
+
+        nomText.setText(userManager.getNom());
+        prenomText.setText(userManager.getPrenom());
+        emailText.setText(userManager.getEmail());
+
+        Adresse adr = userManager.getAdresse();
+        if (adr != null) {
+            String adresseComplete = "";
+
+            if (!adr.getApartment().isEmpty()) {
+                adresseComplete += adr.getApartment() + "-";
+            }
+
+            adresseComplete += adr.getCivic() + " " + adr.getStreet() + ", " + adr.getCity() + ", " + adr.getPostalCode();
+
+            adresseText.setText(adresseComplete.trim().equals(", ,") ? "Aucune adresse" : adresseComplete);
+        } else {
+            adresseText.setText("Aucune adresse");
+        }
+
+
+        String stripeCard = userManager.getCarteStripe();
+        carteText.setText(stripeCard.isEmpty() ? "Aucune carte" : stripeCard);
     }
 
-    /**
-     * Déconnexion de l'utilisateur et redirection vers la page de choix d'authentification
-     */
     private void logout() {
-        // A implementer
-
-        // Redirection vers la page de choix d'authentification
-        Intent intent = new Intent(ProfilClientActivity.this, AuthChoiceActivity.class);
+        UtilisateurManager.getInstance(getApplicationContext()).logout();
+        Intent intent = new Intent(this, AuthChoiceActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1001 && resultCode == RESULT_OK) {
+            loadUserProfile();
+        }
     }
 }

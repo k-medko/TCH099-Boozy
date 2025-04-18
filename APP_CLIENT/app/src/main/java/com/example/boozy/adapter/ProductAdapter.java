@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.boozy.R;
 import com.example.boozy.data.model.Produit;
 import com.example.boozy.ui.shop.ProductDetailActivity;
@@ -38,15 +39,24 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         holder.productNameText.setText(produit.getName());
         holder.productCategoryText.setText(produit.getCategory());
-        holder.productImage.setImageResource(produit.getImageResId());
+        holder.productPriceText.setText(String.format("$%.2f", produit.getPrice()));
 
-        // Gestion du clic sur l'item
+        String imageUrl = "http://4.172.252.189:5000/images/" + produit.getImageName();
+        Glide.with(holder.itemView.getContext())
+                .load(imageUrl)
+                .placeholder(R.drawable.produit)
+                .error(R.drawable.produit)
+                .into(holder.productImage);
+
         holder.itemView.setOnClickListener(v -> {
             Context context = v.getContext();
             Intent intent = new Intent(context, ProductDetailActivity.class);
+            intent.putExtra("product_id", produit.getId());
             intent.putExtra("product_name", produit.getName());
             intent.putExtra("product_price", produit.getPrice());
-            intent.putExtra("product_image", produit.getImageResId());
+            intent.putExtra("product_image_name", produit.getImageName());
+            intent.putExtra("product_description", produit.getDescription());
+            intent.putExtra("shop_id", produit.getShopId());
             context.startActivity(intent);
         });
     }
@@ -57,13 +67,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
-        TextView productNameText, productCategoryText;
+        TextView productNameText, productCategoryText, productPriceText;
         ImageView productImage;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             productNameText = itemView.findViewById(R.id.productNameText);
             productCategoryText = itemView.findViewById(R.id.productCategoryText);
+            productPriceText = itemView.findViewById(R.id.productPriceText);
             productImage = itemView.findViewById(R.id.productImage);
         }
     }

@@ -28,12 +28,12 @@
         android:layout_height="1dp"
         android:background="#E6E6E6" />
 
-    <!-- Ligne 2 : Temps approximatif -->
+    <!-- Ligne 2 : Nom du magasin -->
     <TextView
-        android:id="@+id/tempsEstimeText"
+        android:id="@+id/nomMagasin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Temps approximatif : 25–32 minutes"
+        android:text="SAQ Sélection-Marché Atwater"
         android:textSize="15sp"
         android:textColor="#000000"
         android:padding="12dp" />
@@ -43,12 +43,12 @@
         android:layout_height="1dp"
         android:background="#E6E6E6" />
 
-    <!-- Ligne 3 : Montant -->
+    <!-- Ligne 3 : Adresse du magasin -->
     <TextView
-        android:id="@+id/paiementText"
+        android:id="@+id/adresseText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Montant : 6$"
+        android:text="155 Av. Atwater, Montreal, H3J 2J4"
         android:textSize="15sp"
         android:textColor="#000000"
         android:padding="12dp" />
@@ -57,6 +57,22 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#E6E6E6" />
+
+    <!-- Ligne 4 : Montant payer par le client -->
+    <TextView
+        android:id="@+id/totalText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total payé : 122.85$"
+        android:textSize="15sp"
+        android:textColor="#000000"
+        android:padding="12dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E6E6E6" />
+
 
     <!-- Ligne 4 : Bouton Accepter -->
     <LinearLayout

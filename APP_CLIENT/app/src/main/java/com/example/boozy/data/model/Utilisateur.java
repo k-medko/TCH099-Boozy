@@ -1,105 +1,125 @@
 package com.example.boozy.data.model;
 
-public class Utilisateur {
-    private int idUtilisateur;
-    private String nom;
-    private String prenom;
-    private String email;
-    private String motDePasse;
-    private String numTel;
-    private String numeroPermis;
-    private TypeUtilisateur typeUtilisateur;
-    private Adresse adresse;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
-    // Constructeur vide
-    public Utilisateur() {
+    public class Utilisateur {
+
+        @SerializedName("user_id")
+        @Expose(serialize = false)
+        private int idUtilisateur;
+
+        @SerializedName("first_name")
+        @Expose
+        private String prenom;
+
+        @SerializedName("last_name")
+        @Expose
+        private String nom;
+
+        @SerializedName("email")
+        @Expose
+        private String email;
+
+        @SerializedName("password")
+        @Expose
+        private String password;
+
+        @SerializedName("phone_number")
+        @Expose
+        private String numTel;
+
+        @SerializedName("user_type")
+        @Expose
+        private String typeUtilisateur;
+
+        @SerializedName("address")
+        @Expose
+        private Adresse adresse;
+
+        @SerializedName("license_plate")
+        @Expose
+        private String plaqueAuto;
+
+        @SerializedName("car_brand")
+        @Expose
+        private String marqueVoiture;
+
+        public Utilisateur() {}
+
+        public String getPrenom() {
+            return prenom;
+        }
+
+        public void setPrenom(String prenom) {
+            this.prenom = prenom;
+        }
+
+        public String getNom() {
+            return nom;
+        }
+
+        public void setNom(String nom) {
+            this.nom = nom;
+        }
+
+        public int getIdUtilisateur() {
+            return idUtilisateur;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getNumTel() {
+            return numTel;
+        }
+
+        public void setNumTel(String numTel) {
+            this.numTel = numTel;
+        }
+
+        public String getTypeUtilisateur() {
+            return typeUtilisateur;
+        }
+
+        public void setTypeUtilisateur(String typeUtilisateur) {
+            this.typeUtilisateur = typeUtilisateur;
+        }
+
+        public Adresse getAdresse() {
+            return adresse;
+        }
+
+        public void setAdresse(Adresse adresse) {
+            this.adresse = adresse;
+        }
+
+        public String getPlaqueAuto() {
+            return plaqueAuto;
+        }
+
+        public void setPlaqueAuto(String plaqueAuto) {
+            this.plaqueAuto = plaqueAuto;
+        }
+
+        public String getCarBrand() {
+            return marqueVoiture;
+        }
+
+        public void setCarBrand(String marqueVoiture) {
+            this.marqueVoiture = marqueVoiture;
+        }
     }
-
-    // Constructeur avec paramètres
-    public Utilisateur(int idUtilisateur, String nom, String prenom, String email, String motDePasse,
-                       String numTel, String numeroPermis, TypeUtilisateur typeUtilisateur, Adresse adresse) {
-        this.idUtilisateur = idUtilisateur;
-        this.nom = nom;
-        this.prenom = prenom;
-        this.email = email;
-        this.motDePasse = motDePasse;
-        this.numTel = numTel;
-        this.numeroPermis = numeroPermis;
-        this.typeUtilisateur = typeUtilisateur;
-        this.adresse = adresse;
-    }
-
-    // Getters et setters
-    public int getIdUtilisateur() {
-        return idUtilisateur;
-    }
-
-    public void setIdUtilisateur(int idUtilisateur) {
-        this.idUtilisateur = idUtilisateur;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public String getPrenom() {
-        return prenom;
-    }
-
-    public void setPrenom(String prenom) {
-        this.prenom = prenom;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getMotDePasse() {
-        return motDePasse;
-    }
-
-    public void setMotDePasse(String motDePasse) {
-        this.motDePasse = motDePasse;
-    }
-
-    public String getNumTel() {
-        return numTel;
-    }
-
-    public void setNumTel(String numTel) {
-        this.numTel = numTel;
-    }
-
-    public String getNumeroPermis() {
-        return numeroPermis;
-    }
-
-    public void setNumeroPermis(String numeroPermis) {
-        this.numeroPermis = numeroPermis;
-    }
-
-    public TypeUtilisateur getTypeUtilisateur() {
-        return typeUtilisateur;
-    }
-
-    public void setTypeUtilisateur(TypeUtilisateur typeUtilisateur) {
-        this.typeUtilisateur = typeUtilisateur;
-    }
-
-    public Adresse getAdresse() {
-        return adresse;
-    }
-
-    public void setAdresse(Adresse adresse) {
-        this.adresse = adresse;
-    }
-
-}

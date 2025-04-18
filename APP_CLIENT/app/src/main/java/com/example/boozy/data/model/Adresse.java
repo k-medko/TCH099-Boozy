@@ -1,59 +1,77 @@
 package com.example.boozy.data.model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class Adresse {
-    private int idAdresse;
-    private String numeroCivique;
-    private String rue;
-    private String codePostal;
-    private String ville;
 
-    public Adresse(int idAdresse, String numeroCivique, String rue, String codePostal, String ville) {
-        this.idAdresse = idAdresse;
-        this.numeroCivique = numeroCivique;
-        this.rue = rue;
-        this.codePostal = codePostal;
-        this.ville = ville;
+    @SerializedName("civic")
+    @Expose
+    private String civic;
+
+    @SerializedName("apartment")
+    @Expose
+    private String apartment;
+
+    @SerializedName("street")
+    @Expose
+    private String street;
+
+    @SerializedName("city")
+    @Expose
+    private String city;
+
+    @SerializedName("postal_code")
+    @Expose
+    private String postalCode;
+
+    public Adresse(String civic, String apartment, String street, String city, String postalCode) {
+        this.civic = civic;
+        this.apartment = apartment;
+        this.street = street;
+        this.city = city;
+        this.postalCode = postalCode;
     }
 
-    // Getters et setters
-    public int getIdAdresse() {
-        return idAdresse;
+    public Adresse() {}
+
+    public String getCivic() {
+        return civic;
     }
 
-    public void setIdAdresse(int idAdresse) {
-        this.idAdresse = idAdresse;
+    public void setCivic(String civic) {
+        this.civic = civic;
     }
 
-    public String getNumeroCivique() {
-        return numeroCivique;
+    public String getApartment() {
+        return apartment;
     }
 
-    public void setNumeroCivique(String numeroCivique) {
-        this.numeroCivique = numeroCivique;
+    public void setApartment(String apartment) {
+        this.apartment = apartment;
     }
 
-    public String getRue() {
-        return rue;
+    public String getStreet() {
+        return street;
     }
 
-    public void setRue(String rue) {
-        this.rue = rue;
+    public void setStreet(String street) {
+        this.street = street;
     }
 
-    public String getCodePostal() {
-        return codePostal;
+    public String getCity() {
+        return city;
     }
 
-    public void setCodePostal(String codePostal) {
-        this.codePostal = codePostal;
+    public void setCity(String city) {
+        this.city = city;
     }
 
-    public String getVille() {
-        return ville;
+    public String getPostalCode() {
+        return postalCode;
     }
 
-    public void setVille(String ville) {
-        this.ville = ville;
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
     }
-
 }

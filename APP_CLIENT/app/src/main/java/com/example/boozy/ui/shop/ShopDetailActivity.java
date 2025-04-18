@@ -5,122 +5,162 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.boozy.R;
-import com.example.boozy.adapter.ProductAdapter;
 import com.example.boozy.adapter.CategoryAdapter;
+import com.example.boozy.adapter.ProductAdapter;
+import com.example.boozy.data.api.ApiService;
+import com.example.boozy.data.model.AvailabilityResponse;
 import com.example.boozy.data.model.Produit;
 import com.example.boozy.ui.client.ClientHomeActivity;
 import com.example.boozy.ui.client.PaiementActivity;
+import com.example.boozy.ui.client.ProfilClientActivity;
+import com.example.boozy.ui.order.SuiviCommandeActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ShopDetailActivity extends AppCompatActivity {
 
     private RecyclerView productsRecyclerView, categoryRecyclerView;
     private ProductAdapter productAdapter;
     private CategoryAdapter categoryAdapter;
-    private List<Produit> produitList;
-    private List<String> categoryList;
+    private List<Produit> produitList = new ArrayList<>();
+    private List<String> categoryList = new ArrayList<>();
+    private int storeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shop_detail);
 
-        // Effet plein écran
         setupFullScreen();
-
-        // Initialisation des vues
         initializeViews();
 
-        // Récupération du nom du magasin
         String shopName = getIntent().getStringExtra("shopName");
+        storeId = getIntent().getIntExtra("storeId", -1);
         displayShopName(shopName);
 
-        // Configuration des RecyclerViews
         configureRecyclerViews();
-
-        // Initialisation des catégories et produits
-        fetchCategoriesFromAPI();
-        fetchProductsFromAPI();
-
-        // Gestion de la barre de navigation inférieure
         setupBottomNavigation();
+
+        if (storeId != -1) {
+            fetchProductsFromAPI(storeId);
+        }
     }
 
-    // Méthode pour configurer l'affichage plein écran
     private void setupFullScreen() {
         Window window = getWindow();
-        window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(true);
+        } else {
+            window.getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            );
+        }
         window.setStatusBarColor(Color.TRANSPARENT);
-        window.setNavigationBarColor(getResources().getColor(R.color.brown));
+        window.setNavigationBarColor(Color.TRANSPARENT);
     }
 
-    // Initialisation des vues
     private void initializeViews() {
         productsRecyclerView = findViewById(R.id.productsRecyclerView);
         categoryRecyclerView = findViewById(R.id.categoryRecyclerView);
     }
 
-    // Affichage du nom du magasin
     private void displayShopName(String shopName) {
         TextView shopNameTextView = findViewById(R.id.magasinNomText);
-        if (shopName != null && shopName.startsWith("SAQ ")) {
-            String[] parts = shopName.split(" ", 2);
-            shopNameTextView.setText(parts.length > 1 ? parts[0] + "\n" + parts[1] : shopName);
-        } else {
+        if (shopName != null) {
             shopNameTextView.setText(shopName);
         }
     }
 
-    // Configuration des RecyclerViews pour produits et catégories
     private void configureRecyclerViews() {
-        // Configuration RecyclerView produits
-        productsRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        productsRecyclerView.setLayoutManager(new GridLayoutManager(this, 1));
+        productAdapter = new ProductAdapter(produitList);
+        productsRecyclerView.setAdapter(productAdapter);
 
-        // Configuration RecyclerView catégories
         categoryRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-
-        // Initialisation des listes de produits et catégories
-        produitList = new ArrayList<>();
-        categoryList = new ArrayList<>();
-
-        // Initialisation des adaptateurs
         categoryAdapter = new CategoryAdapter(categoryList, this::filterProducts);
-        productsRecyclerView.setAdapter(productAdapter = new ProductAdapter(produitList));
-
         categoryRecyclerView.setAdapter(categoryAdapter);
     }
 
-    // Récupérer les catégories depuis l'API (à compléter)
-    private void fetchCategoriesFromAPI() {
-        // Appel API pour récupérer les catégories et mettre à jour 'categoryList'
+    private void fetchProductsFromAPI(int shopId) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://4.172.252.189:5000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
+        ApiService apiService = retrofit.create(ApiService.class);
+        Call<List<AvailabilityResponse>> call = apiService.getAvailabilityByShop(shopId);
+
+        call.enqueue(new Callback<List<AvailabilityResponse>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<AvailabilityResponse>> call, @NonNull Response<List<AvailabilityResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    produitList.clear();
+
+                    for (AvailabilityResponse availability : response.body()) {
+                        Produit produit = new Produit(
+                                availability.getProductId(),
+                                availability.getProduct().getName(),
+                                availability.getProduct().getDescription(),
+                                availability.getProduct().getPrice(),
+                                availability.getProduct().getCategory(),
+                                String.valueOf(availability.getShopId())
+                        );
+                        produit.setQuantity(1);
+                        produitList.add(produit);
+                    }
+
+                    productAdapter.notifyDataSetChanged();
+                    updateCategoriesFromProducts();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<AvailabilityResponse>> call, @NonNull Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 
-    // Récupérer les produits depuis l'API (à compléter)
-    private void fetchProductsFromAPI() {
-        // Appel API pour récupérer les produits et remplir 'produitList'
+    private void updateCategoriesFromProducts() {
+        categoryList.clear();
+        List<String> unique = new ArrayList<>();
+
+        for (Produit produit : produitList) {
+            String category = produit.getCategory();
+            if (category != null && !unique.contains(category)) {
+                unique.add(category);
+            }
+        }
+
+        categoryList.add("Tous");
+        categoryList.addAll(unique);
+        categoryAdapter.notifyDataSetChanged();
     }
 
-    // Filtrer les produits par catégorie
     private void filterProducts(String category) {
         if (category.equals("Tous")) {
             productAdapter.updateProductList(produitList);
         } else {
             List<Produit> filteredList = new ArrayList<>();
             for (Produit produit : produitList) {
-                if (produit.getCategory().equals(category)) {
+                if (produit.getCategory().equalsIgnoreCase(category)) {
                     filteredList.add(produit);
                 }
             }
@@ -128,7 +168,6 @@ public class ShopDetailActivity extends AppCompatActivity {
         }
     }
 
-    // Configuration de la barre de navigation inférieure
     private void setupBottomNavigation() {
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setOnItemSelectedListener(item -> {
@@ -139,22 +178,36 @@ public class ShopDetailActivity extends AppCompatActivity {
             } else if (id == R.id.nav_orders) {
                 navigateToCart();
                 return true;
+            } else if (id == R.id.nav_profile) {
+                navigateToProfil();
+                return true;
+            } else if (id == R.id.nav_notifications) {
+                navigateToOrder();
+                return true;
             }
             return false;
         });
     }
 
-    // Naviguer vers la page d'accueil
     private void navigateToHome() {
-        Intent intent = new Intent(ShopDetailActivity.this, ClientHomeActivity.class);
+        Intent intent = new Intent(this, ClientHomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
     }
 
-    // Naviguer vers la page du panier
     private void navigateToCart() {
-        Intent intent = new Intent(ShopDetailActivity.this, PaiementActivity.class);
+        Intent intent = new Intent(this, PaiementActivity.class);
+        startActivity(intent);
+    }
+
+    private void navigateToProfil() {
+        Intent intent = new Intent(this, ProfilClientActivity.class);
+        startActivity(intent);
+    }
+
+    private void navigateToOrder() {
+        Intent intent = new Intent(this, SuiviCommandeActivity.class);
         startActivity(intent);
     }
 }

@@ -16,8 +16,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 import com.example.boozy.R;
 import com.example.boozy.adapter.PanierAdapter;
+import com.example.boozy.data.api.ApiService;
+import com.example.boozy.data.model.Adresse;
 import com.example.boozy.data.model.Commande;
 import com.example.boozy.data.model.PanierManager;
 import com.example.boozy.data.model.Produit;
@@ -34,32 +46,38 @@ public class PaiementActivity extends AppCompatActivity {
     private Button buttonPlaceOrder;
     private String numeroCommande = "#CMD" + System.currentTimeMillis();
 
+    private ImageView arrowNext, arrow;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_paiement);
 
-        // Effet plein écran
         setupFullScreen();
-
-        // Initialiser les vues
         initializeViews();
-        initPaiement();
-        initPanier();
 
-        // Gestion du bouton retour
+        arrowNext.setOnClickListener(v -> {
+            Intent intent = new Intent(PaiementActivity.this, ProfilClientActivity.class);
+            startActivity(intent);
+        });
+
+        arrow.setOnClickListener(v -> {
+            Intent intent = new Intent(PaiementActivity.this, ProfilClientActivity.class);
+            startActivity(intent);
+        });
+
+        initPaiement();
+        initAdresseLocale();
+
+        if (getIntent().getBooleanExtra("refresh", false)) {
+            initPanier();
+        }
+
         ImageButton backBtn = findViewById(R.id.buttonBack);
         backBtn.setOnClickListener(v -> onBackPressed());
 
-        // Placer la commande
         buttonPlaceOrder.setOnClickListener(v -> placeOrder());
-
-        // Redirection vers ModifierProfilClientActivity
-        ImageView arrowNext = findViewById(R.id.arrow_next);
-        arrowNext.setOnClickListener(v -> navigateToProfil());
-
-        ImageView arrow = findViewById(R.id.arrow);
-        arrow.setOnClickListener(v -> navigateToProfil());
     }
 
     private void setupFullScreen() {
@@ -72,7 +90,6 @@ public class PaiementActivity extends AppCompatActivity {
         }
     }
 
-    // Initialiser les vues
     private void initializeViews() {
         recyclerViewCommande = findViewById(R.id.recyclerViewCommande);
         sousTotalText = findViewById(R.id.sousTotalText);
@@ -81,49 +98,49 @@ public class PaiementActivity extends AppCompatActivity {
         adresseText = findViewById(R.id.adresseText);
         carteText = findViewById(R.id.carteText);
         buttonPlaceOrder = findViewById(R.id.buttonPlaceOrder);
+        arrowNext = findViewById(R.id.arrow_next);
+        arrow = findViewById(R.id.arrow);
+
     }
 
-    // Redirection vers la page de profil
-    private void navigateToProfil() {
-        Intent intent = new Intent(PaiementActivity.this, ProfilClientActivity.class);
-        startActivity(intent);
-    }
-
-    // Mise à jour des totaux
-    private void updateTotals(List<Produit> panier) {
-        double sousTotal = 0;
-        for (Produit p : panier) {
-            sousTotal += (p.getPrice() / 100.0) * p.getQuantity();
+    private void initPaiement() {
+        String stripeCard = UtilisateurManager.getInstance(getApplicationContext()).getCarteStripe();
+        if (stripeCard != null && !stripeCard.isEmpty()) {
+            carteText.setText(stripeCard);
+            buttonPlaceOrder.setEnabled(true);
+            buttonPlaceOrder.setBackgroundColor(getResources().getColor(R.color.brown));
+        } else {
+            carteText.setText("Ajouter votre carte Stripe");
+            buttonPlaceOrder.setEnabled(false);
+            buttonPlaceOrder.setBackgroundColor(Color.GRAY);
         }
-
-        double taxes = sousTotal * 0.15;
-        double total = sousTotal + taxes;
-
-        // Vérifier si le panier est vide pour réinitialiser les valeurs
-        if (panier.isEmpty()) {
-            sousTotal = 0;
-            taxes = 0;
-            total = 0;
-        }
-
-        sousTotalText.setText(String.format("$%.2f", sousTotal));
-        taxesText.setText(String.format("$%.2f", taxes));
-        totalText.setText(String.format("$%.2f", total));
     }
 
-    // Initialisation du panier local
+    private void initAdresseLocale() {
+        Adresse adresse = UtilisateurManager.getInstance(getApplicationContext()).getAdresse();
+        if (adresse != null) {
+            String adresseComplete = "";
+            if (!adresse.getApartment().isEmpty()) {
+                adresseComplete += adresse.getApartment() + "-";
+            }
+
+            adresseComplete += adresse.getCivic() + " " + adresse.getStreet() + ", "
+                    + adresse.getCity() + ", " + adresse.getPostalCode();
+
+            adresseText.setText(adresseComplete);
+        } else {
+            adresseText.setText("Adresse non disponible");
+        }
+    }
+
     private void initPanier() {
-        // Récupérer les produits depuis PanierManager (local)
         List<Produit> panier = PanierManager.getInstance(getApplicationContext()).getCart();
-
-        // Vérifier si le panier est vide
         if (panier.isEmpty()) {
             Toast.makeText(this, "Votre panier est vide", Toast.LENGTH_SHORT).show();
             updateTotals(panier);
             return;
         }
 
-        // Initialiser l'adaptateur avec le panier
         panierAdapter = new PanierAdapter(this, panier, updatedList -> {
             updateCart(updatedList);
             updateTotals(updatedList);
@@ -136,62 +153,105 @@ public class PaiementActivity extends AppCompatActivity {
         updateTotals(panier);
     }
 
-    // Mettre à jour le panier après modification
     private void updateCart(List<Produit> updatedList) {
-        PanierManager.getInstance(getApplicationContext()).clearCart();
-        for (Produit produit : updatedList) {
-            PanierManager.getInstance(getApplicationContext()).addProduct(produit);
+        PanierManager panierManager = PanierManager.getInstance(getApplicationContext());
+        panierManager.clearCart();
+
+        if (!updatedList.isEmpty()) {
+            String shopId = updatedList.get(0).getShopId();
+            panierManager.setCurrentShopId(shopId);
+
+            for (Produit produit : updatedList) {
+                panierManager.addProduct(produit);
+            }
         }
-        panierAdapter.updateProductList(updatedList);
+
+        panierAdapter.updateProductList(panierManager.getCart());
         panierAdapter.notifyDataSetChanged();
-        updateTotals(updatedList);
+        updateTotals(panierManager.getCart());
     }
 
-    // Placer la commande
+
+
+
+    private void updateTotals(List<Produit> panier) {
+        double sousTotal = 0;
+        for (Produit p : panier) {
+            sousTotal += (p.getPrice()) * p.getQuantity();
+        }
+
+        double taxes = sousTotal * 0.15;
+        double total = sousTotal + taxes;
+
+        if (panier.isEmpty()) {
+            sousTotal = 0;
+            taxes = 0;
+            total = 0;
+        }
+
+        sousTotalText.setText(String.format("$%.2f", sousTotal));
+        taxesText.setText(String.format("$%.2f", taxes));
+        totalText.setText(String.format("$%.2f", total));
+    }
+
     private void placeOrder() {
-        // Vérifier si le panier est vide avant de passer la commande
         List<Produit> panier = PanierManager.getInstance(getApplicationContext()).getCart();
         if (panier.isEmpty()) {
             Toast.makeText(this, "Votre panier est vide", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // APPEL À L'API ICI
-        // Envoyer la commande (numéro, panier, total) au serveur via un appel POST.
+        String email = UtilisateurManager.getInstance(this).getEmail();
+        String password = UtilisateurManager.getInstance(this).getPassword();
+        int shopId = Integer.parseInt(panier.get(0).getShopId());
 
-        // Création de la commande
-        Commande commande = new Commande(
-                numeroCommande,
-                null,
-                null,
-                totalText.getText().toString(),
-                null
-        );
-
-        // Envoi de la commande au serveur (à implémenter)
-        // Utiliser une requête POST pour envoyer la commande
-
-        // Si l'envoi est réussi, vider le panier local
-        PanierManager.getInstance(getApplicationContext()).clearCart();
-
-        // Redirection vers l'écran de suivi de commande
-        Intent intent = new Intent(PaiementActivity.this, SuiviCommandeActivity.class);
-        intent.putExtra("commande", commande);
-        startActivity(intent);
-    }
-
-    // Initialisation du paiement (vérification de la carte)
-    private void initPaiement() {
-        // Vérifier si une carte est enregistrée localement
-        String stripeCard = UtilisateurManager.getInstance(getApplicationContext()).getCarteStripe();
-        if (stripeCard != null && !stripeCard.isEmpty()) {
-            carteText.setText("Carte: " + stripeCard);
-            buttonPlaceOrder.setEnabled(true);
-            buttonPlaceOrder.setBackgroundColor(getResources().getColor(R.color.brown));
-        } else {
-            carteText.setText("Ajouter votre carte Stripe");
-            buttonPlaceOrder.setEnabled(false);
-            buttonPlaceOrder.setBackgroundColor(Color.GRAY);
+        ArrayList<Map<String, Object>> items = new ArrayList<>();
+        for (Produit produit : panier) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("product_id", produit.getId());
+            item.put("quantity", produit.getQuantity());
+            items.add(item);
         }
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("email", email);
+        body.put("password", password);
+        body.put("shop_id", shopId);
+        body.put("items", items);
+        body.put("payment_method", "credit_card");
+        body.put("card_name", "John Doe");
+        body.put("card_number", "4111111111111111");
+        body.put("CVC_card", "123");
+        body.put("expiry_date_month", 5);
+        body.put("expiry_date_year", 2026);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://4.172.252.189:5000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        ApiService api = retrofit.create(ApiService.class);
+        Call<Map<String, Object>> call = api.createOrder(body);
+
+        call.enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if (response.isSuccessful()) {
+                    PanierManager.getInstance(getApplicationContext()).clearCart();
+                    Toast.makeText(PaiementActivity.this, "Commande envoyée avec succès", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(PaiementActivity.this, SuiviCommandeActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(PaiementActivity.this, "Erreur lors de la commande", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                Toast.makeText(PaiementActivity.this, "Échec de connexion", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 }

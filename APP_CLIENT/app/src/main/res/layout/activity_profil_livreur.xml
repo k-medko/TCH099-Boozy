@@ -12,49 +12,53 @@
         android:gravity="center_horizontal"
         android:paddingBottom="24dp">
 
-        <!-- Barre du haut : flèche + titre -->
-        <LinearLayout
+        <!-- Barre du haut -->
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
+            android:layout_marginTop="10dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:gravity="center_vertical">
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/backButton"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="0dp"
                 android:src="@drawable/ic_arrow_back"
-                android:contentDescription="@string/retour" />
+                android:contentDescription="@string/retour"
+                app:tint="#000000"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true" />
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="@string/profil"
-                android:textStyle="bold"
                 android:textSize="18sp"
-                android:gravity="center"
-                style="@style/TextStyle"/>
-        </LinearLayout>
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:layout_centerInParent="true" />
+        </RelativeLayout>
 
-        <!-- Ligne séparatrice -->
+        <!-- Séparateur -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#CCCCCC" />
+            android:layout_height="0.7dp"
+            android:background="#E0E0E0" />
 
-        <!-- Icône véhicule -->
+        <!-- Icône -->
         <ImageView
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginTop="32dp"
             android:src="@drawable/ic_delivery_avatar"
             android:contentDescription="Icône de livraison"
-            app:tint="#5C3A2E" />
+            app:tint="#000000" />
 
-        <!-- Montant -->
+        <!-- Solde encadré -->
         <TextView
             android:id="@+id/soldeText"
             android:layout_width="wrap_content"
@@ -62,9 +66,13 @@
             android:text="254,33$"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#388E3C"
-            android:layout_marginTop="16dp" />
+            android:textColor="#000000"
+            android:layout_marginTop="16dp"
+            android:background="#F2F0F0"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="6dp" />
 
+        <!-- Bouton Modifier -->
         <LinearLayout
             android:id="@+id/btnModifierCarte"
             android:layout_width="wrap_content"
@@ -72,20 +80,12 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_marginTop="16dp"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp"
             android:background="@drawable/button_square"
             android:elevation="2dp"
             android:clickable="true"
             android:focusable="true">
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_edit"
-                android:layout_marginEnd="8dp"
-                android:contentDescription="Modifier"
-                app:tint="#FFFFFF" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -96,141 +96,143 @@
                 android:textSize="15sp" />
         </LinearLayout>
 
-        <!-- Bouton Déconnexion -->
-        <TextView
-            android:id="@+id/btnDeconnexion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/se_deconnecter"
-            android:textColor="#C62828"
-            android:textStyle="bold"
-            android:textSize="14sp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Infos utilisateur -->
+        <!-- Séparateur -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#E6E6E6"
             android:layout_marginTop="32dp" />
 
-        <!-- Ligne : Nom -->
+        <!-- Infos utilisateur -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp">
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
+            <!-- Nom -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/nom"
-                android:textStyle="bold"
-                android:textColor="#000000" />
+                android:orientation="horizontal"
+                android:padding="16dp">
 
-            <TextView
-                android:id="@+id/nomText"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/nom"
+                    android:textStyle="bold"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/nomText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#000000" />
+            </LinearLayout>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
+
+            <!-- Prénom -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#000000" />
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/prenom"
+                    android:textStyle="bold"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/prenomText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#000000" />
+            </LinearLayout>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
+
+            <!-- Téléphone -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/telephone"
+                    android:textStyle="bold"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/telephoneText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#000000" />
+            </LinearLayout>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
+
+            <!-- Plaque -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/num_de_plaque"
+                    android:textStyle="bold"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/plaqueText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#000000" />
+            </LinearLayout>
+
+            <!-- Courriel -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/courriel"
+                    android:textStyle="bold"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/emailText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#000000" />
+            </LinearLayout>
         </LinearLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
-
-        <!-- Ligne : Prénom -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Bouton Déconnexion -->
+        <TextView
+            android:id="@+id/btnDeconnexion"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="@string/prenom"
-                android:textStyle="bold"
-                android:textColor="#000000" />
-
-            <TextView
-                android:id="@+id/prenomText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#000000" />
-        </LinearLayout>
-
-        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
-
-        <!-- Ligne : Téléphone -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="@string/telephone"
-                android:textStyle="bold"
-                android:textColor="#000000" />
-
-            <TextView
-                android:id="@+id/telephoneText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#000000" />
-        </LinearLayout>
-
-        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
-
-        <!-- Ligne : Courriel -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="@string/courriel"
-                android:textStyle="bold"
-                android:textColor="#000000" />
-
-            <TextView
-                android:id="@+id/emailText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#000000" />
-        </LinearLayout>
-
-        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
-
-        <!-- Ligne : Permis de conduire -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Permis de conduire"
-                android:textStyle="bold"
-                android:textColor="#000000" />
-
-            <TextView
-                android:id="@+id/permisText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#000000" />
-        </LinearLayout>
+            android:text="@string/se_deconnecter"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginTop="48dp"
+            android:layout_marginBottom="24dp" />
     </LinearLayout>
 </ScrollView>

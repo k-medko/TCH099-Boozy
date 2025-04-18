@@ -29,16 +29,16 @@ public class CommandeDisponibleAdapter extends RecyclerView.Adapter<CommandeDisp
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView numeroCommande, tempsEstimeText, paiementText;
+        TextView numeroCommande, nomMagasin, adresseText, totalText;
         Button accepterButton;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             numeroCommande = itemView.findViewById(R.id.numeroCommande);
-            tempsEstimeText = itemView.findViewById(R.id.tempsEstimeText);
-            paiementText = itemView.findViewById(R.id.paiementText);
+            nomMagasin = itemView.findViewById(R.id.nomMagasin);
+            adresseText = itemView.findViewById(R.id.adresseText);
+            totalText = itemView.findViewById(R.id.totalText);
             accepterButton = itemView.findViewById(R.id.accepterButton);
-
         }
     }
 
@@ -53,23 +53,12 @@ public class CommandeDisponibleAdapter extends RecyclerView.Adapter<CommandeDisp
     public void onBindViewHolder(@NonNull CommandeDisponibleAdapter.ViewHolder holder, int position) {
         Commande commande = commandes.get(position);
 
-        // Numéro de commande
-        holder.numeroCommande.setText("Commande " + commande.getNumeroCommande());
+        holder.numeroCommande.setText("Commande #" + commande.getNumeroCommande());
+        holder.nomMagasin.setText(commande.getMagasin());
+        holder.adresseText.setText(commande.getAdresseLivraison());
+        holder.totalText.setText(commande.getMontant());
 
-        // Temps estimé avec fallback
-        String temps = commande.getTempsEstime();
-        if (temps != null && !temps.isEmpty()) {
-            holder.tempsEstimeText.setText("Temps approximatif : " + temps);
-        } else {
-            holder.tempsEstimeText.setText("Temps approximatif : Calcul en cours...");
-        }
-
-        // Montant a calculer
-        holder.paiementText.setText("Montant : " + commande.getMontant());
-
-        // Action bouton
         holder.accepterButton.setOnClickListener(v -> listener.onAccepterClicked(commande));
-
     }
 
     @Override

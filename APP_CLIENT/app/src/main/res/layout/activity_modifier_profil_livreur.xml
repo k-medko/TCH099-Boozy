@@ -92,6 +92,30 @@
 
         <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#DDDDDD" />
 
+        <!-- Champ : Plaque -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/num_de_plaque"
+            android:textStyle="bold"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="4dp"
+            style="@style/TextStyle"/>
+        <EditText
+            android:id="@+id/editPlaque"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/num_de_plaque"
+            android:inputType="textEmailAddress"
+            android:minHeight="48dp"
+            android:paddingVertical="12dp"
+            android:paddingHorizontal="24dp"
+            android:background="@android:color/transparent" />
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#DDDDDD" />
+
         <!-- Champ : Courriel -->
         <TextView
             android:layout_width="match_parent"
@@ -115,6 +139,30 @@
             android:background="@android:color/transparent" />
 
         <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#DDDDDD" />
+
+        <!-- Mot de passe -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="12dp">
+
+            <TextView
+                android:text="@string/mot_de_passe"
+                android:textStyle="bold"
+                style="@style/TextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <EditText
+                android:id="@+id/editPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/mdp"
+                android:inputType="textPassword"
+                android:background="@null"
+                android:minHeight="48dp" />
+        </LinearLayout>
 
         <!-- Bouton Enregistrer -->
         <androidx.appcompat.widget.AppCompatButton
