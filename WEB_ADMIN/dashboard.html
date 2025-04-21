@@ -168,6 +168,7 @@
     nav.show {
       left: 0;
     }
+    
     nav a {
       display: flex;
       align-items: center;
@@ -257,6 +258,7 @@
     footer a:hover {
       text-decoration: underline;
     }
+
   </style>
 </head>
 <body>
@@ -265,7 +267,7 @@
   <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
   <header>
     <div class="logo-container">
-      <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px !important; height: 60px !important;"></a> Gestionnaire </h1>
+      <h1><a href="dashboard.html"><img src="static/LOGO 1.png" alt="BOOZY Logo" style="width: 60px !important; height: 60px !important;"></a> Gestionnaire </h1>
     </div>
     <div class="search-bar">
       <input type="text" id="searchBar" placeholder="Rechercher...">
@@ -280,27 +282,28 @@
   </header>
   <div class="main">
     <nav id="sidebar">
-      <a href="dashboard.html" class="active"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
-      <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
-      <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
-      <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
-      <a href="users.html"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+      <a href="dashboard.html" class="active"><img src="static/Frame 218.png" alt="Accueil">Accueil</a>
+      <a href="stores.html"><img src="static/store-alt.png" alt="Magasins">Magasins</a>
+      <a href="orders.html"><img src="static/border-all.png" alt="Commandes">Commandes</a>
+      <a href="pageCommande.html"><img src="static/Icon_Order-2.png" alt="Créer commande">Créer une commande</a>
+      <a href="products.html"><img src="static/wine-bottle.png" alt="Produits">Produits</a>
+      <a href="users.html"><img src="static/users.png" alt="Utilisateurs">Utilisateurs</a>
     </nav>
     <section class="content">
       <div class="card" onclick="window.location.href='orders.html#revenus'">
-        <div class="card-icon"><img src="assets/image/Group 148.png" alt="Revenue"></div>
+        <div class="card-icon"><img src="static/Group 148.png" alt="Revenue"></div>
         <div class="card-title">Revenus totaux</div>
       </div>
       <div class="card" onclick="window.location.href='orders.html#total-commandes'">
-        <div class="card-icon"><img src="assets/image/Icon_Order.png" alt="Commandes"></div>
+        <div class="card-icon"><img src="static/Icon_Order.png" alt="Commandes"></div>
         <div class="card-title">Commandes totales</div>
       </div>
       <div class="card" onclick="window.location.href='orders.html#livraisons'">
-        <div class="card-icon"><img src="assets/image/icon Delivered.png" alt="Livraisons"></div>
+        <div class="card-icon"><img src="static/icon Delivered.png" alt="Livraisons"></div>
         <div class="card-title">Livraisons totales</div>
       </div>
       <div class="card" onclick="window.location.href='orders.html#annulees'">
-        <div class="card-icon"><img src="assets/image/Icon_Order-2.png" alt="Annulées"></div>
+        <div class="card-icon"><img src="static/Icon_Order-2.png" alt="Annulées"></div>
         <div class="card-title">Commandes annulées</div>
       </div>
     </section>
@@ -312,7 +315,7 @@
 </div>
 <script>
   function switchLanguage() {
-    window.location.href = "dashboard_en.html";
+    window.location.href = "./english/dashboard_en.html";
   }
   function toggleSidebar() {
     document.getElementById("sidebar").classList.toggle("show");

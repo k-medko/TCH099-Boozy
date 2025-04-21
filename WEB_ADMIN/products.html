@@ -63,6 +63,49 @@
     .delete-btn { background-color: var(--danger); color: white; }
     .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 1000; }
     .modal input { margin-bottom: 10px; width: 100%; padding: 8px; border: 1px solid var(--gray-border); border-radius: 6px; }
+    .form-btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background-color: var(--white);
+      border: 1px solid var(--gray-border);
+      border-radius: 999px;
+      padding: 4px 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .search-bar input {
+      border: none;
+      outline: none;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 999px;
+      width: 160px;
+    }
+    .search-bar button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+    .search-bar button:hover {
+      background-color: white;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
   </style>
 </head>
 <body>
@@ -70,15 +113,20 @@
     <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
     <nav id="sidebar">
-      <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
-      <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
-      <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
-      <a href="products.html" class="active"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
-      <a href="users.html"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+      <a href="dashboard.html"><img src="static/Frame 218.png" alt="Accueil">Accueil</a>
+      <a href="stores.html"><img src="static/store-alt.png" alt="Magasins">Magasins</a>
+      <a href="orders.html"><img src="static/border-all.png" alt="Commandes">Commandes</a>
+      <a href="pageCommande.html"><img src="static/Icon_Order-2.png" alt="Créer commande">Créer une commande</a>
+      <a href="products.html" class="active"><img src="static/wine-bottle.png" alt="Produits">Produits</a>
+      <a href="users.html"><img src="static/users.png" alt="Utilisateurs">Utilisateurs</a>
     </nav>
     <header>
       <div class="logo-container">
-        <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Produits SAQ</h1>
+        <h1><a href="dashboard.html"><img src="static/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Produits SAQ</h1>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="searchBar" placeholder="Rechercher...">
+        <button type="submit">Recherche</button>
       </div>
       <div class="header-controls">
         <button onclick="switchLanguage()" class="lang-btn">🌐 EN</button>
@@ -89,94 +137,123 @@
     <div class="main">
       <div class="form-box">
         <h2>Ajouter un produit</h2>
-        <input type="text" id="productCode" placeholder="Code produit (ID)">
         <input type="text" id="productName" placeholder="Nom">
+        <select id="productCategory"></select>
         <input type="text" id="productDesc" placeholder="Description">
-        <select id="productCategory">
-          <option>Vin</option><option>Spiritueux</option><option>Champagne et mousseux</option>
-          <option>Cooler et cocktail prémixé</option><option>Cidre</option><option>Porto et vin fortifié</option>
-          <option>Bière</option><option>Saké</option><option>Vin de dessert</option>
-          <option>Apéritif</option><option>Hydromel</option><option>Cadeaux et accessoires</option>
-          <option>Poiré</option>
-        </select>
         <input type="text" id="productPrice" placeholder="Prix">
-        <input type="text" id="productAvailability" placeholder="Disponibilité">
-        <input type="text" id="promoCode" placeholder="Code promo">
-        <input type="text" id="promoDesc" placeholder="Description promo">
-        <input type="text" id="promoReduction" placeholder="Réduction (%)">
-        <input type="date" id="promoExpiration">
         <button onclick="addProduct()">Ajouter</button>
       </div>
-
       <div class="product-list-box" id="productList"></div>
     </div>
 
     <div class="modal" id="editModal">
       <h3>Modifier le produit</h3>
-      <input type="text" id="editCode" placeholder="Code produit">
+      <label for="editName">Nom</label>
       <input type="text" id="editName" placeholder="Nom">
+
+      <label for="editCategory">Catégorie</label>
+      <select id="editCategory"></select>
+
+      <label for="editDesc">Description</label>
       <input type="text" id="editDesc" placeholder="Description">
+
+      <label for="editPrice">Prix</label>
       <input type="text" id="editPrice" placeholder="Prix">
-      <input type="text" id="editAvailability" placeholder="Disponibilité">
-      <input type="text" id="editPromoCode" placeholder="Code promo">
-      <input type="text" id="editPromoDesc" placeholder="Description promo">
-      <input type="text" id="editPromoReduction" placeholder="Réduction (%)">
-      <input type="date" id="editPromoExpiration">
-      <button onclick="validerEditionProduit()">Valider</button>
+
+      <button class="form-btn" onclick="validerEditionProduit()">Valider</button>
     </div>
-  
 
     <footer>
       <p><strong>© 2025 Boozy Inc.</strong> Tous droits réservés.</p>
       <p><a href="mailto:support@boozy.com">support@boozy.com</a> &nbsp; | &nbsp; 514-652-3145</p>
     </footer>
   </div>
+
   <script>
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("show");
       document.getElementById("overlay").classList.toggle("show");
     }
+
     const categories = {};
     let produitActuel = null;
 
     function fetchProductsFromAPI() {
-      fetch("http://4.172.255.120:5000/getProducts")
-        .then(res => res.json())
-        .then(data => {
-          data.forEach(product => {
-            const cat = product.category || 'Inconnu';
-            if (!categories[cat]) categories[cat] = [];
-            categories[cat].push(product);
-          });
-          renderAllProducts();
-        })
-        .catch(err => console.error("Erreur lors de la récupération des produits:", err));
-    }
+  const productList = document.getElementById('productList');
+  productList.innerHTML = "";
+  for (const key in categories) delete categories[key]; // 👈 Vider proprement
 
-    function renderAllProducts() {
-      const productList = document.getElementById('productList');
-      productList.innerHTML = '';
-      Object.entries(categories).forEach(([cat, products]) => {
-        products.forEach((product, index) => {
-          const div = document.createElement('div');
-          div.className = 'product-entry';
-          div.innerHTML = `
-            <div>
-              <p><strong>Nom:</strong> ${product.name}</p>
-              <p><strong>Catégorie:</strong> ${cat}</p>
-              <p><strong>Description:</strong> ${product.description}</p>
-              <p><strong>Prix:</strong> ${product.price}</p>
-              <p><strong>Disponibilité:</strong> ${product.availability}</p>
-              ${product.promo ? `<p><strong>Promo:</strong> ${product.promo.code} - ${product.promo.reduction}%</p>` : ''}
-            </div>
-            <div class="entry-actions">
-              <button class="edit-btn" onclick="editProduct('${cat}', ${index})">Modifier</button>
-              <button class="delete-btn" onclick="deleteProduct('${cat}', ${index})">Supprimer</button>
-            </div>`;
-          productList.appendChild(div);
-        });
+  fetch("http://4.172.252.189:5000/getProducts")
+    .then(res => res.json())
+    .then(data => {
+      data.forEach(product => {
+        const cat = product.category || 'Inconnu';
+        if (!categories[cat]) categories[cat] = [];
+        categories[cat].push(product);
+      });
+      remplirCategoriesDansSelect();
+      renderAllProducts();
+    })
+    .catch(err => console.error("Erreur lors de la récupération des produits:", err));
+}
+
+
+    function remplirCategoriesDansSelect() {
+      const selectEdit = document.getElementById('editCategory');
+      const selectAdd = document.getElementById('productCategory');
+      selectEdit.innerHTML = '';
+      selectAdd.innerHTML = '';
+
+      const uniqueCategories = Object.keys(categories).sort((a, b) => a.localeCompare(b));
+      uniqueCategories.forEach(cat => {
+        const optionEdit = document.createElement('option');
+        const optionAdd = document.createElement('option');
+        optionEdit.value = cat;
+        optionAdd.value = cat;
+        optionEdit.textContent = optionAdd.textContent = cat;
+        selectEdit.appendChild(optionEdit);
+        selectAdd.appendChild(optionAdd);
       });
     }
+
+    function renderAllProducts(filtreTexte = "") {
+  const productList = document.getElementById('productList');
+  productList.innerHTML = '';
+
+  const filtre = filtreTexte.trim().toLowerCase();
+
+  Object.entries(categories).forEach(([cat, products]) => {
+    products.forEach((product, index) => {
+      const nom = product.name.toLowerCase();
+      const desc = product.description.toLowerCase();
+      const prix = String(product.price).toLowerCase();
+      const catLower = cat.toLowerCase();
+
+      if (
+        nom.includes(filtre) ||
+        desc.includes(filtre) ||
+        prix.includes(filtre) ||
+        catLower.includes(filtre)
+      ) {
+        const div = document.createElement('div');
+        div.className = 'product-entry';
+        div.innerHTML = `
+          <div>
+            <p><strong>Nom:</strong> ${product.name}</p>
+            <p><strong>Catégorie:</strong> ${cat}</p>
+            <p><strong>Description:</strong> ${product.description}</p>
+            <p><strong>Prix:</strong> ${product.price}$</p>
+          </div>
+          <div class="entry-actions">
+            <button class="edit-btn" onclick="editProduct('${cat}', ${index})">Modifier</button>
+            <button class="delete-btn" onclick="deleteProduct('${cat}', ${index})">Supprimer</button>
+          </div>`;
+        productList.appendChild(div);
+      }
+    });
+  });
+}
+
 
     function deleteProduct(cat, index) {
       categories[cat].splice(index, 1);
@@ -186,73 +263,133 @@
     function editProduct(cat, index) {
       produitActuel = { cat, index };
       const produit = categories[cat][index];
-      document.getElementById('editCode').value = produit.id;
       document.getElementById('editName').value = produit.name;
+      document.getElementById('editCategory').value = produit.category;
       document.getElementById('editDesc').value = produit.description;
       document.getElementById('editPrice').value = produit.price;
-      document.getElementById('editAvailability').value = produit.availability;
-      document.getElementById('editPromoCode').value = produit.promo?.code || '';
-      document.getElementById('editPromoDesc').value = produit.promo?.desc || '';
-      document.getElementById('editPromoReduction').value = produit.promo?.reduction || '';
-      document.getElementById('editPromoExpiration').value = produit.promo?.expiration || '';
       document.getElementById('editModal').style.display = 'block';
     }
 
     function validerEditionProduit() {
-      if (!produitActuel) return;
-      const { cat, index } = produitActuel;
-      const produit = categories[cat][index];
-      produit.id = document.getElementById('editCode').value;
-      produit.name = document.getElementById('editName').value;
-      produit.description = document.getElementById('editDesc').value;
-      produit.price = document.getElementById('editPrice').value;
-      produit.availability = document.getElementById('editAvailability').value;
-      const code = document.getElementById('editPromoCode').value;
-      produit.promo = code ? {
-        code,
-        desc: document.getElementById('editPromoDesc').value,
-        reduction: document.getElementById('editPromoReduction').value,
-        expiration: document.getElementById('editPromoExpiration').value
-      } : null;
+  if (!produitActuel) return;
+  const { cat, index } = produitActuel;
+  const produit = categories[cat][index];
 
+  const newName = document.getElementById('editName').value;
+  const newCategory = document.getElementById('editCategory').value;
+  const newDesc = document.getElementById('editDesc').value;
+  const newPrice = parseFloat(document.getElementById('editPrice').value);
+
+  const updatedData = {
+    admin_email: "edwar@boozy.com",
+    admin_password: "adminpass",
+    product_id: produit.product_id, // identifiant requis pour la modification
+    name: newName,
+    description: newDesc,
+    price: newPrice,
+    category: newCategory,
+    alcohol: produit.alcohol || 0 // ou un input si tu veux le modifier aussi
+  };
+
+  modifierProduit(updatedData).then(response => {
+    if (response.status === "success") {
+      alert("Produit modifié avec succès !");
+      fetchProductsFromAPI(); // recharge depuis l'API
+      produitActuel = null;
       document.getElementById('editModal').style.display = 'none';
-      renderAllProducts();
+    } else {
+      alert("Échec de la modification !");
+      console.error("Erreur serveur:", response);
     }
+  }).catch(error => {
+    alert("Erreur réseau !");
+    console.error(error);
+  });
+}
 
-    function addProduct() {
-      const id = document.getElementById('productCode').value;
-      const name = document.getElementById('productName').value;
-      const description = document.getElementById('productDesc').value;
-      const category = document.getElementById('productCategory').value;
-      const price = document.getElementById('productPrice').value;
-      const availability = document.getElementById('productAvailability').value;
-      const promoCode = document.getElementById('promoCode').value;
-      const promoDesc = document.getElementById('promoDesc').value;
-      const promoReduction = document.getElementById('promoReduction').value;
-      const promoExpiration = document.getElementById('promoExpiration').value;
 
-      const product = {
-        id, name, description, price, availability,
-        promo: promoCode ? {
-          code: promoCode,
-          desc: promoDesc,
-          reduction: promoReduction,
-          expiration: promoExpiration
-        } : null
-      };
 
-      if (!categories[category]) categories[category] = [];
-      categories[category].push(product);
-      renderAllProducts();
-      document.querySelectorAll('.form-box input').forEach(i => i.value = '');
-      document.getElementById('productCategory').value = 'Vin';
+function addProduct() {
+  const name = document.getElementById('productName').value;
+  const description = document.getElementById('productDesc').value;
+  const category = document.getElementById('productCategory').value;
+  const price = parseFloat(document.getElementById('productPrice').value);
+
+  const productData = {
+    admin_email: "edwar@boozy.com",
+    admin_password: "adminpass",
+    name: name,
+    description: description,
+    category: category,
+    price: price,
+    alcohol: 0 // ou tu peux ajouter un champ input pour cette valeur
+  };
+
+  fetch("http://4.172.252.189:5000/admin/createProduct", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(productData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log("Produit créé:", data);
+    alert("Produit ajouté avec succès !");
+    fetchProductsFromAPI(); // pour rafraîchir la liste
+    document.querySelectorAll('.form-box input').forEach(i => i.value = '');
+    document.getElementById('productCategory').selectedIndex = 0;
+  })
+  .catch(error => {
+    console.error("Erreur lors de l'ajout du produit:", error);
+    alert("Échec de l'ajout !");
+  });
+}
+
+function modifierProduit(productData) {
+  return fetch("http://4.172.252.189:5000/admin/modifyProduct", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(productData)
+  }).then(res => res.json());
+}
+
+function deleteProduct(cat, index) {
+  const produit = categories[cat][index];
+
+  if (!confirm(`Supprimer le produit : ${produit.name} ?`)) return;
+
+  fetch("http://4.172.252.189:5000/admin/deleteProduct", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      admin_email: "edwar@boozy.com",
+      admin_password: "adminpass",
+      product_id: produit.product_id
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === "success") {
+      alert("Produit supprimé avec succès !");
+      fetchProductsFromAPI(); // Recharge la liste à jour
+    } else {
+      alert("Échec de la suppression.");
+      console.error("Réponse:", data);
     }
+  })
+  .catch(err => {
+    alert("Erreur réseau !");
+    console.error(err);
+  });
+}
+
+
+document.getElementById('searchBar').addEventListener('input', function () {
+  const value = this.value;
+  renderAllProducts(value);
+});
+
 
     window.onload = fetchProductsFromAPI;
   </script>
 </body>
 </html>
-
-
-
-

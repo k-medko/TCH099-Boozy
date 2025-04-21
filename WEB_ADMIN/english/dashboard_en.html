@@ -203,7 +203,7 @@
     <h1><img src="assets/image/LOGO 1.png" alt="Logo" style="height: 120px;width: 120px;"> Manager</h1>
     <input type="text" id="searchBar" placeholder="Search..." class="search-input">
     <div style="display: flex; align-items: center; gap: 20px;">
-      <button onclick="switchLanguage()" class="lang-btn" style="padding: 3px 8px;">FR</button>
+      <button onclick="switchLanguage()" class="lang-btn" style="padding: 3px 8px;"> 🌐 FR</button>
       <button class="logout" id="btn-logout">Logout</button>
     </div>
   </header>
@@ -213,6 +213,7 @@
       <a href="#" id="btn-home"><img src="assets/image/Frame 218.png" alt="Home"> Home</a>
       <a href="#" id="btn-stores"><img src="assets/image/store-alt.png" alt="Stores"> Stores</a>
       <a href="#" id="btn-orders"><img src="assets/image/border-all.png" alt="Orders"> Orders</a>
+      <a href="#" id="btn-create-order"><img src="assets/image/border-plus.png" alt="Create Order"> Create Order</a>
       <a href="#" id="btn-menu"><img src="assets/image/wine-bottle.png" alt="Products"> Products</a>
       <a href="#" id="btn-users"><img src="assets/image/users.png" alt="Users"> Users</a>
     </nav>
@@ -273,6 +274,7 @@
     "btn-home": "dashboard_en.html",
     "btn-stores": "stores_en.html",
     "btn-orders": "orders_en.html",
+    "btn-create-order":  "pageCommande_en.html",
     "btn-menu": "products_en.html",
     "btn-users": "users_en.html",
     "btn-logout": "accueil_en.html"
@@ -289,6 +291,7 @@
 
   function switchLanguage() {
     window.location.href = "dashboard.html";
+
   }
 </script>
 </body>

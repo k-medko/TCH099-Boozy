@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Stock du magasin</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
-  <style>
+ <style>
     :root {
       --primary: #34495e;
       --primary-hover: #2c3e50;
@@ -287,7 +287,7 @@
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
     <header>
       <div class="logo-container">
-        <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> <span id="magasinNom">Stock</span></h1>
+        <h1><a href="dashboard.html"><img src="static/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> <span id="magasinNom">Stock</span></h1>
       </div>
       <div class="search-bar">
         <input type="text" id="searchBar" placeholder="Rechercher un produit...">
@@ -300,9 +300,10 @@
     </header>
 
     <nav id="sidebar">
-      <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
+      <a href="dashboard.html"><img src="static/Frame 218.png" alt="Accueil">Accueil</a>
       <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
       <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
+      <a href="pageCommande.html"><img src="static/Icon_Order-2.png" alt="Créer commande">Créer une commande</a>
       <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
       <a href="users.html"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
     </nav>
@@ -330,68 +331,91 @@
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const magasinNom = urlParams.get("nom");
+    const storeId = parseInt(urlParams.get("id"));
+
     document.getElementById("magasinNom").textContent = `Stock – ${magasinNom}`;
 
-    const produitsTous = [
-      { id: 1, nom: "Vin Rouge" },
-      { id: 2, nom: "Tequila" },
-      { id: 3, nom: "Whisky" },
-      { id: 4, nom: "Cidre de glace" },
-      { id: 5, nom: "Gin" }
-    ];
+    let produitsMagasin = [];
+    let produitsAutres = [];
 
-    const produitsVendables = [
-      { id: 1, nom: "Vin Rouge", quantite: 12 },
-      { id: 3, nom: "Whisky", quantite: 7 }
-    ];
+    async function fetchStock() {
+      try {
+        const res = await fetch("http://4.172.252.189:5000/getAvailability");
+        const data = await res.json();
 
-    function afficherProduits() {
+        produitsMagasin = data.filter(item => item.shop_id === storeId);
+        produitsAutres = data.filter(item => item.shop_id !== storeId);
+
+        renderProducts(produitsMagasin, produitsAutres);
+      } catch (error) {
+        console.error("❌ Erreur lors du chargement du stock:", error);
+      }
+    }
+
+    function renderProducts(vendus, autres) {
       const divVendables = document.getElementById("produitsVendus");
       const divDisponibles = document.getElementById("produitsDisponibles");
       divVendables.innerHTML = "";
       divDisponibles.innerHTML = "";
 
-      produitsVendables.forEach(prod => {
+      vendus.forEach(item => {
         const ligne = document.createElement("div");
         ligne.className = "product-row";
         ligne.innerHTML = `
-          <span>${prod.nom}</span>
+          <span>${item.product.name}</span>
           <div>
-            <input type="number" value="${prod.quantite}" min="0" class="quantity-select">
-            <button class="action-btn remove-btn" onclick="retirerDuStock(${prod.id})">Retirer</button>
+            <input type="number" value="${item.quantity}" min="0" class="quantity-select" id="vendu-${item.product_id}">
+            <button class="action-btn remove-btn" onclick="modifierQuantite(${item.product_id}, 0, '${item.product.name}')">Retirer</button>
           </div>
         `;
         divVendables.appendChild(ligne);
       });
 
-      const idsVendables = produitsVendables.map(p => p.id);
-      const produitsNonVendables = produitsTous.filter(p => !idsVendables.includes(p.id));
-
-      produitsNonVendables.forEach(prod => {
+      autres.forEach(item => {
         const ligne = document.createElement("div");
         ligne.className = "product-row";
         ligne.innerHTML = `
-          <span>${prod.nom}</span>
-          <button class="action-btn add-btn" onclick="ajouterAuStock(${prod.id})">Ajouter</button>
+          <div style="display:flex; flex-direction: column;">
+            <span><strong>${item.product.name}</strong></span>
+            <small style="font-size: 12px;">Quantité : ${item.quantity} (Magasin : ${item.shop?.name || 'ID ' + item.shop_id})</small>
+          </div>
+          <button class="action-btn add-btn" onclick="modifierQuantite(${item.product_id}, 1, '${item.product.name}')">Ajouter</button>
         `;
         divDisponibles.appendChild(ligne);
       });
     }
 
-    function retirerDuStock(id) {
-      const index = produitsVendables.findIndex(p => p.id === id);
-      if (index !== -1) {
-        produitsVendables.splice(index, 1);
-        afficherProduits();
-      }
-    }
+    function modifierQuantite(productId, quantity, productName) {
+      const body = {
+        admin_email: "edwar@boozy.com",
+        admin_password: "adminpass",
+        shop_id: storeId,
+        products: [
+          {
+            product_id: productId,
+            quantity: quantity
+          }
+        ]
+      };
 
-    function ajouterAuStock(id) {
-      const produit = produitsTous.find(p => p.id === id);
-      if (produit) {
-        produitsVendables.push({ ...produit, quantite: 1 });
-        afficherProduits();
-      }
+      fetch("http://4.172.252.189:5000/admin/modifyAvailability", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          alert(`✅ Produit modifié : ${productName}`);
+          fetchStock();
+        } else {
+          alert(`❌ Erreur : ${data.message || 'modification échouée'}`);
+        }
+      })
+      .catch(error => {
+        console.error("❌ Erreur réseau:", error);
+        alert("❌ Erreur de communication avec le serveur.");
+      });
     }
 
     function toggleSidebar() {
@@ -400,11 +424,14 @@
     }
 
     function switchLanguage() {
-      window.location.href = "stock_magasin_en.html";
+      window.location.href = "english/stock_magasin_en.html";
     }
 
-    window.onload = afficherProduits;
+    window.onload = fetchStock;
   </script>
+  
+  
+  
 </body>
 </html>
 
