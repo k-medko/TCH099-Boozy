@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Titre -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -21,10 +20,6 @@
             android:gravity="center"
             style="@style/TextStyle" />
 
-        <!-- SECTION INFOS AVEC LIGNES -->
-        <!-- Chaque champ est dans un bloc séparé avec ligne grise dessous -->
-
-        <!-- Nom -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -47,9 +42,12 @@
                 android:background="@null"
                 android:minHeight="48dp" />
         </LinearLayout>
-        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#DDDDDD"/>
 
-        <!-- Prénom -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -79,7 +77,20 @@
             android:layout_height="1dp"
             android:background="#DDDDDD"/>
 
-        <!-- Rue -->
+        <EditText
+            android:id="@+id/inputAdresseGoogle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Rechercher une adresse"
+            android:focusable="false"
+            android:clickable="true"
+            android:background="@null"
+            android:minHeight="48dp"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="24dp"
+            android:drawableStart="@drawable/ic_search" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -103,7 +114,6 @@
                 android:minHeight="48dp" />
         </LinearLayout>
 
-        <!-- Numéro civique -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -132,7 +142,6 @@
             android:layout_height="1dp"
             android:background="#DDDDDD"/>
 
-        <!-- Rue -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -161,7 +170,6 @@
             android:layout_height="1dp"
             android:background="#DDDDDD"/>
 
-        <!-- Code postal -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -190,7 +198,6 @@
             android:layout_height="1dp"
             android:background="#DDDDDD"/>
 
-        <!-- Ville -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -219,7 +226,6 @@
             android:layout_height="1dp"
             android:background="#DDDDDD"/>
 
-        <!-- Courriel -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -249,7 +255,6 @@
             android:layout_height="1dp"
             android:background="#DDDDDD"/>
 
-        <!-- Mot de passe -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -277,7 +282,6 @@
             android:layout_height="1dp"
             android:background="#DDDDDD"/>
 
-        <!-- Carte -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -299,16 +303,15 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <!-- Bouton -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnEnregistrerProfil"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/enregistrer_les_modifications"
-            android:backgroundTint="#5D3A1A"
             android:textColor="#FFFFFF"
             android:minHeight="48dp"
             android:layout_margin="24dp"
             android:background="@drawable/button_square" />
+
     </LinearLayout>
 </ScrollView>

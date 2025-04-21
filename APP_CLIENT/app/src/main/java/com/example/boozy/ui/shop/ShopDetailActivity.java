@@ -107,7 +107,7 @@ public class ShopDetailActivity extends AppCompatActivity {
         ApiService apiService = retrofit.create(ApiService.class);
         Call<List<AvailabilityResponse>> call = apiService.getAvailabilityByShop(shopId);
 
-        call.enqueue(new Callback<List<AvailabilityResponse>>() {
+        call.enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<List<AvailabilityResponse>> call, @NonNull Response<List<AvailabilityResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -122,7 +122,10 @@ public class ShopDetailActivity extends AppCompatActivity {
                                 availability.getProduct().getCategory(),
                                 String.valueOf(availability.getShopId())
                         );
-                        produit.setQuantity(1);
+                        produit.setStock(availability.getQuantity());
+                        produit.setQuantity(1); // utilisé pour la gestion de panier
+                        produit.setImageName(availability.getProduct().getImage()); // si image utilisée
+
                         produitList.add(produit);
                     }
 

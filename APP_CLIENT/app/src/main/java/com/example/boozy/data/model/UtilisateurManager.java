@@ -13,18 +13,14 @@ public class UtilisateurManager {
     private static final String KEY_PASSWORD = "password";
     private static final String KEY_TYPE = "type_utilisateur";
     private static final String KEY_TOKEN = "token";
-
     private static final String KEY_NUM_TEL = "num_tel";
     private static final String KEY_PLAQUE = "plaque";
-
     private static final String KEY_CIVIC = "civic";
     private static final String KEY_APARTMENT = "apartment";
     private static final String KEY_STREET = "street";
     private static final String KEY_CITY = "city";
     private static final String KEY_POSTAL_CODE = "postal_code";
-
     private static final String KEY_STRIPE_CARD = "stripe_card";
-
     private static final String KEY_ORDER_ID = "last_order_id";
     private static final String KEY_SHOP_NAME = "last_shop_name";
     private static final String KEY_SHOP_ADDRESS = "last_shop_address";
@@ -49,7 +45,6 @@ public class UtilisateurManager {
         return instance;
     }
 
-    // ======== CLIENT ========
     public void setClient(int id, String nom, String prenom, String email, String token) {
         editor.putInt(KEY_ID, id);
         editor.putString(KEY_NOM, nom);
@@ -62,7 +57,6 @@ public class UtilisateurManager {
         editor.apply();
     }
 
-    // ======== LIVREUR ========
     public void setLivreur(int id, String nom, String prenom, String email, String token, String numTel, String plaque) {
         editor.putInt(KEY_ID, id);
         editor.putString(KEY_NOM, nom);
@@ -75,7 +69,6 @@ public class UtilisateurManager {
         editor.apply();
     }
 
-    // ======== ADRESSE ========
     public void setAdresse(String civic, String apartment, String street, String city, String postalCode) {
         editor.putString(KEY_CIVIC, civic);
         editor.putString(KEY_APARTMENT, apartment);
@@ -95,7 +88,6 @@ public class UtilisateurManager {
         return adresse;
     }
 
-    // ======== STRIPE ========
     public void setCarteStripe(String cardNumber) {
         editor.putString(KEY_STRIPE_CARD, cardNumber);
         editor.apply();
@@ -110,7 +102,6 @@ public class UtilisateurManager {
         editor.apply();
     }
 
-    // ======== COMMANDE EN COURS (Livreur) ========
     public void setDerniereCommande(int orderId, String shopName, String shopAddress, double totalAmount) {
         editor.putInt(KEY_ORDER_ID, orderId);
         editor.putString(KEY_SHOP_NAME, shopName);
@@ -147,7 +138,6 @@ public class UtilisateurManager {
         editor.apply();
     }
 
-    // ======== GETTERS ========
     public int getId() {
         return prefs.getInt(KEY_ID, -1);
     }
@@ -189,14 +179,13 @@ public class UtilisateurManager {
         return getToken() != null && !getToken().isEmpty();
     }
 
-    // ======== LOGOUT ========
     public void logout() {
-        PanierManager.getInstance(context).clearCart(); // Vide le panier à la déconnexion
+        PanierManager.getInstance(context).clearCart();
+        clearCarteStripe();
         editor.clear();
         editor.apply();
     }
 
-    // ======== SETTERS INDIVIDUELS ========
     public void setType(TypeUtilisateur typeUtilisateur) {
         editor.putString(KEY_TYPE, typeUtilisateur.getType());
         editor.apply();
@@ -213,6 +202,7 @@ public class UtilisateurManager {
     }
 
     public void setEmail(String email) {
+        clearCarteStripe();
         editor.putString(KEY_EMAIL, email);
         editor.apply();
     }

@@ -6,7 +6,6 @@
     android:orientation="vertical"
     android:background="@android:color/white">
 
-    <!-- En-tête avec flèche retour et titre -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -42,7 +41,6 @@
         android:layout_height="0.5dp"
         android:background="#CCCCCC" />
 
-    <!-- Contenu défilable -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -52,8 +50,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!-- Section Infos commande -->
-            <!-- Ligne : # commande -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -80,7 +76,6 @@
                 android:layout_height="0.5dp"
                 android:background="#CCCCCC" />
 
-            <!-- Ligne : Date -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -107,7 +102,6 @@
                 android:layout_height="0.5dp"
                 android:background="#CCCCCC" />
 
-            <!-- Ligne : Total payé -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -134,7 +128,6 @@
                 android:layout_height="0.5dp"
                 android:background="#CCCCCC" />
 
-            <!-- Ligne : Livreur -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -147,8 +140,7 @@
                     android:layout_weight="1"
                     android:text="Livreur"
                     android:textStyle="bold"
-                    android:textColor="@android:color/black"
-                    />
+                    android:textColor="@android:color/black" />
 
                 <TextView
                     android:id="@+id/livreurCommande"
@@ -162,7 +154,6 @@
                 android:layout_height="0.5dp"
                 android:background="#CCCCCC" />
 
-            <!-- Barre de progression -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="480dp"
@@ -170,7 +161,6 @@
                 android:orientation="vertical"
                 android:paddingHorizontal="80dp">
 
-                <!-- Étape 1 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -202,7 +192,6 @@
                     android:layout_marginStart="19dp"
                     android:background="@color/grey" />
 
-                <!-- Étape 2 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -234,7 +223,6 @@
                     android:layout_marginStart="19dp"
                     android:background="@color/grey" />
 
-                <!-- Étape 3 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

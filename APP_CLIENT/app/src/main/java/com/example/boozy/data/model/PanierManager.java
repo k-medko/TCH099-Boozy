@@ -14,7 +14,6 @@ public class PanierManager {
     private static final String PREF_NAME = "boozy_prefs";
     private static final String CART_KEY = "cart";
     private static final String CURRENT_SHOP_ID_KEY = "current_shop_id";
-
     private static PanierManager instance;
     private SharedPreferences prefs;
 
@@ -34,19 +33,28 @@ public class PanierManager {
 
         if (currentShopId == null) {
             setCurrentShopId(product.getShopId());
-        }
-
-        else if (!currentShopId.equals(product.getShopId())) {
+        } else if (!currentShopId.equals(product.getShopId())) {
             clearCart();
             setCurrentShopId(product.getShopId());
         }
 
         List<Produit> panier = getCart();
-        panier.add(product);
+        boolean found = false;
+
+        for (Produit p : panier) {
+            if (p.getId() == product.getId()) {
+                p.setQuantity(p.getQuantity() + product.getQuantity());
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            panier.add(product);
+        }
+
         saveCart(panier);
     }
-
-
 
     public void removeProduct(Produit product) {
         List<Produit> panier = getCart();

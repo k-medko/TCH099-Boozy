@@ -12,7 +12,6 @@
         android:gravity="center_horizontal"
         android:paddingBottom="24dp">
 
-        <!-- Barre du haut -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
@@ -43,13 +42,11 @@
                 android:layout_centerInParent="true" />
         </RelativeLayout>
 
-        <!-- Séparateur -->
         <View
             android:layout_width="match_parent"
             android:layout_height="0.7dp"
             android:background="#E0E0E0" />
 
-        <!-- Icône -->
         <ImageView
             android:layout_width="100dp"
             android:layout_height="100dp"
@@ -58,7 +55,6 @@
             android:contentDescription="Icône de livraison"
             app:tint="#000000" />
 
-        <!-- Solde encadré -->
         <TextView
             android:id="@+id/soldeText"
             android:layout_width="wrap_content"
@@ -69,10 +65,10 @@
             android:textColor="#000000"
             android:layout_marginTop="16dp"
             android:background="#F2F0F0"
+            android:elevation="50dp"
             android:paddingHorizontal="16dp"
             android:paddingVertical="6dp" />
 
-        <!-- Bouton Modifier -->
         <LinearLayout
             android:id="@+id/btnModifierCarte"
             android:layout_width="wrap_content"
@@ -96,20 +92,17 @@
                 android:textSize="15sp" />
         </LinearLayout>
 
-        <!-- Séparateur -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#E6E6E6"
             android:layout_marginTop="32dp" />
 
-        <!-- Infos utilisateur -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Nom -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -130,9 +123,12 @@
                     android:layout_height="wrap_content"
                     android:textColor="#000000" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
 
-            <!-- Prénom -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E6E6E6" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -153,9 +149,12 @@
                     android:layout_height="wrap_content"
                     android:textColor="#000000" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
 
-            <!-- Téléphone -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E6E6E6" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -176,9 +175,12 @@
                     android:layout_height="wrap_content"
                     android:textColor="#000000" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
 
-            <!-- Plaque -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E6E6E6" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -200,7 +202,6 @@
                     android:textColor="#000000" />
             </LinearLayout>
 
-            <!-- Courriel -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -223,7 +224,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Bouton Déconnexion -->
         <TextView
             android:id="@+id/btnDeconnexion"
             android:layout_width="wrap_content"

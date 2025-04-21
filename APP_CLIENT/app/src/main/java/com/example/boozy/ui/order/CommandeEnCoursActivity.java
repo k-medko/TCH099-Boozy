@@ -5,9 +5,11 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -25,7 +27,11 @@ import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.UtilisateurManager;
 import com.example.boozy.ui.delivery.LivreurHomeActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -104,13 +110,11 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
 
     private void afficherCommandeDepuisExtras() {
         orderId = getIntent().getIntExtra("orderId", -1);
-        String shopName = getIntent().getStringExtra("shopName");
         String shopAddress = getIntent().getStringExtra("shopAddress");
-        double totalAmount = getIntent().getDoubleExtra("totalAmount", 0.0);
 
         textNumeroCommande.setText("Commande #" + orderId);
         textClient.setText("Client : Information privée");
-        textRecuperation.setText("Récupération : " + shopAddress);
+        textRecuperation.setText(shopAddress);
         textDestination.setText("Destination : sera disponible après Démarrer");
 
         adresseMagasin = shopAddress;
@@ -139,7 +143,7 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
                             String nomClient = clientInfo.get("first_name") + " " + clientInfo.get("last_name");
                             String adresseClient = (String) clientInfo.get("address");
                             textClient.setText("Client : " + nomClient);
-                            textDestination.setText("Destination : " + adresseClient);
+                            textDestination.setText(adresseClient);
                             adresseLivraison = adresseClient;
                             textDestination.setOnClickListener(v -> showNavigationOptions());
                         }
@@ -186,11 +190,47 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
     }
 
     private void openInGoogleMaps() {
-        String uri = "https://www.google.com/maps/dir/?api=1&destination=" + Uri.encode(adresseLivraison);
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-        intent.setPackage("com.google.android.apps.maps");
-        startActivity(intent);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            return;
+        }
+
+        LocationRequest locationRequest = LocationRequest.create()
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .setInterval(1000)
+                .setNumUpdates(1);
+
+        LocationCallback locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                if (locationResult == null || locationResult.getLocations().isEmpty()) {
+                    Toast.makeText(CommandeEnCoursActivity.this, "Position actuelle introuvable", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Location location = locationResult.getLastLocation();
+                double lat = location.getLatitude();
+                double lon = location.getLongitude();
+
+                String origin = lat + "," + lon;
+                String waypoint = Uri.encode(adresseMagasin);
+                String destination = Uri.encode(adresseLivraison.replaceAll("(?i)apt\\s*\\d+", "").trim());
+
+                String uri = "https://www.google.com/maps/dir/?api=1"
+                        + "&origin=" + origin
+                        + "&destination=" + destination
+                        + "&waypoints=" + waypoint
+                        + "&travelmode=driving";
+
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                intent.setPackage("com.google.android.apps.maps");
+                startActivity(intent);
+            }
+        };
+
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
+
 
     private void openInWaze() {
         try {

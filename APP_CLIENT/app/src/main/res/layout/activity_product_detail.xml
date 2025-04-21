@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-    <!-- Contenu scrollable -->
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"
@@ -24,7 +23,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Header -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -55,20 +53,17 @@
                     android:layout_alignParentTop="true" />
             </RelativeLayout>
 
-            <!-- Ligne grise pale -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.7dp"
                 android:background="#E0E0E0" />
 
-            <!-- Contenu -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- Image produit -->
                 <ImageView
                     android:id="@+id/productImage"
                     android:layout_width="300dp"
@@ -78,7 +73,6 @@
                     android:scaleType="fitCenter"
                     android:src="@drawable/produit" />
 
-                <!-- Nom + quantité -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -138,7 +132,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Prix -->
                 <TextView
                     android:id="@+id/productPrice"
                     android:layout_width="wrap_content"
@@ -147,9 +140,16 @@
                     android:textColor="#000000"
                     android:textSize="16sp" />
 
-                <!-- Description -->
                 <TextView
                     android:id="@+id/productDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="#000000"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/productAlcool"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
@@ -160,13 +160,12 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Bouton fixe en bas -->
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/buttonAddToCart"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:backgroundTint="#5C3A2E"
+        android:background="@drawable/button_square"
         android:text="@string/ajouter_au_panier"
         android:textAllCaps="true"
         android:textColor="#FFFFFF"

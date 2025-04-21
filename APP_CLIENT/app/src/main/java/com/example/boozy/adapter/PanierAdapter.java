@@ -1,3 +1,4 @@
+// PanierAdapter.java modifié
 package com.example.boozy.adapter;
 
 import android.content.Context;
@@ -67,16 +68,18 @@ public class PanierAdapter extends RecyclerView.Adapter<PanierAdapter.ViewHolder
 
         holder.quantiteText.setText(String.valueOf(produit.getQuantity()));
         holder.produitText.setText(produit.getName());
-
-        double price = produit.getPrice();
-
-        holder.prixText.setText(String.format("%.2f $", price));
+        holder.prixText.setText(String.format("%.2f $", produit.getPrice()));
+        holder.buttonPlus.setEnabled(produit.getQuantity() < produit.getStock());
 
         holder.buttonPlus.setOnClickListener(v -> {
-            produit.setQuantity(produit.getQuantity() + 1);
-            notifyItemChanged(position);
-            listener.onQuantityChanged(productList);
-            updateCartPersistence();
+            if (produit.getQuantity() < produit.getStock()) {
+                produit.setQuantity(produit.getQuantity() + 1);
+                notifyItemChanged(position);
+                listener.onQuantityChanged(productList);
+                updateCartPersistence();
+            } else {
+                Toast.makeText(context, "Stock maximum atteint", Toast.LENGTH_SHORT).show();
+            }
         });
 
         holder.buttonMinus.setOnClickListener(v -> {
@@ -89,7 +92,6 @@ public class PanierAdapter extends RecyclerView.Adapter<PanierAdapter.ViewHolder
         });
 
         holder.buttonDelete.setOnClickListener(v -> {
-
             productList.remove(position);
             updateCartPersistence();
             notifyItemRemoved(position);
@@ -100,11 +102,9 @@ public class PanierAdapter extends RecyclerView.Adapter<PanierAdapter.ViewHolder
             }
 
             listener.onQuantityChanged(productList);
-
             Toast.makeText(context, "Produit supprimé", Toast.LENGTH_SHORT).show();
         });
     }
-
 
     @Override
     public int getItemCount() {
@@ -129,7 +129,4 @@ public class PanierAdapter extends RecyclerView.Adapter<PanierAdapter.ViewHolder
             }
         }
     }
-
-
-
 }

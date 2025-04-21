@@ -12,7 +12,6 @@
         android:paddingBottom="24dp"
         android:gravity="center_horizontal">
 
-        <!-- Barre du haut -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
@@ -42,13 +41,11 @@
                 android:layout_centerInParent="true" />
         </RelativeLayout>
 
-        <!-- Séparateur -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#E0E0E0" />
 
-        <!-- Avatar -->
         <ImageView
             android:id="@+id/avatarImage"
             android:layout_width="100dp"
@@ -58,7 +55,6 @@
             android:contentDescription="@string/avatar"
             app:tint="#000000" />
 
-        <!-- Bouton Modifier le profil -->
         <LinearLayout
             android:id="@+id/btnModifierCarte"
             android:layout_width="wrap_content"
@@ -68,7 +64,6 @@
             android:layout_marginTop="24dp"
             android:paddingStart="32dp"
             android:paddingEnd="32dp"
-            android:backgroundTint="#5C3A2E"
             android:background="@drawable/button_square"
             android:elevation="2dp"
             android:clickable="true"
@@ -83,14 +78,12 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
-        <!-- Infos utilisateur -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginTop="32dp">
 
-            <!-- Nom -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -111,9 +104,12 @@
                     android:layout_height="wrap_content"
                     android:textColor="#000000" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
 
-            <!-- Prénom -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E6E6E6" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -134,32 +130,43 @@
                     android:layout_height="wrap_content"
                     android:textColor="#000000" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
 
-            <!-- Adresse -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E6E6E6" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:gravity="top">
 
                 <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:text="@string/adresse"
                     android:textStyle="bold"
-                    android:textColor="#000000" />
+                    android:textColor="#000000"
+                    android:paddingEnd="12dp" />
 
                 <TextView
                     android:id="@+id/adresseText"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textColor="#000000" />
+                    android:layout_weight="1"
+                    android:textColor="#000000"
+                    android:maxLines="4"
+                    android:gravity="end"
+                    android:textAlignment="viewEnd" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
 
-            <!-- Courriel -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E6E6E6" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -180,9 +187,12 @@
                     android:layout_height="wrap_content"
                     android:textColor="#000000" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6E6E6" />
 
-            <!-- Carte enregistrée -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E6E6E6" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -205,7 +215,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Déconnexion -->
         <TextView
             android:id="@+id/btnDeconnexion"
             android:layout_width="wrap_content"

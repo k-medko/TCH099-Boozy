@@ -48,17 +48,27 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 .error(R.drawable.produit)
                 .into(holder.productImage);
 
-        holder.itemView.setOnClickListener(v -> {
-            Context context = v.getContext();
-            Intent intent = new Intent(context, ProductDetailActivity.class);
-            intent.putExtra("product_id", produit.getId());
-            intent.putExtra("product_name", produit.getName());
-            intent.putExtra("product_price", produit.getPrice());
-            intent.putExtra("product_image_name", produit.getImageName());
-            intent.putExtra("product_description", produit.getDescription());
-            intent.putExtra("shop_id", produit.getShopId());
-            context.startActivity(intent);
-        });
+        if (produit.getStock() <= 0) {
+            holder.itemView.setAlpha(0.5f);
+            holder.itemView.setClickable(false);
+            holder.itemView.setFocusable(false);
+        } else {
+            holder.itemView.setAlpha(1f);
+            holder.itemView.setClickable(true);
+            holder.itemView.setFocusable(true);
+
+            holder.itemView.setOnClickListener(v -> {
+                Context context = v.getContext();
+                Intent intent = new Intent(context, ProductDetailActivity.class);
+                intent.putExtra("product_id", produit.getId());
+                intent.putExtra("product_name", produit.getName());
+                intent.putExtra("product_price", produit.getPrice());
+                intent.putExtra("product_image_name", produit.getImageName());
+                intent.putExtra("product_description", produit.getDescription());
+                intent.putExtra("shop_id", produit.getShopId());
+                context.startActivity(intent);
+            });
+        }
     }
 
     @Override

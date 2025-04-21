@@ -7,7 +7,6 @@
     android:background="#FFFFFF"
     android:paddingTop="16dp">
 
-    <!-- Scroll horizontal pour les boutons -->
     <HorizontalScrollView
         android:id="@+id/horizontalScroll"
         android:layout_width="0dp"
@@ -27,7 +26,6 @@
             android:paddingEnd="16dp"
             android:layout_marginTop="8dp">
 
-            <!-- Bouton Commande en cours -->
             <LinearLayout
                 android:id="@+id/buttonCommandesEnCours"
                 android:layout_width="wrap_content"
@@ -57,7 +55,6 @@
                     android:textColor="#000000" />
             </LinearLayout>
 
-            <!-- Bouton Historique -->
             <LinearLayout
                 android:id="@+id/buttonHistorique"
                 android:layout_width="wrap_content"
@@ -87,7 +84,6 @@
                     android:textColor="#000000" />
             </LinearLayout>
 
-            <!-- Bouton Profil -->
             <LinearLayout
                 android:id="@+id/buttonProfil"
                 android:layout_width="wrap_content"
@@ -118,7 +114,6 @@
         </LinearLayout>
     </HorizontalScrollView>
 
-    <!-- Titre section commande + flèche -->
     <LinearLayout
         android:id="@+id/commandeTitleRow"
         android:layout_width="0dp"
@@ -143,7 +138,6 @@
             android:textSize="18sp" />
     </LinearLayout>
 
-    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerCommandes"
         android:layout_width="0dp"
@@ -152,5 +146,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

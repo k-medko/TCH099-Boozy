@@ -30,7 +30,10 @@ public class ProfilClientActivity extends AppCompatActivity {
         initializeViews();
         loadUserProfile();
 
-        findViewById(R.id.backButton).setOnClickListener(v -> onBackPressed());
+        findViewById(R.id.backButton).setOnClickListener(v -> {
+            setResult(RESULT_OK);
+            finish();
+        });
 
         findViewById(R.id.btnModifierCarte).setOnClickListener(v -> {
             Intent intent = new Intent(this, ModifierProfilClientActivity.class);

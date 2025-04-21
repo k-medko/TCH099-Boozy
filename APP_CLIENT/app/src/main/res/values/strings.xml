@@ -69,4 +69,5 @@
     <string name="appartement">Appartement</string>
     <string name="ajouter_au_panier">Ajouter au panier</string>
     <string name="num_de_plaque">Numéro de plaque</string>
+    <string name="livre">Marquer comme livrée</string>
 </resources>

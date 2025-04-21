@@ -6,12 +6,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,7 +30,7 @@ import com.example.boozy.R;
 import com.example.boozy.adapter.PanierAdapter;
 import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.Adresse;
-import com.example.boozy.data.model.Commande;
+import com.example.boozy.data.model.AvailabilityResponse;
 import com.example.boozy.data.model.PanierManager;
 import com.example.boozy.data.model.Produit;
 import com.example.boozy.data.model.UtilisateurManager;
@@ -44,10 +44,8 @@ public class PaiementActivity extends AppCompatActivity {
     private PanierAdapter panierAdapter;
     private TextView sousTotalText, taxesText, totalText, adresseText, carteText;
     private Button buttonPlaceOrder;
-    private String numeroCommande = "#CMD" + System.currentTimeMillis();
 
     private ImageView arrowNext, arrow;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,15 +55,8 @@ public class PaiementActivity extends AppCompatActivity {
         setupFullScreen();
         initializeViews();
 
-        arrowNext.setOnClickListener(v -> {
-            Intent intent = new Intent(PaiementActivity.this, ProfilClientActivity.class);
-            startActivity(intent);
-        });
-
-        arrow.setOnClickListener(v -> {
-            Intent intent = new Intent(PaiementActivity.this, ProfilClientActivity.class);
-            startActivity(intent);
-        });
+        arrowNext.setOnClickListener(v -> openProfil());
+        arrow.setOnClickListener(v -> openProfil());
 
         initPaiement();
         initAdresseLocale();
@@ -74,10 +65,23 @@ public class PaiementActivity extends AppCompatActivity {
             initPanier();
         }
 
-        ImageButton backBtn = findViewById(R.id.buttonBack);
-        backBtn.setOnClickListener(v -> onBackPressed());
-
+        findViewById(R.id.buttonBack).setOnClickListener(v -> onBackPressed());
         buttonPlaceOrder.setOnClickListener(v -> placeOrder());
+    }
+
+    private void openProfil() {
+        Intent intent = new Intent(PaiementActivity.this, ProfilClientActivity.class);
+        startActivityForResult(intent, 1234);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1234 && resultCode == RESULT_OK) {
+            initAdresseLocale();
+            initPaiement();
+        }
     }
 
     private void setupFullScreen() {
@@ -100,7 +104,6 @@ public class PaiementActivity extends AppCompatActivity {
         buttonPlaceOrder = findViewById(R.id.buttonPlaceOrder);
         arrowNext = findViewById(R.id.arrow_next);
         arrow = findViewById(R.id.arrow);
-
     }
 
     private void initPaiement() {
@@ -108,9 +111,9 @@ public class PaiementActivity extends AppCompatActivity {
         if (stripeCard != null && !stripeCard.isEmpty()) {
             carteText.setText(stripeCard);
             buttonPlaceOrder.setEnabled(true);
-            buttonPlaceOrder.setBackgroundColor(getResources().getColor(R.color.brown));
+            buttonPlaceOrder.setBackgroundColor(getResources().getColor(R.color.wine_dark));
         } else {
-            carteText.setText("Ajouter votre carte Stripe");
+            carteText.setText("Ajouter votre carte");
             buttonPlaceOrder.setEnabled(false);
             buttonPlaceOrder.setBackgroundColor(Color.GRAY);
         }
@@ -141,17 +144,53 @@ public class PaiementActivity extends AppCompatActivity {
             return;
         }
 
+        int shopId = Integer.parseInt(panier.get(0).getShopId());
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://4.172.252.189:5000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        ApiService api = retrofit.create(ApiService.class);
+
+        api.getAvailabilityByShop(shopId).enqueue(new Callback<List<AvailabilityResponse>>() {
+            @Override
+            public void onResponse(Call<List<AvailabilityResponse>> call, Response<List<AvailabilityResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Produit p : panier) {
+                        for (AvailabilityResponse stockItem : response.body()) {
+                            if (stockItem.getProductId() == p.getId()) {
+                                p.setStock(stockItem.getQuantity());
+                                break;
+                            }
+                        }
+                    }
+                    setupAdapter(panier);
+                } else {
+                    Toast.makeText(PaiementActivity.this, "Erreur lors de la vérification du stock", Toast.LENGTH_SHORT).show();
+                    setupAdapter(panier);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<AvailabilityResponse>> call, Throwable t) {
+                t.printStackTrace();
+                Toast.makeText(PaiementActivity.this, "Erreur réseau", Toast.LENGTH_SHORT).show();
+                setupAdapter(panier);
+            }
+        });
+    }
+
+    private void setupAdapter(List<Produit> panier) {
         panierAdapter = new PanierAdapter(this, panier, updatedList -> {
             updateCart(updatedList);
             updateTotals(updatedList);
         });
 
-        recyclerViewCommande.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        recyclerViewCommande.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewCommande.setAdapter(panierAdapter);
-
         panierAdapter.updateProductList(panier);
         updateTotals(panier);
     }
+
 
     private void updateCart(List<Produit> updatedList) {
         PanierManager panierManager = PanierManager.getInstance(getApplicationContext());
@@ -170,9 +209,6 @@ public class PaiementActivity extends AppCompatActivity {
         panierAdapter.notifyDataSetChanged();
         updateTotals(panierManager.getCart());
     }
-
-
-
 
     private void updateTotals(List<Produit> panier) {
         double sousTotal = 0;
@@ -253,5 +289,4 @@ public class PaiementActivity extends AppCompatActivity {
             }
         });
     }
-
 }

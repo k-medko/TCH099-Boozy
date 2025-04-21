@@ -36,7 +36,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class LivreurHomeActivity extends AppCompatActivity {
 
     private static final String TAG = "DEBUG_COMMANDE";
-
     private RecyclerView recyclerView;
     private CommandeDisponibleAdapter adapter;
     private List<Commande> commandeList;
@@ -107,8 +106,7 @@ public class LivreurHomeActivity extends AppCompatActivity {
                                 String.valueOf(res.getOrderId()),
                                 res.getShopName(),
                                 res.getShopAddress(),
-                                montant,
-                                "Calcul en cours..."
+                                montant
                         );
                         commandeList.add(commande);
                     }

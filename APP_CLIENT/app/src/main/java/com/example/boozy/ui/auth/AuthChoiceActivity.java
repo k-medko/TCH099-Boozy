@@ -21,9 +21,6 @@ public class AuthChoiceActivity extends AppCompatActivity {
         setupClickListeners();
     }
 
-    /**
-     * Configure l'écran en plein écran avec barre de navigation transparente
-     */
     private void setFullScreen() {
         Window window = getWindow();
         window.setNavigationBarColor(Color.TRANSPARENT);
@@ -37,17 +34,11 @@ public class AuthChoiceActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Initialise les clics sur les boutons
-     */
     private void setupClickListeners() {
         findViewById(R.id.buttonInscrire).setOnClickListener(v -> openActivity(SelectionProfilActivity.class));
         findViewById(R.id.buttonConnexion).setOnClickListener(v -> openActivity(LoginActivity.class));
     }
 
-    /**
-     * Ouvre une nouvelle activité
-     */
     private void openActivity(Class<?> activityClass) {
         startActivity(new Intent(AuthChoiceActivity.this, activityClass));
     }

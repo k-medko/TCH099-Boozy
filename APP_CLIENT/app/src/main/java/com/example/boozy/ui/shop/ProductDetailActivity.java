@@ -18,10 +18,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.boozy.R;
 import com.example.boozy.data.api.ApiService;
+import com.example.boozy.data.model.AvailabilityResponse;
 import com.example.boozy.data.model.PanierManager;
 import com.example.boozy.data.model.Produit;
 import com.example.boozy.ui.client.PaiementActivity;
-
 import java.util.List;
 
 import retrofit2.Call;
@@ -33,13 +33,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ProductDetailActivity extends AppCompatActivity {
 
     private int quantity = 1;
-
-    private TextView quantityText, productNameText, productPriceText, productDescriptionText;
+    private ImageButton plusButton;
+    private TextView quantityText, productNameText, productPriceText, productDescriptionText, productAlcoolText;
     private ImageView productImageView;
-
     private int productId;
-    private String productName, productDescription = "", productImageName, shopId;
+    private String productName, productDescription, productImageName, shopId;
     private double productPrice;
+    private int stockDispo = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +70,11 @@ public class ProductDetailActivity extends AppCompatActivity {
         productNameText = findViewById(R.id.productName);
         productPriceText = findViewById(R.id.productPrice);
         productDescriptionText = findViewById(R.id.productDescription);
+        productAlcoolText = findViewById(R.id.productAlcool);
         productImageView = findViewById(R.id.productImage);
         quantityText = findViewById(R.id.quantityText);
+        plusButton = findViewById(R.id.buttonPlus);
+
     }
 
     private void getProductFromIntent() {
@@ -89,13 +92,14 @@ public class ProductDetailActivity extends AppCompatActivity {
                 .build();
 
         ApiService api = retrofit.create(ApiService.class);
-        Call<List<Produit>> call = api.getProductsById(productId);
 
+        Call<List<Produit>> call = api.getProductsById(productId);
         call.enqueue(new Callback<List<Produit>>() {
             @Override
             public void onResponse(@NonNull Call<List<Produit>> call, @NonNull Response<List<Produit>> response) {
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    productDescription = response.body().get(0).getDescription();
+                    Produit produit = response.body().get(0);
+                    productDescription = produit.getDescription();
                     productDescriptionText.setText(productDescription);
                 }
             }
@@ -105,12 +109,34 @@ public class ProductDetailActivity extends AppCompatActivity {
                 t.printStackTrace();
             }
         });
+
+        Call<List<AvailabilityResponse>> stockCall = api.getAvailabilityByShop(Integer.parseInt(shopId));
+        stockCall.enqueue(new Callback<List<AvailabilityResponse>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<AvailabilityResponse>> call, @NonNull Response<List<AvailabilityResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (AvailabilityResponse item : response.body()) {
+                        if (item.getProductId() == productId) {
+                            stockDispo = item.getQuantity();
+                            double alcohol = item.getProduct().getAlcohol();
+                            productAlcoolText.setText("Taux d'alcool : " + alcohol + "%");
+                            break;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<AvailabilityResponse>> call, @NonNull Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
+
 
     private void displayProductData() {
         productNameText.setText(productName);
-        productPriceText.setText(productPrice + "$/unité");
-        productDescriptionText.setText(productDescription);
+        productPriceText.setText(productPrice + "$ / unité");
 
         Glide.with(this)
                 .load("http://4.172.252.189:5000/images/" + productImageName)
@@ -125,14 +151,21 @@ public class ProductDetailActivity extends AppCompatActivity {
         ImageButton minusButton = findViewById(R.id.buttonMinus);
 
         plusButton.setOnClickListener(v -> {
-            quantity++;
-            quantityText.setText(String.valueOf(quantity));
+            if (quantity < stockDispo) {
+                quantity++;
+                quantityText.setText(String.valueOf(quantity));
+                if (quantity == stockDispo) {
+                    plusButton.setEnabled(false);
+                }
+            }
         });
-
         minusButton.setOnClickListener(v -> {
             if (quantity > 1) {
                 quantity--;
                 quantityText.setText(String.valueOf(quantity));
+                if (!plusButton.isEnabled()) {
+                    plusButton.setEnabled(true);
+                }
             }
         });
     }
@@ -164,6 +197,18 @@ public class ProductDetailActivity extends AppCompatActivity {
             } else {
                 if (currentShopId == null) {
                     panierManager.setCurrentShopId(shopId);
+                }
+
+                int dejaDansPanier = panierManager.getCart().stream()
+                        .filter(p -> p.getId() == productId)
+                        .mapToInt(Produit::getQuantity)
+                        .sum();
+
+                int quantiteTotale = dejaDansPanier + quantity;
+
+                if (quantiteTotale > stockDispo) {
+                    Toast.makeText(this, "Stock insuffisant. Stock disponible : " + stockDispo, Toast.LENGTH_SHORT).show();
+                    return;
                 }
 
                 panierManager.addProduct(produit);

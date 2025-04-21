@@ -7,7 +7,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -18,6 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.boozy.R;
 import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.UtilisateurManager;
+import com.google.android.gms.common.api.Status;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AddressComponent;
+import com.google.android.libraries.places.api.model.Place;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.stripe.android.PaymentConfiguration;
@@ -25,7 +28,9 @@ import com.stripe.android.model.CardParams;
 import com.stripe.android.model.DelicateCardDetailsApi;
 import com.stripe.android.view.CardInputWidget;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -39,10 +44,11 @@ public class ModifierProfilClientActivity extends AppCompatActivity {
     private EditText editNom, editPrenom, editNumeroCivique, editAppartement, editRue, editCodePostal, editVille, editEmail, editPassword;
     private CardInputWidget cardInputWidget;
     private Button btnEnregistrerProfil;
-
+    private EditText editAdresseGoogle;
     private static final String STRIPE_PUBLIC_KEY = "pk_test_1234";
     private static final String BASE_URL = "http://4.172.252.189:5000/";
     private static final String PREFS_NAME = "boozy_prefs";
+    private static final String GOOGLE_PLACES_API_KEY = "AIzaSyBejKgvwIR3_s4HHopHGu8ZPzg1jssanJ8";
 
     @DelicateCardDetailsApi
     @Override
@@ -52,7 +58,13 @@ public class ModifierProfilClientActivity extends AppCompatActivity {
         setupFullScreen();
 
         PaymentConfiguration.init(getApplicationContext(), STRIPE_PUBLIC_KEY);
+
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), GOOGLE_PLACES_API_KEY, Locale.FRENCH);
+        }
+
         initializeViews();
+        setupGooglePlacesAutocomplete();
         loadUserData();
 
         btnEnregistrerProfil.setOnClickListener(v -> saveUserProfile());
@@ -68,6 +80,52 @@ public class ModifierProfilClientActivity extends AppCompatActivity {
         }
     }
 
+    private void setupGooglePlacesAutocomplete() {
+        editAdresseGoogle.setHint("Rechercher une adresse");
+        editAdresseGoogle.setFocusable(false);
+        editAdresseGoogle.setOnClickListener(v -> {
+            Intent intent = new com.google.android.libraries.places.widget.Autocomplete
+                    .IntentBuilder(com.google.android.libraries.places.widget.model.AutocompleteActivityMode.OVERLAY,
+                    Arrays.asList(
+                            Place.Field.ADDRESS_COMPONENTS, Place.Field.ADDRESS
+                    ))
+                    .setCountry("CA")
+                    .build(this);
+            startActivityForResult(intent, 1002);
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1002 && resultCode == RESULT_OK) {
+            Place place = com.google.android.libraries.places.widget.Autocomplete.getPlaceFromIntent(data);
+            editAdresseGoogle.setText(place.getAddress());
+
+            String civic = "", street = "", city = "", postalCode = "";
+            for (AddressComponent component : place.getAddressComponents().asList()) {
+                if (component.getTypes().contains("street_number")) {
+                    civic = component.getName();
+                } else if (component.getTypes().contains("route")) {
+                    street = component.getName();
+                } else if (component.getTypes().contains("locality")) {
+                    city = component.getName();
+                } else if (component.getTypes().contains("postal_code")) {
+                    postalCode = component.getName();
+                }
+            }
+
+            editNumeroCivique.setText(civic);
+            editRue.setText(street);
+            editVille.setText(city);
+            editCodePostal.setText(postalCode);
+        } else if (resultCode == com.google.android.libraries.places.widget.AutocompleteActivity.RESULT_ERROR) {
+            Status status = com.google.android.libraries.places.widget.Autocomplete.getStatusFromIntent(data);
+            Toast.makeText(this, "Erreur : " + status.getStatusMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void initializeViews() {
         editNom = findViewById(R.id.editNom);
         editPrenom = findViewById(R.id.editPrenom);
@@ -79,7 +137,10 @@ public class ModifierProfilClientActivity extends AppCompatActivity {
         editEmail = findViewById(R.id.editEmail);
         editPassword = findViewById(R.id.editPassword);
         cardInputWidget = findViewById(R.id.cardInputWidget);
+        cardInputWidget.setPostalCodeEnabled(false);
         btnEnregistrerProfil = findViewById(R.id.btnEnregistrerProfil);
+        editAdresseGoogle = findViewById(R.id.inputAdresseGoogle);
+
     }
 
     private void loadUserData() {
@@ -127,7 +188,6 @@ public class ModifierProfilClientActivity extends AppCompatActivity {
                                     editNumeroCivique.setText(String.valueOf(civicObj));
                                 }
                             }
-
                             editAppartement.setText((String) adresse.get("apartment"));
                             editRue.setText((String) adresse.get("street"));
                             editVille.setText((String) adresse.get("city"));
@@ -182,7 +242,7 @@ public class ModifierProfilClientActivity extends AppCompatActivity {
         body.put("last_name", nom);
         body.put("phone_number", "5140000000");
         body.put("civic", civic);
-        body.put("apartment", appartement); // <-- ajouté
+        body.put("apartment", appartement);
         body.put("street", rue);
         body.put("postal_code", postalCode);
         body.put("city", ville);
@@ -204,11 +264,7 @@ public class ModifierProfilClientActivity extends AppCompatActivity {
                     showToast("Profil mis à jour.");
 
                     UtilisateurManager.getInstance(getApplicationContext()).setAdresse(
-                            civic,
-                            appartement,
-                            rue,
-                            ville,
-                            postalCode
+                            civic, appartement, rue, ville, postalCode
                     );
                     UtilisateurManager.getInstance(getApplicationContext()).setNom(nom);
                     UtilisateurManager.getInstance(getApplicationContext()).setPrenom(prenom);

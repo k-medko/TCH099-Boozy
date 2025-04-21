@@ -7,7 +7,6 @@
     android:paddingStart="16dp"
     android:paddingEnd="16dp">
 
-    <!-- Ligne principale : quantité, nom, prix -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -47,7 +46,6 @@
             android:textSize="15sp" />
     </LinearLayout>
 
-    <!-- Boutons +, -, supprimer -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

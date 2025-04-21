@@ -54,6 +54,8 @@ dependencies {
     implementation("com.stripe:stripe-android:20.33.0")
     implementation("pl.droidsonroids.gif:android-gif-drawable:1.2.27")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation ("com.google.android.libraries.places:places:3.3.0")
+
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

@@ -18,8 +18,18 @@ import com.example.boozy.R;
 import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.Adresse;
 import com.example.boozy.data.model.Utilisateur;
+import com.google.android.gms.common.api.Status;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AddressComponent;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import java.util.Arrays;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -31,15 +41,20 @@ public class RegisterClientActivity extends AppCompatActivity {
 
     private EditText inputFirstName, inputLastName, inputStreetNumber, inputStreetName;
     private EditText inputAppartment, inputPostalCode, inputCity, inputEmail, inputPassword;
+    private EditText inputAdresseGoogle;
     private CheckBox checkboxAge;
     private Button buttonCreateAccount;
+
+    private static final String GOOGLE_API_KEY = "AIzaSyBejKgvwIR3_s4HHopHGu8ZPzg1jssanJ8";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setFullScreen();
         setContentView(R.layout.activity_register_client);
+
         initializeViews();
+        setupGooglePlacesAutocomplete();
     }
 
     private void setFullScreen() {
@@ -66,8 +81,53 @@ public class RegisterClientActivity extends AppCompatActivity {
         inputPassword = findViewById(R.id.inputPassword);
         checkboxAge = findViewById(R.id.checkboxAge);
         buttonCreateAccount = findViewById(R.id.buttonCreateAccount);
+        inputAdresseGoogle = findViewById(R.id.inputAdresseGoogle);
 
         buttonCreateAccount.setOnClickListener(v -> handleRegistration());
+    }
+
+    private void setupGooglePlacesAutocomplete() {
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), GOOGLE_API_KEY, Locale.FRENCH);
+        }
+
+        inputAdresseGoogle.setFocusable(false);
+        inputAdresseGoogle.setHint("Rechercher une adresse");
+        inputAdresseGoogle.setOnClickListener(v -> {
+            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY,
+                    Arrays.asList(Place.Field.ADDRESS_COMPONENTS, Place.Field.ADDRESS))
+                    .setCountry("CA")
+                    .build(this);
+            startActivityForResult(intent, 1002);
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1002 && resultCode == RESULT_OK) {
+            Place place = Autocomplete.getPlaceFromIntent(data);
+            inputAdresseGoogle.setText(place.getAddress());
+
+            for (AddressComponent component : place.getAddressComponents().asList()) {
+                if (component.getTypes().contains("street_number")) {
+                    inputStreetNumber.setText(component.getName());
+                } else if (component.getTypes().contains("route")) {
+                    inputStreetName.setText(component.getName());
+                } else if (component.getTypes().contains("locality")) {
+                    inputCity.setText(component.getName());
+                } else if (component.getTypes().contains("postal_code")) {
+                    inputPostalCode.setText(component.getName());
+                }
+            }
+
+            inputAdresseGoogle.setText("");
+
+        } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+            Status status = Autocomplete.getStatusFromIntent(data);
+            Toast.makeText(this, "Erreur : " + status.getStatusMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void handleRegistration() {
@@ -111,9 +171,6 @@ public class RegisterClientActivity extends AppCompatActivity {
                 .excludeFieldsWithoutExposeAnnotation()
                 .setPrettyPrinting()
                 .create();
-
-        String json = gson.toJson(utilisateur);
-        Log.d("JSON_CLIENT", json);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://4.172.252.189:5000/")

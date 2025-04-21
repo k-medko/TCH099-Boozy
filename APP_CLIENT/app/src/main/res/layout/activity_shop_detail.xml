@@ -8,7 +8,6 @@
     android:fitsSystemWindows="true"
     android:background="#FFFFFF">
 
-    <!-- Nom du magasin -->
     <TextView
         android:id="@+id/magasinNomText"
         android:layout_width="wrap_content"
@@ -23,8 +22,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="32dp" />
 
-
-    <!-- Catégories -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/categoryRecyclerView"
         android:layout_width="match_parent"
@@ -43,7 +40,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Produits -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/productsRecyclerView"
         android:layout_width="match_parent"
@@ -59,7 +55,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_product" />
 
-    <!-- Barre de navigation inférieure -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
@@ -73,5 +68,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

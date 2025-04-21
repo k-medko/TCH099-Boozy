@@ -22,10 +22,16 @@ public class Produit {
     @SerializedName("shop_id")
     private String shopId;
 
-    private int quantity;
-
     @SerializedName("image")
     private String imageName;
+
+    @SerializedName("alcohol")
+    private double alcohol;
+
+    @SerializedName("stock")
+    private int stock;
+
+    private int quantity;
 
     public Produit(int id, String name, String description, double price, String category, int quantity, String imageName, String shopId) {
         this.id = id;
@@ -42,7 +48,6 @@ public class Produit {
         this(id, name, description, price, category, 1, null, shopId);
     }
 
-    // Getters
     public int getId() {
         return id;
     }
@@ -75,7 +80,14 @@ public class Produit {
         return imageName;
     }
 
-    // Setters
+    public double getAlcohol() {
+        return alcohol;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
@@ -86,5 +98,13 @@ public class Produit {
 
     public void setShopId(String shopId) {
         this.shopId = shopId;
+    }
+
+    public void setAlcohol(double alcohol) {
+        this.alcohol = alcohol;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
     }
 }
