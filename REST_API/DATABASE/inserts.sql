@@ -46,6 +46,7 @@ VALUES
   ('SAQ Sélection', 7),
   ('SAQ', 8);
 
+
 INSERT INTO Product (name, description, price, category, alcohol) VALUES
 ('Monte Real Reserva Rioja 2020', '« Puissant, ce vin profite d''une longue macération qui lui confère structure et prestance. Profitant d''un élevage en fût de chêne américain pour une période de 24 à 30 mois, voilà une cuvée qui plaira à l''amateur de vin corsés. »', 24.70, 'Vin rouge', 14),
 ('Domaine Perraud Mâcon Villages 2023', '« Jean-Christophe Perraud réalise un rêve d''enfant lorsqu''en 2005, il reprend le domaine familial situé dans le sud de la Bourgogne. Avec ses arômes séduisants de pomme et d''amande, son mâcon-villages captive! »', 24.00, 'Vin blanc', 12.5),
