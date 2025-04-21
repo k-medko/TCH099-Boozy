@@ -330,7 +330,7 @@
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
     <header>
       <div class="logo-container">
-        <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px !important; height: 60px !important;"></a> Ajouter un magasin SAQ</h1>
+        <h1><a href="dashboard.html"><img src="static/LOGO 1.png" alt="BOOZY Logo" style="width: 60px !important; height: 60px !important;"></a> Ajouter un magasin SAQ</h1>
       </div>
       <!-- Nouvelle barre de recherche style dashboard -->
       <div class="search-bar" style="height: 39px !important; width: 262.953125px !important;">
@@ -348,11 +348,12 @@
     </header>
   <div class="main">
     <nav id="sidebar">
-      <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
-      <a href="stores.html" class="active"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
-      <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
-      <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
-      <a href="users.html"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+      <a href="dashboard.html"><img src="static/Frame 218.png" alt="Accueil">Accueil</a>
+      <a href="stores.html" class="active"><img src="static/store-alt.png" alt="Magasins">Magasins</a>
+      <a href="orders.html"><img src="static/border-all.png" alt="Commandes">Commandes</a>
+      <a href="pageCommande.html"><img src="static/Icon_Order-2.png" alt="Créer commande">Créer une commande</a>
+      <a href="products.html"><img src="static/wine-bottle.png" alt="Produits">Produits</a>
+      <a href="users.html"><img src="static/users.png" alt="Utilisateurs">Utilisateurs</a>
     </nav>
     <div class="container">
       <div class="form-box">
@@ -397,7 +398,7 @@
 
 <script>
   function switchLanguage() {
-    window.location.href = "stores_en.html";
+    window.location.href = "english/stores_en.html";
   }
   function toggleSidebar() {
     document.getElementById("sidebar").classList.toggle("show");
