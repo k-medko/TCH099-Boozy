@@ -51,13 +51,20 @@ def favicon():
 
 @app.route('/getImages/product/<product_id>', methods=['GET'])
 def get_product_image(product_id):
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'placeholder.jpg')
+    prod_folder = os.path.join(app.root_path, 'static', 'productImages')
+    filename = f'{product_id}.png'
+    if os.path.exists(os.path.join(prod_folder, filename)):
+        return send_from_directory(prod_folder, filename)
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'placeholder.jpg')
 
 @app.route('/getImages/shop/<shop_id>', methods=['GET'])
 def get_shop_image(shop_id):
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'placeholder.jpg')
+    shop_folder = os.path.join(app.root_path, 'static', 'shopImages')
+    filename = f'{shop_id}.png'
+    if os.path.exists(os.path.join(shop_folder, filename)):
+        return send_from_directory(shop_folder, filename)
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'placeholder.jpg')
+
 
 @app.route('/getShops', methods=['GET'])
 def get_shops():
