@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.boozy.R;
 import com.example.boozy.data.model.Produit;
 import com.example.boozy.ui.shop.ProductDetailActivity;
@@ -41,12 +42,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.productCategoryText.setText(produit.getCategory());
         holder.productPriceText.setText(String.format("$%.2f", produit.getPrice()));
 
-        String imageUrl = "http://4.172.252.189:5000/images/" + produit.getImageName();
+
+        String imageUrl = "http://4.172.252.189:5000/getImages/product/" + produit.getImageName();
         Glide.with(holder.itemView.getContext())
                 .load(imageUrl)
-                .placeholder(R.drawable.produit)
-                .error(R.drawable.produit)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
                 .into(holder.productImage);
+
 
         if (produit.getStock() <= 0) {
             holder.itemView.setAlpha(0.5f);

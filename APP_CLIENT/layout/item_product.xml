@@ -7,7 +7,6 @@
     android:gravity="start"
     android:layout_gravity="center_horizontal">
 
-    <!-- Conteneur de l'image du produit -->
     <FrameLayout
         android:layout_width="185dp"
         android:layout_height="180dp"
@@ -20,11 +19,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:contentDescription="Produit"
-            android:src="@drawable/produit" />
+            android:contentDescription="Produit" />
     </FrameLayout>
-
-    <!-- Détails du produit -->
+    
     <TextView
         android:id="@+id/productCategoryText"
         android:layout_width="wrap_content"
