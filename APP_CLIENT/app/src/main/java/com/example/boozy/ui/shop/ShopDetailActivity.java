@@ -123,8 +123,8 @@ public class ShopDetailActivity extends AppCompatActivity {
                                 String.valueOf(availability.getShopId())
                         );
                         produit.setStock(availability.getQuantity());
-                        produit.setQuantity(1); // utilisé pour la gestion de panier
-                        produit.setImageName(availability.getProduct().getImage()); // si image utilisée
+                        produit.setQuantity(1);
+                        produit.setImageName(availability.getProduct().getImage());
 
                         produitList.add(produit);
                     }
