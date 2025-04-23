@@ -2,6 +2,7 @@ import requests
 import json
 from pprint import pprint
 import sys
+import argparse
 
 def test_client_orders(api_url):
     """
@@ -32,7 +33,8 @@ def test_client_orders(api_url):
         
         print(f"Status Code: {client_response.status_code}")
         
-        if client_response.status_code == 200:
+        # Try to parse the response as JSON, but handle non-JSON responses
+        try:
             client_data = client_response.json()
             print(f"Response Status: {client_data.get('status')}")
             print(f"User Role: {client_data.get('user_role')}")
@@ -42,7 +44,7 @@ def test_client_orders(api_url):
                 print("-" * 80)
                 for order in client_data['orders']:
                     print(f"Order ID: {order.get('order_id')}")
-                    print(f"Total Amount: ${order.get('total_amount'):.2f}")
+                    print(f"Total Amount: ${order.get('total_amount', 0):.2f}")
                     print(f"Status: {order.get('status')}")
                     print(f"Shop ID: {order.get('shop_id')}")
                     print(f"Carrier Name: {order.get('carrier_name')}")
@@ -50,8 +52,8 @@ def test_client_orders(api_url):
                     print("-" * 80)
             else:
                 print("No orders found for this client.")
-        else:
-            print(f"Error: {client_response.text}")
+        except ValueError:
+            print(f"Error: Could not parse JSON response: {client_response.text}")
     
     except Exception as e:
         print(f"Exception occurred during client test: {str(e)}")
@@ -76,7 +78,7 @@ def test_client_orders(api_url):
         
         print(f"Status Code: {carrier_response.status_code}")
         
-        if carrier_response.status_code == 200:
+        try:
             carrier_data = carrier_response.json()
             print(f"Response Status: {carrier_data.get('status')}")
             print(f"User Role: {carrier_data.get('user_role')}")
@@ -86,19 +88,52 @@ def test_client_orders(api_url):
                 print("-" * 80)
                 for order in carrier_data['orders']:
                     print(f"Order ID: {order.get('order_id')}")
-                    print(f"Total Amount: ${order.get('total_amount'):.2f}")
+                    print(f"Total Amount: ${order.get('total_amount', 0):.2f}")
                     print(f"Status: {order.get('status')}")
                     print(f"Shop ID: {order.get('shop_id')}")
                     print("-" * 80)
             else:
                 print("No deliveries found for this carrier.")
-        else:
-            print(f"Error: {carrier_response.text}")
+        except ValueError:
+            print(f"Error: Could not parse JSON response: {carrier_response.text}")
     
     except Exception as e:
         print(f"Exception occurred during carrier test: {str(e)}")
 
+    # Test 3: Invalid credentials
+    print("\n" + "="*80)
+    print("TEST 3: INVALID CREDENTIALS")
+    print("="*80)
+    
+    invalid_payload = {
+        "email": "invalid@example.com",
+        "password": "wrongpassword"
+    }
+    
+    print(f"Sending request with invalid credentials...")
+    try:
+        invalid_response = requests.post(
+            f"{api_url}/getUserOrders",
+            data=json.dumps(invalid_payload),
+            headers=headers
+        )
+        
+        print(f"Status Code: {invalid_response.status_code}")
+        print(f"Response: {invalid_response.text}")
+        
+        # Verify we got a 401 Unauthorized error
+        if invalid_response.status_code == 401:
+            print("✓ Test passed: Invalid credentials rejected with 401 status code")
+        else:
+            print("✗ Test failed: Expected 401 status code for invalid credentials")
+            
+    except Exception as e:
+        print(f"Exception occurred during invalid credentials test: {str(e)}")
+
 if __name__ == "__main__":
-    # Use the provided API URL
-    api_url = "http://4.172.252.189:5000"
-    test_client_orders(api_url)
+    parser = argparse.ArgumentParser(description='Test the getUserOrders API endpoint')
+    parser.add_argument('--url', default="http://4.172.252.189:5000", 
+                        help='API base URL (default: http://4.172.252.189:5000)')
+    
+    args = parser.parse_args()
+    test_client_orders(args.url)

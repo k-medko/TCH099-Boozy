@@ -333,6 +333,7 @@ def connect_user():
         return jsonify({"status": "success", "user": user_data})
     return jsonify({"status": "error", "message": "Invalid credentials"}), 401
 
+
 @app.route('/createOrder', methods=['POST'])
 def create_order():
     data = request.get_json()
@@ -358,7 +359,7 @@ def create_order():
     if not shop:
         return jsonify({"status": "error", "message": "Shop not found"}), 404
 
-    total_amount = 0
+    subtotal = 0
     for item in items:
         prod_id = item["product_id"]
         qty = item["quantity"]
@@ -368,14 +369,19 @@ def create_order():
         inv = execute_query("SELECT quantity FROM ShopProduct WHERE shop_id = %s AND product_id = %s", (shop_id, prod_id))
         if not inv or inv[0][0] < qty:
             return jsonify({"status": "error", "message": f"Product {prod_id} not available in requested quantity"}), 400
-        total_amount += float(prod[0][0]) * qty
+        subtotal += float(prod[0][0]) * qty
+
+    # Calculate the total with 15% tip (assuming subtotal already includes tax)
+    total_amount = subtotal
+    tip_amount = total_amount * 0.15
+    final_total = total_amount + tip_amount
 
     creation_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     # Get a valid dummy carrier id.
     dummy_carrier_id = get_dummy_carrier_id()
     order_id = execute_query(
-        "INSERT INTO ClientOrder (creation_date, status, total_amount, address_id, shop_id, client_id, carrier_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-        (creation_date, "Searching", total_amount, address_id, shop_id, user[0][0], dummy_carrier_id),
+        "INSERT INTO ClientOrder (creation_date, status, total_amount, tip_amount, address_id, shop_id, client_id, carrier_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+        (creation_date, "Searching", final_total, tip_amount, address_id, shop_id, user[0][0], dummy_carrier_id),
         fetch=False
     )
 
@@ -395,11 +401,13 @@ def create_order():
 
     execute_query(
         "INSERT INTO Payment (payment_method, amount, payment_date, is_completed, client_order_id, user_id, card_name, card_number, CVC_card, expiry_date_month, expiry_date_year) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-        (payment_method, total_amount, creation_date, True, order_id, user[0][0], data["card_name"], data["card_number"], data["CVC_card"], data["expiry_date_month"], data["expiry_date_year"]),
+        (payment_method, final_total, creation_date, True, order_id, user[0][0], data["card_name"], data["card_number"], data["CVC_card"], data["expiry_date_month"], data["expiry_date_year"]),
         fetch=False
     )
 
     return jsonify({"status": "success"})
+
+
 @app.route('/modifyUser', methods=['POST'])
 def modify_user():
     data = request.get_json()
