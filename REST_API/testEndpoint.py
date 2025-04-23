@@ -5,7 +5,7 @@ import sys
 
 def test_client_orders(api_url):
     """
-    Test the getClientOrders endpoint for both client and carrier views
+    Test the getUserOrders endpoint for both client and carrier views
     """
     # Set headers
     headers = {
@@ -25,7 +25,7 @@ def test_client_orders(api_url):
     print(f"Sending request as client (emma.lavoie123@example.com)...")
     try:
         client_response = requests.post(
-            f"{api_url}/getClientOrders",
+            f"{api_url}/getUserOrders",
             data=json.dumps(client_payload),
             headers=headers
         )
@@ -69,7 +69,7 @@ def test_client_orders(api_url):
     print(f"Sending request as carrier (livreur1@example.com)...")
     try:
         carrier_response = requests.post(
-            f"{api_url}/getClientOrders",
+            f"{api_url}/getUserOrders",
             data=json.dumps(carrier_payload),
             headers=headers
         )

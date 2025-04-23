@@ -192,7 +192,7 @@ def get_user_order():
     
     # Verify user credentials and get user role
     user_query = """
-    SELECT user_id, role 
+    SELECT user_id, user_type 
     FROM UserAccount 
     WHERE email = %s AND password = %s
     """
