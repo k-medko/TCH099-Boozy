@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.boozy.R;
 import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.AvailabilityResponse;
@@ -120,6 +121,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                             stockDispo = item.getQuantity();
                             double alcohol = item.getProduct().getAlcohol();
                             productAlcoolText.setText("Taux d'alcool : " + alcohol + "%");
+
                             break;
                         }
                     }
@@ -139,8 +141,9 @@ public class ProductDetailActivity extends AppCompatActivity {
         productPriceText.setText(productPrice + "$ / unité");
 
         Glide.with(this)
-                .load("http://4.172.252.189:5000/images/" + productImageName)
-                .placeholder(R.drawable.produit)
+                .load("http://4.172.252.189:5000/getImages/product/" + productImageName)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
                 .into(productImageView);
 
         quantityText.setText(String.valueOf(quantity));

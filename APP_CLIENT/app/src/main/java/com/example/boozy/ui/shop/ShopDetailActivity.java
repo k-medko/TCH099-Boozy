@@ -122,10 +122,9 @@ public class ShopDetailActivity extends AppCompatActivity {
                                 availability.getProduct().getCategory(),
                                 String.valueOf(availability.getShopId())
                         );
+                        produit.setImageName(String.valueOf(availability.getProductId()));
                         produit.setStock(availability.getQuantity());
                         produit.setQuantity(1);
-                        produit.setImageName(availability.getProduct().getImage());
-
                         produitList.add(produit);
                     }
 
