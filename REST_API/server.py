@@ -178,35 +178,92 @@ def get_orders():
     
     return jsonify(result)
 
-@app.route('/getOrderStatus', methods=['POST'])
-def get_order_status():
+@app.route('/getUserOrders', methods=['POST'])
+def get_user_order():
     data = request.get_json()
     # Validate required fields
-    for field in ["email", "password", "order_id"]:
+    required_fields = ["email", "password"]
+    for field in required_fields:
         if field not in data:
             return jsonify({"status": "error", "message": f"Missing required field: {field}"}), 400
 
     email = data["email"]
     password = data["password"]
-    order_id = data["order_id"]
-
-    # Verify user credentials
-    user = execute_query("SELECT user_id FROM UserAccount WHERE email = %s AND password = %s", (email, password))
-    if not user:
+    
+    # Verify user credentials and get user role
+    user_query = """
+    SELECT user_id, role 
+    FROM UserAccount 
+    WHERE email = %s AND password = %s
+    """
+    user_result = execute_query(user_query, (email, password))
+    
+    if not user_result:
         return jsonify({"status": "error", "message": "Invalid credentials"}), 401
 
-    user_id = user[0][0]
-
-    # Retrieve the order and ensure it belongs to the user (client)
-    order = execute_query("SELECT status, client_id FROM ClientOrder WHERE client_order_id = %s", (order_id,))
-    if not order:
-        return jsonify({"status": "error", "message": "Order not found"}), 404
+    user_id = user_result[0][0]
+    user_role = user_result[0][1]
     
-    if order[0][1] != user_id:
-        return jsonify({"status": "error", "message": "This order does not belong to the user"}), 403
-
-    # Return only the enum status of the order
-    return jsonify({"status": "success", "order_status": order[0][0]})
+    # Different queries based on user role
+    if user_role == 'client':
+        # Client query: Get all orders for this client
+        query = """
+        SELECT co.client_order_id, co.total_amount, co.status, co.shop_id, 
+               ua.first_name AS carrier_first_name, ua.last_name AS carrier_last_name, 
+               co.creation_date
+        FROM ClientOrder co
+        JOIN UserAccount ua ON co.carrier_id = ua.user_id
+        WHERE co.client_id = %s
+        ORDER BY co.creation_date DESC
+        """
+        orders = execute_query(query, (user_id,))
+        
+        if not orders:
+            return jsonify({"status": "success", "message": "No orders found", "orders": []}), 200
+        
+        # Format the results for client view
+        formatted_orders = []
+        for order in orders:
+            formatted_orders.append({
+                "order_id": order[0],
+                "total_amount": float(order[1]),
+                "status": order[2],
+                "shop_id": order[3],
+                "carrier_name": f"{order[4]} {order[5]}",
+                "creation_date": order[6].strftime("%Y-%m-%d %H:%M:%S") if order[6] else None
+            })
+        
+    elif user_role == 'carrier':
+        # Carrier query: Get all deliveries carried by this carrier
+        query = """
+        SELECT co.client_order_id, co.total_amount, co.status, co.shop_id
+        FROM ClientOrder co
+        WHERE co.carrier_id = %s
+        ORDER BY co.creation_date DESC
+        """
+        orders = execute_query(query, (user_id,))
+        
+        if not orders:
+            return jsonify({"status": "success", "message": "No deliveries found", "orders": []}), 200
+        
+        # Format the results for carrier view (simplified)
+        formatted_orders = []
+        for order in orders:
+            formatted_orders.append({
+                "order_id": order[0],
+                "total_amount": float(order[1]),
+                "status": order[2],
+                "shop_id": order[3]
+            })
+    else:
+        # Not a client or carrier
+        return jsonify({"status": "error", "message": "Unauthorized access. Only clients and carriers can view orders."}), 403
+    
+    return jsonify({
+        "status": "success", 
+        "user_role": user_role,
+        "orders": formatted_orders
+    }), 200
 
 ######## User Routes ########
 @app.route('/createUser', methods=['POST'])
