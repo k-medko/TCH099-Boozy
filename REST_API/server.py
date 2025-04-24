@@ -956,6 +956,131 @@ def admin_modify_availability():
             execute_query("INSERT INTO ShopProduct (shop_id, product_id, quantity) VALUES (%s, %s, %s)", (shop_id, prod_id, qty), fetch=False)
     return jsonify({"status": "success", "message": "Shop inventory updated successfully"})
 
+@app.route('/admin/getAllOrders', methods=['POST'])
+def admin_get_all_orders():
+    data = request.get_json()
+    if "admin_email" not in data or "admin_password" not in data:
+        return jsonify({"status": "error", "message": "Admin credentials required"}), 401
+    admin = execute_query("SELECT * FROM UserAccount WHERE email = %s AND password = %s AND user_type = 'admin'",
+                            (data["admin_email"], data["admin_password"]))
+    if not admin:
+        return jsonify({"status": "error", "message": "Unauthorized access"}), 401
+    
+    # Get all orders with client, carrier, and shop information
+    orders_query = """
+    SELECT co.client_order_id, co.creation_date, co.status, co.total_amount, co.tip_amount,
+           cl.user_id AS client_id, cl.email AS client_email, cl.first_name AS client_first_name, 
+           cl.last_name AS client_last_name, cl.phone_number AS client_phone,
+           ca.user_id AS carrier_id, ca.email AS carrier_email, ca.first_name AS carrier_first_name, 
+           ca.last_name AS carrier_last_name, ca.phone_number AS carrier_phone,
+           ca.license_plate, ca.car_brand,
+           s.shop_id, s.name AS shop_name,
+           del_addr.address_id AS delivery_address_id, del_addr.civic AS delivery_civic, 
+           del_addr.apartment AS delivery_apartment, del_addr.street AS delivery_street, 
+           del_addr.city AS delivery_city, del_addr.postal_code AS delivery_postal_code,
+           shop_addr.civic AS shop_civic, shop_addr.apartment AS shop_apartment, 
+           shop_addr.street AS shop_street, shop_addr.city AS shop_city, 
+           shop_addr.postal_code AS shop_postal_code
+    FROM ClientOrder co
+    JOIN UserAccount cl ON co.client_id = cl.user_id
+    JOIN UserAccount ca ON co.carrier_id = ca.user_id
+    JOIN Shop s ON co.shop_id = s.shop_id
+    JOIN AddressLine del_addr ON co.address_id = del_addr.address_id
+    JOIN AddressLine shop_addr ON s.address_id = shop_addr.address_id
+    ORDER BY co.creation_date DESC
+    """
+    orders = execute_query(orders_query)
+    
+    result = []
+    for order in orders:
+        # Format delivery address
+        delivery_apt = f" apt {order[21]}" if order[21] else ""
+        delivery_address = f"{order[20]}{delivery_apt} {order[22]}, {order[23]}, {order[24]}"
+        
+        # Format shop address
+        shop_apt = f" apt {order[26]}" if order[26] else ""
+        shop_address = f"{order[25]}{shop_apt} {order[27]}, {order[28]}, {order[29]}"
+        
+        # Get payment information for this order
+        payment_query = """
+        SELECT payment_method, amount, payment_date, is_completed, card_name, card_number
+        FROM Payment
+        WHERE client_order_id = %s
+        """
+        payment = execute_query(payment_query, (order[0],))
+        payment_info = None
+        if payment:
+            payment_info = {
+                "payment_method": payment[0][0],
+                "amount": float(payment[0][1]),
+                "payment_date": payment[0][2].strftime("%Y-%m-%d %H:%M:%S") if payment[0][2] else None,
+                "is_completed": bool(payment[0][3]),
+                "card_name": payment[0][4],
+                "card_number": payment[0][5]  # Note: In production, this should be masked
+            }
+        
+        # Get order items
+        items_query = """
+        SELECT cop.product_id, p.name, p.price, p.category, p.alcohol, cop.quantity
+        FROM ClientOrderProduct cop
+        JOIN Product p ON cop.product_id = p.product_id
+        WHERE cop.client_order_id = %s
+        """
+        items_result = execute_query(items_query, (order[0],))
+        items = []
+        for item in items_result:
+            items.append({
+                "product_id": item[0],
+                "name": item[1],
+                "price": float(item[2]),
+                "category": item[3],
+                "alcohol": float(item[4]),
+                "quantity": item[5],
+                "subtotal": float(item[2]) * item[5]
+            })
+        
+        # Create the complete order object with all details
+        order_obj = {
+            "order_id": order[0],
+            "creation_date": order[1].strftime("%Y-%m-%d %H:%M:%S") if order[1] else None,
+            "status": order[2],
+            "total_amount": float(order[3]),
+            "tip_amount": float(order[4]),
+            "client": {
+                "user_id": order[5],
+                "email": order[6],
+                "first_name": order[7],
+                "last_name": order[8],
+                "phone_number": order[9]
+            },
+            "carrier": {
+                "user_id": order[10],
+                "email": order[11],
+                "first_name": order[12],
+                "last_name": order[13],
+                "phone_number": order[14],
+                "license_plate": order[15],
+                "car_brand": order[16]
+            },
+            "shop": {
+                "shop_id": order[17],
+                "name": order[18],
+                "address": shop_address
+            },
+            "delivery_address": delivery_address,
+            "payment": payment_info,
+            "items": items,
+            "total_items": sum(item["quantity"] for item in items)
+        }
+        
+        result.append(order_obj)
+    
+    return jsonify({
+        "status": "success",
+        "total_orders": len(result),
+        "orders": result
+    })
+
 ######## Admin Web Routes ########
 ADMIN_FOLDER = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
 

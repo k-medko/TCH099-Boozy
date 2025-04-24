@@ -95,7 +95,7 @@ def get_order_status(user_email, user_password, order_id):
         "password": user_password,
         "order_id": order_id
     }
-    resp = requests.post(f"{BASE_URL}/getOrderStatus", json=payload)
+    resp = requests.post(f"{BASE_URL}/getUserOrders", json=payload)
     data = safe_json(resp)
     print(f"{MAGENTA}Order status for {order_id}:{RESET} {data if data else 'No JSON returned'}")
     return data

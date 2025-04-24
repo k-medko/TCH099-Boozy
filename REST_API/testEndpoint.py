@@ -1,139 +1,94 @@
 import requests
 import json
-from pprint import pprint
-import sys
-import argparse
+from datetime import datetime
 
-def test_client_orders(api_url):
+# API configuration
+API_URL = "http://4.172.252.189:5000"
+ADMIN_EMAIL = "tristan@boozy.com"
+ADMIN_PASSWORD = "adminpass"
+
+def test_get_all_orders():
     """
-    Test the getUserOrders endpoint for both client and carrier views
+    Test the admin getAllOrders endpoint
     """
-    # Set headers
+    # Create the request payload with admin credentials
+    payload = {
+        "admin_email": ADMIN_EMAIL,
+        "admin_password": ADMIN_PASSWORD
+    }
+    
+    # Set headers for the request
     headers = {
         "Content-Type": "application/json"
     }
     
-    # Test 1: Client View
-    print("\n" + "="*80)
-    print("TEST 1: CLIENT VIEW")
-    print("="*80)
+    # Print test information
+    print(f"Testing Admin API: {API_URL}/admin/getAllOrders")
+    print(f"Using admin email: {ADMIN_EMAIL}")
+    print("Sending request...\n")
     
-    client_payload = {
-        "email": "emma.lavoie123@example.com",
-        "password": "password"
-    }
-    
-    print(f"Sending request as client (emma.lavoie123@example.com)...")
     try:
-        client_response = requests.post(
-            f"{api_url}/getUserOrders",
-            data=json.dumps(client_payload),
-            headers=headers
+        # Send the POST request to the API
+        response = requests.post(
+            f"{API_URL}/admin/getAllOrders",
+            headers=headers,
+            data=json.dumps(payload)
         )
         
-        print(f"Status Code: {client_response.status_code}")
-        
-        # Try to parse the response as JSON, but handle non-JSON responses
-        try:
-            client_data = client_response.json()
-            print(f"Response Status: {client_data.get('status')}")
-            print(f"User Role: {client_data.get('user_role')}")
+        # Check the response status code
+        if response.status_code == 200:
+            # Success - parse the response data
+            data = response.json()
             
-            if 'orders' in client_data and client_data['orders']:
-                print(f"\nFound {len(client_data['orders'])} orders:")
-                print("-" * 80)
-                for order in client_data['orders']:
-                    print(f"Order ID: {order.get('order_id')}")
-                    print(f"Total Amount: ${order.get('total_amount', 0):.2f}")
-                    print(f"Status: {order.get('status')}")
-                    print(f"Shop ID: {order.get('shop_id')}")
-                    print(f"Carrier Name: {order.get('carrier_name')}")
-                    print(f"Creation Date: {order.get('creation_date')}")
-                    print("-" * 80)
-            else:
-                print("No orders found for this client.")
-        except ValueError:
-            print(f"Error: Could not parse JSON response: {client_response.text}")
-    
-    except Exception as e:
-        print(f"Exception occurred during client test: {str(e)}")
-    
-    # Test 2: Carrier View
-    print("\n" + "="*80)
-    print("TEST 2: CARRIER VIEW")
-    print("="*80)
-    
-    carrier_payload = {
-        "email": "livreur1@example.com",
-        "password": "mdp123"
-    }
-    
-    print(f"Sending request as carrier (livreur1@example.com)...")
-    try:
-        carrier_response = requests.post(
-            f"{api_url}/getUserOrders",
-            data=json.dumps(carrier_payload),
-            headers=headers
-        )
-        
-        print(f"Status Code: {carrier_response.status_code}")
-        
-        try:
-            carrier_data = carrier_response.json()
-            print(f"Response Status: {carrier_data.get('status')}")
-            print(f"User Role: {carrier_data.get('user_role')}")
+            # Display summary info
+            print(f"✅ SUCCESS: Got {data['total_orders']} orders")
+            print("-" * 50)
             
-            if 'orders' in carrier_data and carrier_data['orders']:
-                print(f"\nFound {len(carrier_data['orders'])} deliveries:")
-                print("-" * 80)
-                for order in carrier_data['orders']:
-                    print(f"Order ID: {order.get('order_id')}")
-                    print(f"Total Amount: ${order.get('total_amount', 0):.2f}")
-                    print(f"Status: {order.get('status')}")
-                    print(f"Shop ID: {order.get('shop_id')}")
-                    print("-" * 80)
-            else:
-                print("No deliveries found for this carrier.")
-        except ValueError:
-            print(f"Error: Could not parse JSON response: {carrier_response.text}")
-    
-    except Exception as e:
-        print(f"Exception occurred during carrier test: {str(e)}")
-
-    # Test 3: Invalid credentials
-    print("\n" + "="*80)
-    print("TEST 3: INVALID CREDENTIALS")
-    print("="*80)
-    
-    invalid_payload = {
-        "email": "invalid@example.com",
-        "password": "wrongpassword"
-    }
-    
-    print(f"Sending request with invalid credentials...")
-    try:
-        invalid_response = requests.post(
-            f"{api_url}/getUserOrders",
-            data=json.dumps(invalid_payload),
-            headers=headers
-        )
-        
-        print(f"Status Code: {invalid_response.status_code}")
-        print(f"Response: {invalid_response.text}")
-        
-        # Verify we got a 401 Unauthorized error
-        if invalid_response.status_code == 401:
-            print("✓ Test passed: Invalid credentials rejected with 401 status code")
+            # Display some details about each order
+            for i, order in enumerate(data['orders'], 1):
+                print(f"Order #{i}: ID {order['order_id']}")
+                print(f"  Date: {order['creation_date']}")
+                print(f"  Status: {order['status']}")
+                print(f"  Client: {order['client']['first_name']} {order['client']['last_name']} ({order['client']['email']})")
+                print(f"  Carrier: {order['carrier']['first_name']} {order['carrier']['last_name']}")
+                print(f"  Shop: {order['shop']['name']}")
+                print(f"  Total Amount: ${order['total_amount']:.2f}")
+                print(f"  Items: {order['total_items']}")
+                
+                # Print first 3 items in the order
+                print("  Products:")
+                for j, item in enumerate(order['items'][:3], 1):
+                    print(f"    - {item['quantity']}x {item['name']} (${item['price']:.2f} each)")
+                
+                if len(order['items']) > 3:
+                    print(f"    - ... and {len(order['items']) - 3} more items")
+                
+                print("-" * 50)
+            
+            # Save the complete data to a file for further inspection
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"orders_data_{timestamp}.json"
+            with open(filename, 'w') as f:
+                json.dump(data, f, indent=2)
+            print(f"Complete order data saved to '{filename}'")
+            
+        elif response.status_code == 401:
+            # Authentication error
+            data = response.json()
+            print(f"❌ AUTHENTICATION ERROR: {data.get('message', 'Unauthorized access')}")
         else:
-            print("✗ Test failed: Expected 401 status code for invalid credentials")
+            # Other error
+            print(f"❌ ERROR: Received status code {response.status_code}")
+            print(response.text)
             
+    except requests.exceptions.RequestException as e:
+        print(f"❌ CONNECTION ERROR: Could not connect to the API")
+        print(f"Details: {str(e)}")
+    except json.JSONDecodeError:
+        print(f"❌ RESPONSE ERROR: Could not parse response as JSON")
+        print(f"Response text: {response.text}")
     except Exception as e:
-        print(f"Exception occurred during invalid credentials test: {str(e)}")
+        print(f"❌ UNEXPECTED ERROR: {str(e)}")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Test the getUserOrders API endpoint')
-    parser.add_argument('--url', default="http://4.172.252.189:5000", 
-                        help='API base URL (default: http://4.172.252.189:5000)')
-    
-    args = parser.parse_args()
-    test_client_orders(args.url)
+    test_get_all_orders()
