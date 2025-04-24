@@ -642,12 +642,12 @@ def update_order():
             return jsonify({"status": "success", "client_info": client_info})
     # If new status is Completed, update carrier's earnings.
     if new_status == "Completed":
-        order = execute_query("SELECT total_amount FROM ClientOrder WHERE client_order_id = %s", (order_id,))
+        order = execute_query("SELECT tip_amount FROM ClientOrder WHERE client_order_id = %s", (order_id,))
         if order:
-            delivery_fee = float(order[0][0]) * 0.1
+            delivery_tip = float(order[0][0])
             execute_query(
                 "UPDATE UserAccount SET total_earnings = total_earnings + %s WHERE user_id = %s",
-                (delivery_fee, carrier_id), fetch=False
+                (delivery_tip, carrier_id), fetch=False
             )
 
     return jsonify({"status": "success", "message": f"Order status updated to {new_status}"})

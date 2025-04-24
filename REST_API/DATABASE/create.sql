@@ -59,6 +59,7 @@ CREATE TABLE ClientOrder (
     creation_date DATETIME NOT NULL,
     status ENUM('Searching','InRoute','Shipping','Cancelled','Completed') NOT NULL,
     total_amount DECIMAL(10,2) NOT NULL,
+    tip_amount DECIMAL(10,2) NOT NULL,
     address_id INT(10) NOT NULL,
     shop_id INT(10) NOT NULL,
     client_id INT(10) NOT NULL,
