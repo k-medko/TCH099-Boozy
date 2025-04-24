@@ -309,28 +309,62 @@
 
   <script>
     function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-}
-
-const session = getCookie("session");
-let utilisateur = null;
-
-try {
-  utilisateur = JSON.parse(atob(session));
-  if (utilisateur.user_type !== "admin") {
-    window.location.href = "seConnecter.html";
-  }
-} catch {
-  window.location.href = "seConnecter.html";
-}
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    
+    const session = getCookie("session");
+    let utilisateur = null;
+    
+    try {
+      utilisateur = JSON.parse(atob(session));
+      if (utilisateur.user_type !== "admin") {
+        window.location.href = "seConnecter.html";
+      }
+    } catch {
+      window.location.href = "seConnecter.html";
+    }
+    
+    window.addEventListener("DOMContentLoaded", () => {
+      if (!utilisateur) return;
+    
+      // ➤ Requête pour afficher nom + prénom
+      fetch("http://4.172.252.189:5000/admin/getUsers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          admin_email: utilisateur.email,
+          admin_password: utilisateur.password
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success" && Array.isArray(data.users)) {
+          const currentUser = data.users.find(u => u.email === utilisateur.email);
+          if (currentUser) {
+            const fullName = `${currentUser.first_name} ${currentUser.last_name}`;
+            document.getElementById("userWelcome").textContent = fullName;
+          }
+        } else {
+          document.getElementById("userWelcome").textContent = "Admin";
+        }
+      })
+      .catch(() => {
+        document.getElementById("userWelcome").textContent = "Admin";
+      });
+    });
+    
     function switchLanguage() {
       window.location.href = "orders_en.html";
     }
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("show");
       document.getElementById("overlay").classList.toggle("show");
+    }
+    function logout() {
+      document.cookie = "session=; max-age=0; path=/";
+      window.location.href = "seConnecter.html";
     }
     function annulerCommande(btn) {
       if (confirm("Êtes-vous sûr de vouloir annuler cette commande ?")) {
@@ -351,56 +385,90 @@ try {
     function fermerModal() {
       document.getElementById("detailsModal").style.display = "none";
     }
-
-    window.onload = async function () {
-  try {
-    const response = await fetch("http://4.172.252.189:5000/admin/getAllOrders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        admin_email: utilisateur.email,
-        admin_password: utilisateur.password
-      })
-    });
-
-    const data = await response.json();
-
-    if (data.status === "success" && Array.isArray(data.orders)) {
-      const tbody = document.querySelector("tbody");
-      tbody.innerHTML = ""; // Clear placeholder row
-
-      data.orders.forEach(order => {
-        const tr = document.createElement("tr");
-
-        // Exemple : adaptez selon la structure réelle
-        const produits = order.products || [];
-        const produitsJS = JSON.stringify(produits).replace(/"/g, '&quot;'); // Safe inject
-
-        tr.innerHTML = `
-          <td>${order.order_id}</td>
-          <td>${order.client_name || "—"}</td>
-          <td>${order.address || "—"}</td>
-          <td><span style="background:#FEF3C7;padding:4px 8px;border-radius:6px;font-size:13px;">${order.status || "En cours"}</span></td>
-          <td>${new Date(order.date).toLocaleDateString()}</td>
-          <td>${order.total_price?.toFixed(2) || "0.00"}$</td>
-          <td>
-            <button class="action-btn" onclick='voirDetailsCommande(${produitsJS})'>Détails</button>
-            <button class="action-btn" style="background-color: var(--danger);" onclick="annulerCommande(this)">Annuler</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    } else {
-      console.error("❌ Erreur API :", data.message || data);
-    }
-  } catch (err) {
-    console.error("❌ Erreur lors du chargement des commandes :", err);
-  }
-};
-
-
     
-  </script>
+    window.onload = async function () {
+      try {
+        const response = await fetch("http://4.172.252.189:5000/admin/getAllOrders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            admin_email: utilisateur.email,
+            admin_password: utilisateur.password
+          })
+        });
+    
+        const data = await response.json();
+    
+        if (data.status === "success" && Array.isArray(data.orders)) {
+          const tbody = document.querySelector("tbody");
+          tbody.innerHTML = "";
+    
+          let revenuTotal = 0;
+          let commandesAnnulees = 0;
+    
+          data.orders.forEach(order => {
+            const produits = order.products || [];
+            const produitsJS = JSON.stringify(produits).replace(/"/g, '&quot;');
+    
+            // Affichage tableau
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+  <tr 
+    data-client="${order.client_name || ''}" 
+    data-adresse="${order.address || ''}" 
+    data-statut="${order.status || ''}" 
+  >
+    <td>${order.order_id}</td>
+    <td>${order.client_name || "—"}</td>
+    <td>${order.address || "—"}</td>
+    <td><span style="background:#FEF3C7;padding:4px 8px;border-radius:6px;font-size:13px;">${order.status || "En cours"}</span></td>
+    <td>${new Date(order.date).toLocaleDateString()}</td>
+    <td>${order.total_price?.toFixed(2) || "0.00"}$</td>
+    <td>
+      <button class="action-btn" onclick='voirDetailsCommande(${produitsJS})'>Détails</button>
+      <button class="action-btn" style="background-color: var(--danger);" onclick="annulerCommande(this)">Annuler</button>
+    </td>
+  </tr>
+`;
+            tbody.appendChild(tr);
+    
+            // Calcul revenus + annulées
+            const prix = parseFloat(order.total_price) || 0;
+            revenuTotal += prix;
+    
+            const status = order.status?.toLowerCase();
+            if (status === "cancelled" || status === "annulée") {
+              commandesAnnulees++;
+            }
+          });
+    
+          // Stockage pour le dashboard
+          localStorage.setItem("revenuTotal", revenuTotal.toFixed(2));
+          localStorage.setItem("commandesTotales", data.orders.length);
+          localStorage.setItem("commandesAnnulees", commandesAnnulees);
+        }
+      } catch (err) {
+        console.error("Erreur lors du chargement des commandes :", err);
+      }
+    };
+
+    // Barre de recherche (filtrage)
+document.getElementById("searchBar").addEventListener("input", function () {
+  const query = this.value.toLowerCase();
+  const lignes = document.querySelectorAll("tbody tr");
+
+  lignes.forEach(ligne => {
+    const client = ligne.getAttribute("data-client")?.toLowerCase() || "";
+    const adresse = ligne.getAttribute("data-adresse")?.toLowerCase() || "";
+    const statut = ligne.getAttribute("data-statut")?.toLowerCase() || "";
+
+    const match = client.includes(query) || adresse.includes(query) || statut.includes(query);
+    ligne.style.display = match ? "" : "none";
+  });
+});
+
+    </script>
+    
 </body>
 </html>
 

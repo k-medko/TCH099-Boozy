@@ -172,7 +172,9 @@
         </div>
       </div>
 
-      <input type="file" id="editImage" accept="image/png" />
+      <input type="file" id="productImage" accept="image/png" />
+      <img id="editPreviewImage" src="" alt="Image actuelle" style="max-height: 100px; margin-top: 12px;" />
+
 
     
       <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
@@ -193,7 +195,7 @@
 
 function getCookie(name) {
   const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
+const parts = value.split(`; ${name}=`);
   if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
@@ -284,7 +286,9 @@ try {
         div.className = 'product-entry';
         div.innerHTML = `
   <div style="display: flex; gap: 16px;">
-    <img src="${getImageURL(product.product_id)}" alt="Image produit" style="width: 80px; height: auto; border-radius: 8px; object-fit: cover;"/>
+    <img src="${getImageURL(product.product_id)}" alt="Image produit" style="max-width: 80px; max-height: 120px; object-fit: contain; border-radius: 8px;" />
+
+
     <div>
       <p><strong>Nom:</strong> ${product.name}</p>
       <p><strong>Catégorie:</strong> ${cat}</p>
@@ -295,7 +299,8 @@ try {
   <div class="entry-actions">
     <button class="edit-btn" onclick="editProduct('${cat}', ${index})">Modifier</button>
     <button class="delete-btn" onclick="deleteProduct('${cat}', ${index})">Supprimer</button>
-  </div>`;
+  </div>
+`;
 
         productList.appendChild(div);
       }
@@ -316,6 +321,8 @@ try {
       document.getElementById('editDesc').value = produit.description;
       document.getElementById('editPrice').value = produit.price;
       document.getElementById('editModal').style.display = 'block';
+      document.getElementById('editPreviewImage').src = getImageURL(produit.product_id);
+
     }
 
     function validerEditionProduit() {
@@ -327,32 +334,54 @@ try {
   const newCategory = document.getElementById('editCategory').value;
   const newDesc = document.getElementById('editDesc').value;
   const newPrice = parseFloat(document.getElementById('editPrice').value);
+  const newImageFile = document.getElementById('productImage').files[0];
 
-  const updatedData = {
-    admin_email: utilisateur.email,
-    admin_password: utilisateur.password,
-    product_id: produit.product_id, // identifiant requis pour la modification
-    name: newName,
-    description: newDesc,
-    price: newPrice,
-    category: newCategory,
-    alcohol: produit.alcohol || 0 // ou un input si tu veux le modifier aussi
+  const sendUpdateRequest = (imageBase64 = null) => {
+    const updatedData = {
+      admin_email: utilisateur.email,
+      admin_password: utilisateur.password,
+      product_id: produit.product_id,
+      name: newName,
+      description: newDesc,
+      price: newPrice,
+      category: newCategory,
+      alcohol: produit.alcohol || 0
+    };
+
+    if (imageBase64) {
+      updatedData.image_base64 = imageBase64;
+    }
+
+    modifierProduit(updatedData)
+      .then(response => {
+        if (response.status === "success") {
+          alert("✅ Produit modifié !");
+          fetchProductsFromAPI();
+          produitActuel = null;
+          fermerModal();
+        } else {
+          alert("❌ Échec de la modification !");
+          console.error("Erreur serveur:", response);
+        }
+      })
+      .catch(error => {
+        alert("❌ Erreur réseau !");
+        console.error(error);
+      });
   };
 
-  modifierProduit(updatedData).then(response => {
-    if (response.status === "success") {
-      alert("Produit modifié avec succès !");
-      fetchProductsFromAPI(); // recharge depuis l'API
-      produitActuel = null;
-      document.getElementById('editModal').style.display = 'none';
-    } else {
-      alert("Échec de la modification !");
-      console.error("Erreur serveur:", response);
-    }
-  }).catch(error => {
-    alert("Erreur réseau !");
-    console.error(error);
-  });
+  // Si une nouvelle image a été sélectionnée, lis-la en base64
+  if (newImageFile) {
+    const reader = new FileReader();
+    reader.onload = function () {
+      const base64Image = reader.result;
+      sendUpdateRequest(base64Image);
+    };
+    reader.readAsDataURL(newImageFile);
+  } else {
+    // Sinon, envoie sans image
+    sendUpdateRequest();
+  }
 }
 
 
@@ -362,44 +391,60 @@ function addProduct() {
   const description = document.getElementById('productDesc').value;
   const category = document.getElementById('productCategory').value;
   const price = document.getElementById('productPrice').value;
-  const image = document.getElementById('productImage').files[0];
+  const imageFile = document.getElementById('productImage').files[0];
 
   if (!name || !category || !description || !price || isNaN(parseFloat(price))) {
     alert("❌ Veuillez remplir tous les champs correctement.");
     return;
   }
 
-  const formData = new FormData();
-  formData.append("admin_email", utilisateur.email);
-  formData.append("admin_password", utilisateur.password);
-  formData.append("name", name);
-  formData.append("description", description);
-  formData.append("category", category);
-  formData.append("price", price);
-  formData.append("alcohol", 0);
-  if (image) formData.append("image", image);
+  if (!imageFile) {
+    alert("❌ Veuillez choisir une image.");
+    return;
+  }
 
-  fetch("http://4.172.252.189:5000/admin/createProduct", {
-    method: "POST",
-    body: formData, // Ne jamais ajouter de Content-Type manuellement ici
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.status === "success") {
-      alert("✅ Produit ajouté !");
-      fetchProductsFromAPI();
-      document.querySelectorAll('.form-box input').forEach(i => i.value = '');
-      document.getElementById('productCategory').selectedIndex = 0;
-    } else {
-      console.error("Réponse serveur:", data);
-      alert("❌ Échec de l'ajout !");
-    }
-  })
-  .catch(err => {
-    console.error("Erreur:", err);
-    alert("❌ Erreur réseau !");
-  });
+  const reader = new FileReader();
+  reader.onload = function () {
+    const base64Image = reader.result;
+
+    const data = {
+      admin_email: utilisateur.email,
+      admin_password: utilisateur.password,
+      name: name,
+      description: description,
+      category: category,
+      price: price,
+      alcohol: 0,
+      image_base64: base64Image // ce que PowWow attend
+    };
+
+    fetch("http://4.172.252.189:5000/admin/createProduct", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "success") {
+        alert("✅ Produit ajouté !");
+        fetchProductsFromAPI();
+        document.querySelectorAll('.form-box input').forEach(i => i.value = '');
+        document.getElementById('productCategory').selectedIndex = 0;
+      } else {
+        console.error("Réponse serveur:", data);
+        alert("❌ Échec de l'ajout !");
+      }
+    })
+    .catch(err => {
+      console.error("Erreur:", err);
+      alert("❌ Erreur réseau !");
+    });
+  };
+
+  reader.readAsDataURL(imageFile); // ✅ encodage en base64
 }
+
+
 
 
 
@@ -451,6 +496,7 @@ document.getElementById('searchBar').addEventListener('input', function () {
 function getImageURL(product_id) {
   return `http://4.172.252.189:5000/getImages/product/${product_id}`;
 }
+
 
 
 

@@ -295,18 +295,25 @@
       <div class="card" onclick="window.location.href='orders.html#revenus'">
         <div class="card-icon"><img src="static/Group 148.png" alt="Revenue"></div>
         <div class="card-title">Revenus totaux</div>
+        <span id="revenuTotal" style="margin-top: 8px; font-weight: bold; font-size: 16px; color: var(--gray-dark);">Chargement...</span>
       </div>
       <div class="card" onclick="window.location.href='orders.html#total-commandes'">
         <div class="card-icon"><img src="static/Icon_Order.png" alt="Commandes"></div>
         <div class="card-title">Commandes totales</div>
+        <span id="commandesTotales" style="margin-top: 8px; font-weight: bold; font-size: 16px; color: var(--gray-dark);">Chargement...</span>
+
       </div>
-      <div class="card" onclick="window.location.href='orders.html#livraisons'">
-        <div class="card-icon"><img src="static/icon Delivered.png" alt="Livraisons"></div>
-        <div class="card-title">Livraisons totales</div>
+      <div class="card" onclick="window.location.href='orders.html#produits-vendus'">
+        <div class="card-icon"><img src="static/icon Delivered.png" alt="Produits vendus"></div>
+        <div class="card-title">Produits totaux vendus</div>
+        <span id="produitsTotaux" style="margin-top: 8px; font-weight: bold; font-size: 16px; color: var(--gray-dark);">Chargement...</span>
       </div>
+      
       <div class="card" onclick="window.location.href='orders.html#annulees'">
         <div class="card-icon"><img src="static/Icon_Order-2.png" alt="Annulées"></div>
         <div class="card-title">Commandes annulées</div>
+        <span id="commandesAnnulees" style="margin-top: 8px; font-weight: bold; font-size: 16px; color: var(--gray-dark);">Chargement...</span>
+
       </div>
     </section>
   </div>
@@ -317,53 +324,108 @@
 </div>
 <script>
   function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-}
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
 
-const session = getCookie("session");
-let utilisateur = null;
+  const session = getCookie("session");
+  let utilisateur = null;
 
-try {
-  utilisateur = JSON.parse(atob(session));
-  if (utilisateur.user_type !== "admin") {
+  try {
+    utilisateur = JSON.parse(atob(session));
+    if (utilisateur.user_type !== "admin") {
+      window.location.href = "seConnecter.html";
+    }
+  } catch {
     window.location.href = "seConnecter.html";
   }
-} catch {
-  window.location.href = "seConnecter.html";
-}
 
   function switchLanguage() {
     window.location.href = "dashboard_en.html";
   }
+
   function toggleSidebar() {
     document.getElementById("sidebar").classList.toggle("show");
     document.getElementById("overlay").classList.toggle("show");
   }
 
   function logout() {
-  document.cookie = "session=; max-age=0; path=/";
-  window.location.href = "seConnecter.html";
-}
+    document.cookie = "session=; max-age=0; path=/";
+    window.location.href = "seConnecter.html";
+  }
 
-window.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('DOMContentLoaded', () => {
   const session = getCookie("session");
   if (session) {
     try {
       const user = JSON.parse(atob(session));
       const span = document.getElementById("userWelcome");
-      if (user && user.first_name && span) {
-        span.textContent = ` ${user.first_name}`;
+      if (user && span) {
+        const prenom = user.first_name || '';
+        const nom = user.last_name || '';
+        span.textContent = `${prenom} ${nom}`;
       }
-    } catch {
-      // Si erreur, ignorer
-    }
+    } catch {}
+  }
+
+
+    // Requête principale
+    fetch("http://4.172.252.189:5000/admin/getAllOrders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        admin_email: utilisateur.email,
+        admin_password: utilisateur.password
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "success" && Array.isArray(data.orders)) {
+        // Commandes totales
+        document.getElementById("commandesTotales").textContent = `${data.orders.length}`;
+
+        // Revenu total
+        let revenuTotal = 0;
+        let commandesAnnulees = 0;
+        let produitsTotaux = 0;
+
+data.orders.forEach(order => {
+  if (Array.isArray(order.products)) {
+    order.products.forEach(p => {
+      produitsTotaux += p.quantity || 1; // Si y’a pas de `quantity`, on compte 1 par produit
+    });
   }
 });
 
+document.getElementById("produitsTotaux").textContent = `${produitsTotaux}`;
 
 
+        data.orders.forEach(order => {
+          const prix = parseFloat(order.total_price) || 0;
+          const status = order.status?.toLowerCase();
+          revenuTotal += prix;
+          if (status === "cancelled" || status === "annulée") {
+            commandesAnnulees++;
+          }
+        });
+
+        document.getElementById("revenuTotal").textContent = `${revenuTotal.toFixed(2)} $`;
+        document.getElementById("commandesAnnulees").textContent = `${commandesAnnulees}`;
+      } else {
+        document.getElementById("revenuTotal").textContent = "—";
+        document.getElementById("commandesTotales").textContent = "—";
+        document.getElementById("commandesAnnulees").textContent = "—";
+      }
+    })
+    .catch(err => {
+      console.error("Erreur:", err);
+      document.getElementById("revenuTotal").textContent = "Erreur";
+      document.getElementById("commandesTotales").textContent = "Erreur";
+      document.getElementById("commandesAnnulees").textContent = "Erreur";
+    });
+  });
 </script>
+
 </body>
 </html>

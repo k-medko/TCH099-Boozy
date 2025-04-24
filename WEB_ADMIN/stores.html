@@ -438,7 +438,7 @@ try {
   const div = document.createElement("div");
   div.className = "store-entry";
 
-  // On prépare un container pour l'image (chargée dynamiquement)
+  // Création de l'image vide
   const imageElement = document.createElement("img");
   imageElement.alt = `Image du magasin ${store.name}`;
   imageElement.style.width = "80px";
@@ -447,80 +447,89 @@ try {
   imageElement.style.objectFit = "cover";
   imageElement.style.marginRight = "10px";
 
-  // Charger l'image depuis l'API
-  getImageMagasin(store.store_id, imageElement);
-    div.innerHTML = `
-  <div style="display:flex; align-items:center;">
-    ${imageElement.outerHTML}
-    <div>
-      <p><strong>Nom:</strong> <span class="store-nom">${store.name}</span></p>
-      <p><strong>Adresse complète:</strong><br>
-        ${store.address_components?.civic || ''} 
-        ${store.address_components?.apartment ? ', Apt. ' + store.address_components.apartment : ''}<br>
-        ${store.address_components?.street || ''}<br>
-        ${store.address_components?.city || ''}, ${store.address_components?.postal_code || ''}
-      </p>
-    </div>
-  </div>
-  <div class="entry-actions">
+  // Charger l’image dynamique depuis l’API
+  getImageMagasin(store.shop_id, imageElement);
+
+  // Div contenant le texte (nom + adresse)
+  const infoDiv = document.createElement("div");
+  infoDiv.innerHTML = `
+    <p><strong>Nom:</strong> <span class="store-nom">${store.name}</span></p>
+    <p><strong>Adresse complète:</strong><br>
+      ${store.address_components?.civic || ''} 
+      ${store.address_components?.apartment ? ', Apt. ' + store.address_components.apartment : ''}<br>
+      ${store.address_components?.street || ''}<br>
+      ${store.address_components?.city || ''}, ${store.address_components?.postal_code || ''}
+    </p>
+  `;
+
+  // Partie gauche contenant image + texte
+  const leftDiv = document.createElement("div");
+  leftDiv.style.display = "flex";
+  leftDiv.style.alignItems = "center";
+  leftDiv.appendChild(imageElement);
+  leftDiv.appendChild(infoDiv);
+
+  // Boutons Modifier / Produits / Supprimer
+  const actionsDiv = document.createElement("div");
+  actionsDiv.className = "entry-actions";
+  actionsDiv.innerHTML = `
     <button class="edit-btn modifier">Modifier</button>
     <button class="edit-btn stock">Produits</button>
     <button class="delete-btn">Supprimer</button>
-  </div>
-`;
+  `;
 
+  // Ajout à l'entrée principale
+  div.appendChild(leftDiv);
+  div.appendChild(actionsDiv);
 
-div.querySelector(".modifier").addEventListener("click", () => {
-  currentEditStore = {
-    div,
-    store: {
-      shop_id: store.shop_id,
-      name: store.name,
-      civic: store.address_components?.civic || "",
-      apartment: store.address_components?.apartment || "",
-      street: store.address_components?.street || "",
-      city: store.address_components?.city || "",
-      postal_code: store.address_components?.postal_code || ""
-    }
-  };
+  // Actions des boutons
+  div.querySelector(".modifier").addEventListener("click", () => {
+    currentEditStore = {
+      div,
+      store: {
+        shop_id: store.shop_id,
+        name: store.name,
+        civic: store.address_components?.civic || "",
+        apartment: store.address_components?.apartment || "",
+        street: store.address_components?.street || "",
+        city: store.address_components?.city || "",
+        postal_code: store.address_components?.postal_code || ""
+      }
+    };
 
-  document.getElementById("edit-nom").value = store.name;
-  document.getElementById("edit-num").value = store.address_components?.civic || "";
-  document.getElementById("edit-rue").value = store.address_components?.street || "";
-  document.getElementById("edit-ville").value = store.address_components?.city || "";
-  document.getElementById("edit-appartement").value = store.address_components?.apartment || "";
-  document.getElementById("edit-postal").value = store.address_components?.postal_code || "";
+    document.getElementById("edit-nom").value = store.name;
+    document.getElementById("edit-num").value = store.address_components?.civic || "";
+    document.getElementById("edit-rue").value = store.address_components?.street || "";
+    document.getElementById("edit-ville").value = store.address_components?.city || "";
+    document.getElementById("edit-appartement").value = store.address_components?.apartment || "";
+    document.getElementById("edit-postal").value = store.address_components?.postal_code || "";
 
-  document.getElementById("modal").style.display = "block";
-});
+    document.getElementById("modal").style.display = "block";
+  });
 
-
-div.querySelector(".stock").addEventListener("click", () => {
-  const url = `stock_magasin.html?nom=${encodeURIComponent(store.name)}&id=${store.shop_id}`;
-  window.location.href = url;
-});
-
-
-
+  div.querySelector(".stock").addEventListener("click", () => {
+    const url = `stock_magasin.html?nom=${encodeURIComponent(store.name)}&id=${store.shop_id}`;
+    window.location.href = url;
+  });
 
   div.querySelector(".delete-btn").addEventListener("click", () => {
-  if (confirm("Voulez-vous vraiment supprimer ce magasin ?")) {
-    supprimerMagasin(store.shop_id)
-      .then(data => {
-        if (data.status === "success") {
-          alert("Magasin supprimé !");
-          fetchStoresFromAPI(); // Recharge la liste
-        } else {
-          alert("Erreur lors de la suppression !");
-          console.error("Réponse API:", data);
-        }
-      })
-      .catch(err => {
-        alert("Erreur réseau !");
-        console.error("Erreur:", err);
-      });
-  }
-});
+    if (confirm("Voulez-vous vraiment supprimer ce magasin ?")) {
+      supprimerMagasin(store.shop_id)
+        .then(data => {
+          if (data.status === "success") {
+            alert("Magasin supprimé !");
+            fetchStoresFromAPI(); // Recharge la liste
+          } else {
+            alert("Erreur lors de la suppression !");
+            console.error("Réponse API:", data);
+          }
+        })
+        .catch(err => {
+          alert("Erreur réseau !");
+          console.error("Erreur:", err);
+        });
+    }
+  });
 
   document.getElementById("storeList").appendChild(div);
 }
