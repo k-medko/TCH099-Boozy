@@ -1,0 +1,443 @@
+{
+  "orders": [
+    {
+      "carrier": {
+        "car_brand": "Ford Focus",
+        "email": "carrier1@boozy.com",
+        "first_name": "Charlie",
+        "last_name": "Brown",
+        "license_plate": "AB-123-CD",
+        "phone_number": "9999999999",
+        "user_id": 9
+      },
+      "client": {
+        "email": "client1@boozy.com",
+        "first_name": "Alice",
+        "last_name": "Smith",
+        "phone_number": "5140000000",
+        "user_id": 7
+      },
+      "creation_date": "2025-04-24 13:55:53",
+      "delivery_address": "123 apt 1A Rue Sainte-Catherine Ouest, Montreal, H3B 1A7",
+      "items": [
+        {
+          "alcohol": 40.0,
+          "category": "Whisky \u00e9cossais",
+          "name": "Aberfeldy 12 Single Malt Scotch Whisky",
+          "price": 74.75,
+          "product_id": 4,
+          "quantity": 3,
+          "subtotal": 224.25
+        }
+      ],
+      "order_id": 8,
+      "payment": {
+        "amount": 257.89,
+        "card_name": "John Doe",
+        "card_number": "4111111111111111",
+        "is_completed": true,
+        "payment_date": "2025-04-24 13:55:53",
+        "payment_method": "credit_card"
+      },
+      "shop": {
+        "address": "155 Av. Atwater, Montreal, H3J 2J4",
+        "name": "SAQ S\u00e9lection-March\u00e9 Atwater",
+        "shop_id": 1
+      },
+      "status": "Completed",
+      "tip_amount": 33.64,
+      "total_amount": 257.89,
+      "total_items": 3
+    },
+    {
+      "carrier": {
+        "car_brand": "Ford Focus",
+        "email": "carrier1@boozy.com",
+        "first_name": "Charlie",
+        "last_name": "Brown",
+        "license_plate": "AB-123-CD",
+        "phone_number": "9999999999",
+        "user_id": 9
+      },
+      "client": {
+        "email": "client1@boozy.com",
+        "first_name": "Alice",
+        "last_name": "Smith",
+        "phone_number": "5140000000",
+        "user_id": 7
+      },
+      "creation_date": "2025-04-24 13:55:46",
+      "delivery_address": "123 apt 1A Rue Sainte-Catherine Ouest, Montreal, H3B 1A7",
+      "items": [
+        {
+          "alcohol": 12.5,
+          "category": "Vin ros\u00e9",
+          "name": "Vignoble Rivi\u00e8re du Ch\u00eane, Gabrielle 2023",
+          "price": 17.55,
+          "product_id": 3,
+          "quantity": 1,
+          "subtotal": 17.55
+        }
+      ],
+      "order_id": 7,
+      "payment": {
+        "amount": 20.18,
+        "card_name": "John Doe",
+        "card_number": "4111111111111111",
+        "is_completed": true,
+        "payment_date": "2025-04-24 13:55:46",
+        "payment_method": "credit_card"
+      },
+      "shop": {
+        "address": "155 Av. Atwater, Montreal, H3J 2J4",
+        "name": "SAQ S\u00e9lection-March\u00e9 Atwater",
+        "shop_id": 1
+      },
+      "status": "Completed",
+      "tip_amount": 2.63,
+      "total_amount": 20.18,
+      "total_items": 1
+    },
+    {
+      "carrier": {
+        "car_brand": "Ford Focus",
+        "email": "carrier1@boozy.com",
+        "first_name": "Charlie",
+        "last_name": "Brown",
+        "license_plate": "AB-123-CD",
+        "phone_number": "9999999999",
+        "user_id": 9
+      },
+      "client": {
+        "email": "client1@boozy.com",
+        "first_name": "Alice",
+        "last_name": "Smith",
+        "phone_number": "5140000000",
+        "user_id": 7
+      },
+      "creation_date": "2025-04-24 03:53:56",
+      "delivery_address": "123 apt 1A Rue Sainte-Catherine Ouest, Montreal, H3B 1A7",
+      "items": [
+        {
+          "alcohol": 12.5,
+          "category": "Vin ros\u00e9",
+          "name": "Vignoble Rivi\u00e8re du Ch\u00eane, Gabrielle 2023",
+          "price": 17.55,
+          "product_id": 3,
+          "quantity": 1,
+          "subtotal": 17.55
+        }
+      ],
+      "order_id": 6,
+      "payment": {
+        "amount": 20.18,
+        "card_name": "John Doe",
+        "card_number": "4111111111111111",
+        "is_completed": true,
+        "payment_date": "2025-04-24 03:53:56",
+        "payment_method": "credit_card"
+      },
+      "shop": {
+        "address": "1450 De la Montagne, Montreal, HH3G 1Z5",
+        "name": "SAQ S\u00e9lection-De la Montagne",
+        "shop_id": 3
+      },
+      "status": "Completed",
+      "tip_amount": 2.63,
+      "total_amount": 20.18,
+      "total_items": 1
+    },
+    {
+      "carrier": {
+        "car_brand": "Ford Focus",
+        "email": "carrier1@boozy.com",
+        "first_name": "Charlie",
+        "last_name": "Brown",
+        "license_plate": "AB-123-CD",
+        "phone_number": "9999999999",
+        "user_id": 9
+      },
+      "client": {
+        "email": "client1@boozy.com",
+        "first_name": "Alice",
+        "last_name": "Smith",
+        "phone_number": "5140000000",
+        "user_id": 7
+      },
+      "creation_date": "2025-04-24 02:59:01",
+      "delivery_address": "123 apt 1A Rue Sainte-Catherine Ouest, Montreal, H3B 1A7",
+      "items": [
+        {
+          "alcohol": 12.5,
+          "category": "Vin blanc",
+          "name": "Domaine Perraud M\u00e2con Villages 2023",
+          "price": 24.0,
+          "product_id": 2,
+          "quantity": 1,
+          "subtotal": 24.0
+        },
+        {
+          "alcohol": 30.0,
+          "category": "Liqueur d\u2019\u00e9rable (whisky canadien)",
+          "name": "Sortil\u00e8ge Original",
+          "price": 34.25,
+          "product_id": 11,
+          "quantity": 1,
+          "subtotal": 34.25
+        }
+      ],
+      "order_id": 5,
+      "payment": {
+        "amount": 66.99,
+        "card_name": "John Doe",
+        "card_number": "4111111111111111",
+        "is_completed": true,
+        "payment_date": "2025-04-24 02:59:01",
+        "payment_method": "credit_card"
+      },
+      "shop": {
+        "address": "155 Av. Atwater, Montreal, H3J 2J4",
+        "name": "SAQ S\u00e9lection-March\u00e9 Atwater",
+        "shop_id": 1
+      },
+      "status": "Completed",
+      "tip_amount": 8.74,
+      "total_amount": 66.99,
+      "total_items": 2
+    },
+    {
+      "carrier": {
+        "car_brand": "Ford Focus",
+        "email": "carrier1@boozy.com",
+        "first_name": "Charlie",
+        "last_name": "Brown",
+        "license_plate": "AB-123-CD",
+        "phone_number": "9999999999",
+        "user_id": 9
+      },
+      "client": {
+        "email": "client1@boozy.com",
+        "first_name": "Alice",
+        "last_name": "Smith",
+        "phone_number": "5140000000",
+        "user_id": 7
+      },
+      "creation_date": "2025-04-24 02:09:35",
+      "delivery_address": "123 apt 1A Rue Sainte-Catherine Ouest, Montreal, H3B 1A7",
+      "items": [
+        {
+          "alcohol": 12.5,
+          "category": "Vin blanc",
+          "name": "Domaine Perraud M\u00e2con Villages 2023",
+          "price": 24.0,
+          "product_id": 2,
+          "quantity": 1,
+          "subtotal": 24.0
+        }
+      ],
+      "order_id": 4,
+      "payment": {
+        "amount": 27.6,
+        "card_name": "John Doe",
+        "card_number": "4111111111111111",
+        "is_completed": true,
+        "payment_date": "2025-04-24 02:09:35",
+        "payment_method": "credit_card"
+      },
+      "shop": {
+        "address": "155 Av. Atwater, Montreal, H3J 2J4",
+        "name": "SAQ S\u00e9lection-March\u00e9 Atwater",
+        "shop_id": 1
+      },
+      "status": "Completed",
+      "tip_amount": 3.6,
+      "total_amount": 27.6,
+      "total_items": 1
+    },
+    {
+      "carrier": {
+        "car_brand": "Ford Focus",
+        "email": "carrier1@boozy.com",
+        "first_name": "Charlie",
+        "last_name": "Brown",
+        "license_plate": "AB-123-CD",
+        "phone_number": "9999999999",
+        "user_id": 9
+      },
+      "client": {
+        "email": "client1@boozy.com",
+        "first_name": "Alice",
+        "last_name": "Smith",
+        "phone_number": "5140000000",
+        "user_id": 7
+      },
+      "creation_date": "2025-04-24 01:49:17",
+      "delivery_address": "123 apt 1A Rue Sainte-Catherine Ouest, Montreal, H3B 1A7",
+      "items": [
+        {
+          "alcohol": 12.5,
+          "category": "Vin ros\u00e9",
+          "name": "Vignoble Rivi\u00e8re du Ch\u00eane, Gabrielle 2023",
+          "price": 17.55,
+          "product_id": 3,
+          "quantity": 1,
+          "subtotal": 17.55
+        },
+        {
+          "alcohol": 40.0,
+          "category": "Whisky \u00e9cossais",
+          "name": "Aberfeldy 12 Single Malt Scotch Whisky",
+          "price": 74.75,
+          "product_id": 4,
+          "quantity": 1,
+          "subtotal": 74.75
+        },
+        {
+          "alcohol": 11.0,
+          "category": "Ap\u00e9ritif \u00e0 base de gentiane",
+          "name": "Aperol",
+          "price": 27.7,
+          "product_id": 5,
+          "quantity": 1,
+          "subtotal": 27.7
+        },
+        {
+          "alcohol": 30.0,
+          "category": "Liqueur d\u2019\u00e9rable (whisky canadien)",
+          "name": "Sortil\u00e8ge Original",
+          "price": 34.25,
+          "product_id": 11,
+          "quantity": 1,
+          "subtotal": 34.25
+        }
+      ],
+      "order_id": 3,
+      "payment": {
+        "amount": 177.39,
+        "card_name": "John Doe",
+        "card_number": "4111111111111111",
+        "is_completed": true,
+        "payment_date": "2025-04-24 01:49:17",
+        "payment_method": "credit_card"
+      },
+      "shop": {
+        "address": "155 Av. Atwater, Montreal, H3J 2J4",
+        "name": "SAQ S\u00e9lection-March\u00e9 Atwater",
+        "shop_id": 1
+      },
+      "status": "Completed",
+      "tip_amount": 23.14,
+      "total_amount": 177.39,
+      "total_items": 4
+    },
+    {
+      "carrier": {
+        "car_brand": "Ford Focus",
+        "email": "carrier1@boozy.com",
+        "first_name": "Charlie",
+        "last_name": "Brown",
+        "license_plate": "AB-123-CD",
+        "phone_number": "9999999999",
+        "user_id": 9
+      },
+      "client": {
+        "email": "client1@boozy.com",
+        "first_name": "Alice",
+        "last_name": "Smith",
+        "phone_number": "5140000000",
+        "user_id": 7
+      },
+      "creation_date": "2025-04-24 01:41:49",
+      "delivery_address": "123 apt 1A Rue Sainte-Catherine Ouest, Montreal, H3B 1A7",
+      "items": [
+        {
+          "alcohol": 14.0,
+          "category": "Vin rouge",
+          "name": "Monte Real Reserva Rioja 2020",
+          "price": 24.7,
+          "product_id": 1,
+          "quantity": 1,
+          "subtotal": 24.7
+        },
+        {
+          "alcohol": 40.0,
+          "category": "Whisky \u00e9cossais",
+          "name": "Aberfeldy 12 Single Malt Scotch Whisky",
+          "price": 74.75,
+          "product_id": 4,
+          "quantity": 1,
+          "subtotal": 74.75
+        }
+      ],
+      "order_id": 2,
+      "payment": {
+        "amount": 114.37,
+        "card_name": "John Doe",
+        "card_number": "4111111111111111",
+        "is_completed": true,
+        "payment_date": "2025-04-24 01:41:49",
+        "payment_method": "credit_card"
+      },
+      "shop": {
+        "address": "155 Av. Atwater, Montreal, H3J 2J4",
+        "name": "SAQ S\u00e9lection-March\u00e9 Atwater",
+        "shop_id": 1
+      },
+      "status": "Completed",
+      "tip_amount": 14.92,
+      "total_amount": 114.37,
+      "total_items": 2
+    },
+    {
+      "carrier": {
+        "car_brand": "Toyota",
+        "email": "hqpaqzds@example.com",
+        "first_name": "SimFirst",
+        "last_name": "SimLast",
+        "license_plate": "CCKB6J5",
+        "phone_number": "1892311693",
+        "user_id": 12
+      },
+      "client": {
+        "email": "afjetinl@example.com",
+        "first_name": "SimFirst",
+        "last_name": "SimLast",
+        "phone_number": "5952055327",
+        "user_id": 11
+      },
+      "creation_date": "2025-04-24 01:39:06",
+      "delivery_address": "123 SimStreet, Montreal, H1H1H1",
+      "items": [
+        {
+          "alcohol": 14.0,
+          "category": "Vin rouge",
+          "name": "Monte Real Reserva Rioja 2020",
+          "price": 24.7,
+          "product_id": 1,
+          "quantity": 1,
+          "subtotal": 24.7
+        }
+      ],
+      "order_id": 1,
+      "payment": {
+        "amount": 28.4,
+        "card_name": "SimClient",
+        "card_number": "1111222233334444",
+        "is_completed": true,
+        "payment_date": "2025-04-24 01:39:06",
+        "payment_method": "credit_card"
+      },
+      "shop": {
+        "address": "155 Av. Atwater, Montreal, H3J 2J4",
+        "name": "SAQ S\u00e9lection-March\u00e9 Atwater",
+        "shop_id": 1
+      },
+      "status": "Completed",
+      "tip_amount": 3.7,
+      "total_amount": 28.4,
+      "total_items": 1
+    }
+  ],
+  "status": "success",
+  "total_orders": 8
+}

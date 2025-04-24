@@ -2,6 +2,8 @@ from flask import Flask, redirect, request, jsonify, send_from_directory
 from flask_mysqldb import MySQL
 from flask_cors import CORS
 import os
+import base64
+import re
 from datetime import datetime
 
 app = Flask(__name__)
@@ -38,6 +40,62 @@ def get_dummy_carrier_id():
         fetch=False
     )
     return dummy_id
+
+def changeImage(image_data, item_id, item_type):
+    """
+    Handles saving image for products or shops
+    
+    Parameters:
+    - image_data: Base64 encoded image data (without the prefix)
+    - item_id: ID of the product or shop
+    - item_type: Either 'product' or 'shop'
+    
+    Returns:
+    - Tuple (success, message)
+    """
+    # Validate parameters
+    if not image_data:
+        return False, "No image data provided"
+    
+    if not item_id:
+        return False, "No item ID provided"
+    
+    if item_type not in ['product', 'shop']:
+        return False, "Invalid item type. Must be 'product' or 'shop'"
+    
+    # Validate base64 format
+    try:
+        # Check if the data starts with base64 prefix, remove if present
+        if "base64," in image_data:
+            image_data = image_data.split("base64,")[1]
+        
+        # Decode base64 string
+        image_bytes = base64.b64decode(image_data)
+        
+        # Check if it's a PNG by looking at the magic bytes
+        if not image_bytes.startswith(b'\x89PNG\r\n\x1a\n'):
+            return False, "Image must be in PNG format"
+        
+        # Determine the target directory based on item type
+        if item_type == 'product':
+            target_dir = os.path.join(app.root_path, 'static', 'productImages')
+        else:  # shop
+            target_dir = os.path.join(app.root_path, 'static', 'shopImages')
+        
+        # Ensure target directory exists
+        os.makedirs(target_dir, exist_ok=True)
+        
+        # Create the file path with the correct filename format
+        file_path = os.path.join(target_dir, f"{item_id}.png")
+        
+        # Save the image
+        with open(file_path, 'wb') as image_file:
+            image_file.write(image_bytes)
+        
+        return True, "Image saved successfully"
+    
+    except Exception as e:
+        return False, f"Error processing image: {str(e)}"
 
 ######## Public Routes ########
 @app.route('/')
@@ -775,6 +833,14 @@ def admin_create_shop():
                                 (data["civic"], data.get("apartment"), data["street"], data["city"], data.get("postal_code", "")), fetch=False)
     new_shop_id = execute_query("INSERT INTO Shop (name, address_id) VALUES (%s, %s)",
                                 (data["name"], new_addr_id), fetch=False)
+    
+    # Handle image upload if provided
+    if "image" in data and data["image"]:
+        success, message = changeImage(data["image"], new_shop_id, "shop")
+        if not success:
+            # Continue with shop creation even if image upload fails
+            return jsonify({"status": "success", "shop_id": new_shop_id, "image_warning": message})
+    
     return jsonify({"status": "success", "shop_id": new_shop_id})
 
 @app.route('/admin/modifyShop', methods=['POST'])
@@ -810,7 +876,19 @@ def admin_modify_shop():
     if addr_updates:
         addr_params.append(addr_id)
         execute_query(f"UPDATE AddressLine SET {', '.join(addr_updates)} WHERE address_id = %s", tuple(addr_params), fetch=False)
-    return jsonify({"status": "success", "message": "Shop updated successfully"})
+    
+    # Handle image update if provided
+    image_message = None
+    if "image" in data and data["image"]:
+        success, message = changeImage(data["image"], shop_id, "shop")
+        if not success:
+            image_message = message
+    
+    response = {"status": "success", "message": "Shop updated successfully"}
+    if image_message:
+        response["image_warning"] = image_message
+    
+    return jsonify(response)
 
 @app.route('/admin/deleteShop', methods=['POST'])
 def admin_delete_shop():
@@ -849,6 +927,14 @@ def admin_create_product():
     description = data.get("description", "")
     new_prod_id = execute_query("INSERT INTO Product (name, description, price, category, alcohol) VALUES (%s, %s, %s, %s, %s)",
                                 (data["name"], description, data["price"], data["category"], data["alcohol"]), fetch=False)
+    
+    # Handle image upload if provided
+    if "image" in data and data["image"]:
+        success, message = changeImage(data["image"], new_prod_id, "product")
+        if not success:
+            # Continue with product creation even if image upload fails
+            return jsonify({"status": "success", "product_id": new_prod_id, "image_warning": message})
+    
     return jsonify({"status": "success", "product_id": new_prod_id})
 
 @app.route('/admin/modifyProduct', methods=['POST'])
@@ -872,11 +958,24 @@ def admin_modify_product():
         if key in data:
             updates.append(f"{db_field} = %s")
             params.append(data[key])
-    if not updates:
-        return jsonify({"status": "error", "message": "No fields to update"}), 400
-    params.append(prod_id)
-    execute_query(f"UPDATE Product SET {', '.join(updates)} WHERE product_id = %s", tuple(params), fetch=False)
-    return jsonify({"status": "success", "message": "Product updated successfully"})
+    if updates:
+        params.append(prod_id)
+        execute_query(f"UPDATE Product SET {', '.join(updates)} WHERE product_id = %s", tuple(params), fetch=False)
+    
+    # Handle image update if provided
+    image_message = None
+    if "image" in data and data["image"]:
+        success, message = changeImage(data["image"], prod_id, "product")
+        if not success:
+            image_message = message
+    
+    response = {"status": "success", "message": "Product updated successfully"}
+    if image_message:
+        response["image_warning"] = image_message
+    elif not updates and "image" not in data:
+        response["message"] = "No fields to update"
+    
+    return jsonify(response)
 
 @app.route('/admin/deleteProduct', methods=['POST'])
 def admin_delete_product():
@@ -1080,6 +1179,42 @@ def admin_get_all_orders():
         "total_orders": len(result),
         "orders": result
     })
+
+@app.route('/admin/cancelOrder', methods=['POST'])
+def admin_cancel_order():
+    data = request.get_json()
+    
+    # Verify admin credentials
+    if "admin_email" not in data or "admin_password" not in data:
+        return jsonify({"status": "error", "message": "Admin credentials required"}), 401
+    
+    admin = execute_query("SELECT * FROM UserAccount WHERE email = %s AND password = %s AND user_type = 'admin'",
+                         (data["admin_email"], data["admin_password"]))
+    
+    if not admin:
+        return jsonify({"status": "error", "message": "Unauthorized access"}), 401
+    
+    # Check if order_id is provided
+    if "order_id" not in data:
+        return jsonify({"status": "error", "message": "Order ID is required"}), 400
+    
+    order_id = data["order_id"]
+    
+    # Verify the order exists
+    order = execute_query("SELECT * FROM ClientOrder WHERE client_order_id = %s", (order_id,))
+    if not order:
+        return jsonify({"status": "error", "message": "Order not found"}), 404
+    
+    # Update the order status to Cancelled
+    try:
+        execute_query("UPDATE ClientOrder SET status = 'Cancelled' WHERE client_order_id = %s", (order_id,), fetch=False)
+        return jsonify({
+            "status": "success", 
+            "message": "Order cancelled successfully",
+            "order_id": order_id
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 ######## Admin Web Routes ########
 ADMIN_FOLDER = os.path.abspath(os.path.join(app.root_path, '..', 'WEB_ADMIN'))
