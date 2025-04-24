@@ -275,9 +275,39 @@ public class PaiementActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     PanierManager.getInstance(getApplicationContext()).clearCart();
                     Toast.makeText(PaiementActivity.this, "Commande envoyée avec succès", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(PaiementActivity.this, SuiviCommandeActivity.class);
-                    startActivity(intent);
-                    finish();
+
+                    Map<String, String> credentials = new HashMap<>();
+                    credentials.put("email", email);
+                    credentials.put("password", password);
+
+                    Call<Map<String, Object>> getOrdersCall = api.getUserOrders(credentials);
+                    getOrdersCall.enqueue(new Callback<>() {
+                        @Override
+                        public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                List<Map<String, Object>> orders = (List<Map<String, Object>>) response.body().get("orders");
+
+                                if (!orders.isEmpty()) {
+                                    int latestOrderId = ((Double) orders.get(0).get("order_id")).intValue();
+
+                                    Intent intent = new Intent(PaiementActivity.this, SuiviCommandeActivity.class);
+                                    intent.putExtra("order_id", latestOrderId);
+                                    startActivity(intent);
+                                    finish();
+                                } else {
+                                    Toast.makeText(PaiementActivity.this, "Commande sans numéro", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(PaiementActivity.this, "Erreur récupération commande", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                            Toast.makeText(PaiementActivity.this, "Erreur réseau post-commande", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
                 } else {
                     Toast.makeText(PaiementActivity.this, "Erreur lors de la commande", Toast.LENGTH_SHORT).show();
                 }
@@ -289,4 +319,5 @@ public class PaiementActivity extends AppCompatActivity {
             }
         });
     }
+
 }

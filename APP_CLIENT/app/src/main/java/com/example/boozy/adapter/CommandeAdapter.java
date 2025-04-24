@@ -15,10 +15,16 @@ import java.util.List;
 
 public class CommandeAdapter extends RecyclerView.Adapter<CommandeAdapter.CommandeViewHolder> {
 
-    List<Commande> commandes;
+    private List<Commande> commandes;
+    private OnItemClickListener listener;
 
-    public CommandeAdapter(List<Commande> commandes) {
+    public interface OnItemClickListener {
+        void onItemClick(Commande commande);
+    }
+
+    public CommandeAdapter(List<Commande> commandes, OnItemClickListener listener) {
         this.commandes = commandes;
+        this.listener = listener;
     }
 
     @NonNull
@@ -31,8 +37,10 @@ public class CommandeAdapter extends RecyclerView.Adapter<CommandeAdapter.Comman
     @Override
     public void onBindViewHolder(@NonNull CommandeViewHolder holder, int position) {
         Commande commande = commandes.get(position);
-        holder.numero.setText("Commande #" + commande.getNumeroCommande());
-        holder.date.setText("Date : " + commande.getDateCommande());
+        holder.numero.setText("Commande #" + commande.getOrderId());
+        holder.date.setText("Date : " + commande.getCreationDate());
+
+        holder.itemView.setOnClickListener(v -> listener.onItemClick(commande));
     }
 
     @Override

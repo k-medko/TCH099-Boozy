@@ -94,13 +94,22 @@ public class RegisterClientActivity extends AppCompatActivity {
         inputAdresseGoogle.setFocusable(false);
         inputAdresseGoogle.setHint("Rechercher une adresse");
         inputAdresseGoogle.setOnClickListener(v -> {
+            com.google.android.libraries.places.api.model.RectangularBounds bounds =
+                    com.google.android.libraries.places.api.model.RectangularBounds.newInstance(
+                            new com.google.android.gms.maps.model.LatLng(45.4100, -73.9500),
+                            new com.google.android.gms.maps.model.LatLng(45.7000, -73.5000)
+                    );
+
             Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY,
                     Arrays.asList(Place.Field.ADDRESS_COMPONENTS, Place.Field.ADDRESS))
                     .setCountry("CA")
+                    .setLocationBias(bounds)
                     .build(this);
+
             startActivityForResult(intent, 1002);
         });
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -6,9 +6,11 @@
     android:layout_margin="12dp"
     android:padding="0dp"
     android:backgroundTint="@android:color/white"
-    android:elevation="1dp"
+    android:elevation="0dp"
     android:foreground="?android:attr/selectableItemBackground"
-    android:background="@drawable/product_card_background">
+    android:background="@drawable/product_card_background"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://schemas.android.com/apk/res/android ">
 
     <TextView
         android:id="@+id/textNumero"

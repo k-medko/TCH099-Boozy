@@ -8,6 +8,7 @@ import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.boozy.R;
@@ -15,6 +16,7 @@ import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.UtilisateurManager;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -62,6 +64,9 @@ public class SuiviCommandeActivity extends AppCompatActivity {
     }
 
     private void fetchOrderStatus() {
+        int orderId = getIntent().getIntExtra("order_id", -1);
+        if (orderId == -1) return;
+
         String email = UtilisateurManager.getInstance(this).getEmail();
         String password = UtilisateurManager.getInstance(this).getPassword();
 
@@ -76,32 +81,42 @@ public class SuiviCommandeActivity extends AppCompatActivity {
 
         ApiService api = retrofit.create(ApiService.class);
 
-        api.connectUser(body).enqueue(new Callback<>() {
+        api.getUserOrders(body).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Map<String, Object> user = (Map<String, Object>) response.body().get("user");
-                    Map<String, Object> order = (Map<String, Object>) user.get("current_order");
-                    if (order != null) {
-                        String id = String.valueOf(order.get("id"));
-                        String date = (String) order.get("created_at");
-                        String montant = order.get("total_price") + "$";
-                        String livreur = (String) order.get("delivery_name");
-                        String status = (String) order.get("status");
+                    List<Map<String, Object>> orders = (List<Map<String, Object>>) response.body().get("orders");
 
-                        numeroCommande.setText("#" + id);
-                        dateCommande.setText(date);
-                        montantCommande.setText(montant);
-                        livreurCommande.setText(livreur != null ? livreur : "Nom");
+                    for (Map<String, Object> order : orders) {
+                        int id = ((Double) order.get("order_id")).intValue();
+                        if (id == orderId) {
+                            String date = (String) order.get("creation_date");
+                            String montant = order.get("total_amount") + "$";
+                            String status = (String) order.get("status");
 
-                        updateProgression(status);
+                            String livreur = (String) order.get("carrier_name");
+                            if (livreur == null || livreur.equalsIgnoreCase("Unassigned Dummy")) {
+                                livreurCommande.setText("En recherche d’un livreur...");
+                            } else {
+                                livreurCommande.setText(livreur);
+                            }
+
+
+                            numeroCommande.setText(String.valueOf(id));
+                            dateCommande.setText(date);
+                            montantCommande.setText(montant);
+
+
+                            updateProgression(status);
+                            break;
+                        }
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<Map<String, Object>> call, Throwable t) {
-
+                t.printStackTrace();
             }
         });
     }
@@ -109,13 +124,11 @@ public class SuiviCommandeActivity extends AppCompatActivity {
     private void updateProgression(String status) {
         int green = getColor(R.color.green);
 
-        if (status.equals("Processing")) {
-            ligne1.setBackgroundColor(green);
-        } else if (status.equals("Shipping")) {
-            ligne1.setBackgroundColor(green);
+        ligne1.setBackgroundColor(green);
+
+        if ("Shipping".equalsIgnoreCase(status)) {
             ligne2.setBackgroundColor(green);
-        } else if (status.equals("Completed")) {
-            ligne1.setBackgroundColor(green);
+        } else if ("Completed".equalsIgnoreCase(status)) {
             ligne2.setBackgroundColor(green);
             ligne3.setBackgroundColor(green);
         }

@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- ─────────────── En‑tête ─────────────── -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
@@ -36,7 +35,6 @@
         android:layout_height="1dp"
         android:background="#CCCCCC"/>
 
-    <!-- ─────────────── Contenu scrollable ─────────────── -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -46,8 +44,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- ====== Infos clientOrder ====== -->
-            <!-- # clientOrder -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -74,7 +70,6 @@
                 android:layout_height="1dp"
                 android:background="#CCCCCC"/>
 
-            <!-- Date -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -101,7 +96,6 @@
                 android:layout_height="1dp"
                 android:background="#CCCCCC"/>
 
-            <!-- Total payé -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -128,7 +122,6 @@
                 android:layout_height="1dp"
                 android:background="#CCCCCC"/>
 
-            <!-- Livreur -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -155,7 +148,6 @@
                 android:layout_height="1dp"
                 android:background="#CCCCCC"/>
 
-            <!-- ====== Statut temps réel ====== -->
             <TextView
                 android:id="@+id/textStatut"
                 android:layout_width="wrap_content"
@@ -178,7 +170,6 @@
                 android:progress="0"
                 android:indeterminate="false"/>
 
-            <!-- ====== Barre de progression décorative ====== -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="480dp"
@@ -186,7 +177,6 @@
                 android:orientation="vertical"
                 android:paddingHorizontal="80dp">
 
-                <!-- Étape 1 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -218,7 +208,6 @@
                     android:layout_marginStart="19dp"
                     android:background="@color/grey"/>
 
-                <!-- Étape 2 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -250,7 +239,6 @@
                     android:layout_marginStart="19dp"
                     android:background="@color/grey"/>
 
-                <!-- Étape 3 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

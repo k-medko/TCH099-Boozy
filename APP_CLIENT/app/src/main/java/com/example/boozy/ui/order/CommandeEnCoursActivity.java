@@ -233,14 +233,46 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
 
 
     private void openInWaze() {
-        try {
-            String uri = "waze://?q=" + Uri.encode(adresseLivraison);
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-            startActivity(intent);
-        } catch (Exception e) {
-            Toast.makeText(this, "Waze non installé", Toast.LENGTH_SHORT).show();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+            return;
         }
+
+        LocationRequest locationRequest = LocationRequest.create()
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .setInterval(1000)
+                .setNumUpdates(1);
+
+        LocationCallback locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                if (locationResult == null || locationResult.getLocations().isEmpty()) {
+                    Toast.makeText(CommandeEnCoursActivity.this, "Position actuelle introuvable", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Location location = locationResult.getLastLocation();
+                double lat = location.getLatitude();
+                double lon = location.getLongitude();
+
+                String origin = lat + "," + lon;
+                String destination = Uri.encode(adresseLivraison.replaceAll("(?i)apt\\s*\\d+", "").trim());
+
+                String uri = "https://waze.com/ul?ll=" + destination + "&navigate=yes";
+
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                intent.setPackage("com.waze");
+                try {
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(CommandeEnCoursActivity.this, "Waze non installé", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
+
 
     private void navigateBack() {
         Intent intent = new Intent(this, LivreurHomeActivity.class);
