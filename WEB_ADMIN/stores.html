@@ -330,7 +330,7 @@
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
     <header>
       <div class="logo-container">
-        <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px !important; height: 60px !important;"></a> Ajouter un magasin SAQ</h1>
+        <h1><a href="dashboard.html"><img src="static/LOGO 1.png" alt="BOOZY Logo" style="width: 60px !important; height: 60px !important;"></a> Ajouter un magasin SAQ</h1>
       </div>
       <!-- Nouvelle barre de recherche style dashboard -->
       <div class="search-bar" style="height: 39px !important; width: 262.953125px !important;">
@@ -348,11 +348,11 @@
     </header>
   <div class="main">
     <nav id="sidebar">
-      <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
-      <a href="stores.html" class="active"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
-      <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
-      <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
-      <a href="users.html"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+      <a href="dashboard.html"><img src="static/Frame 218.png" alt="Accueil">Accueil</a>
+      <a href="stores.html" class="active"><img src="static/store-alt.png" alt="Magasins">Magasins</a>
+      <a href="orders.html"><img src="static/border-all.png" alt="Commandes">Commandes</a>
+      <a href="products.html"><img src="static/wine-bottle.png" alt="Produits">Produits</a>
+      <a href="users.html"><img src="static/users.png" alt="Utilisateurs">Utilisateurs</a>
     </nav>
     <div class="container">
       <div class="form-box">
@@ -396,6 +396,25 @@
 </div>
 
 <script>
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+const session = getCookie("session");
+let utilisateur = null;
+
+try {
+  utilisateur = JSON.parse(atob(session));
+  if (utilisateur.user_type !== "admin") {
+    window.location.href = "seConnecter.html";
+  }
+} catch {
+  window.location.href = "seConnecter.html";
+}
+
+
   function switchLanguage() {
     window.location.href = "stores_en.html";
   }
@@ -429,19 +448,7 @@
   imageElement.style.marginRight = "10px";
 
   // Charger l'image depuis l'API
-  fetch(`http://4.172.252.189:5000/getImages/shop/${store.store_id}`)
-    .then(res => {
-      if (!res.ok) throw new Error("Erreur image");
-      return res.blob();
-    })
-    .then(blob => {
-      const url = URL.createObjectURL(blob);
-      imageElement.src = url;
-    })
-    .catch(() => {
-      imageElement.src = "assets/image/default-store.png"; // Image fallback si erreur
-    });
-
+  getImageMagasin(store.store_id, imageElement);
     div.innerHTML = `
   <div style="display:flex; align-items:center;">
     ${imageElement.outerHTML}
@@ -564,6 +571,27 @@ function validerModification() {
       });
   }
 
+  function getImageMagasin(shop_id, imgElement) {
+  console.log("🔍 Chargement image pour shop_id :", shop_id);
+
+  fetch(`http://4.172.252.189:5000/getImages/shop/${shop_id}`)
+    .then(response => {
+      if (!response.ok) {
+        console.warn("⚠️ Image non trouvée pour shop_id:", shop_id);
+        throw new Error("Erreur image");
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      const imageUrl = URL.createObjectURL(blob);
+      imgElement.src = imageUrl;
+    })
+    .catch(() => {
+      imgElement.src = "assets/image/default-store.png"; // Fallback
+    });
+}
+
+
   function filtrerMagasins(keyword) {
   const magasins = document.querySelectorAll(".store-entry");
 
@@ -597,8 +625,8 @@ function validerModification() {
   const city = document.getElementById("ville").value;
 
   const storeData = {
-    admin_email: "edwar@boozy.com",
-    admin_password: "adminpass",
+    admin_email: utilisateur.email,
+    admin_password: utilisateur.password,
     name: name,
     civic: civic,
     apartment: document.getElementById("appartement").value,
@@ -634,8 +662,8 @@ function modifierMagasin(shopData) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      admin_email: "edwar@boozy.com",
-      admin_password: "adminpass",
+      admin_email: utilisateur.email,
+      admin_password: utilisateur.password,
       shop_id: shopData.shop_id,
       name: shopData.name,
       civic: shopData.civic,
@@ -652,8 +680,8 @@ function supprimerMagasin(shop_id) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      admin_email: "edwar@boozy.com",
-      admin_password: "adminpass",
+      admin_email: utilisateur.email,
+      admin_password: utilisateur.password,
       shop_id: shop_id
     })
   }).then(res => res.json());

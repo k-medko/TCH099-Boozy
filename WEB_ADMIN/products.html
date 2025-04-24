@@ -113,15 +113,15 @@
     <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
     <nav id="sidebar">
-      <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
-      <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
-      <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
-      <a href="products.html" class="active"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
-      <a href="users.html"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+      <a href="dashboard.html"><img src="static/Frame 218.png" alt="Accueil">Accueil</a>
+      <a href="stores.html"><img src="static/store-alt.png" alt="Magasins">Magasins</a>
+      <a href="orders.html"><img src="static/border-all.png" alt="Commandes">Commandes</a>
+      <a href="products.html" class="active"><img src="static/wine-bottle.png" alt="Produits">Produits</a>
+      <a href="users.html"><img src="static/users.png" alt="Utilisateurs">Utilisateurs</a>
     </nav>
     <header>
       <div class="logo-container">
-        <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Produits SAQ</h1>
+        <h1><a href="dashboard.html"><img src="static/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Produits SAQ</h1>
       </div>
       <div class="search-bar">
         <input type="text" id="searchBar" placeholder="Rechercher...">
@@ -131,6 +131,7 @@
         <button onclick="switchLanguage()" class="lang-btn">🌐 EN</button>
         <a href="dashboard.html" class="logout" style="text-decoration: none;">← Retour</a>
       </div>
+
     </header>
 
     <div class="main">
@@ -140,6 +141,7 @@
         <select id="productCategory"></select>
         <input type="text" id="productDesc" placeholder="Description">
         <input type="text" id="productPrice" placeholder="Prix">
+        <input type="file" id="productImage" accept="image/png" />
         <button onclick="addProduct()">Ajouter</button>
       </div>
       <div class="product-list-box" id="productList"></div>
@@ -147,20 +149,39 @@
 
     <div class="modal" id="editModal">
       <h3>Modifier le produit</h3>
-      <label for="editName">Nom</label>
-      <input type="text" id="editName" placeholder="Nom">
+    
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div>
+          <label for="editName">Nom</label>
+          <input type="text" id="editName" placeholder="Nom" style="width: 100%;">
+        </div>
+    
+        <div>
+          <label for="editCategory">Catégorie</label>
+          <select id="editCategory" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--gray-border);"></select>
+        </div>
+    
+        <div>
+          <label for="editDesc">Description</label>
+          <input type="text" id="editDesc" placeholder="Description" style="width: 100%;">
+        </div>
+    
+        <div>
+          <label for="editPrice">Prix</label>
+          <input type="text" id="editPrice" placeholder="Prix" style="width: 100%;">
+        </div>
+      </div>
 
-      <label for="editCategory">Catégorie</label>
-      <select id="editCategory"></select>
+      <input type="file" id="editImage" accept="image/png" />
 
-      <label for="editDesc">Description</label>
-      <input type="text" id="editDesc" placeholder="Description">
-
-      <label for="editPrice">Prix</label>
-      <input type="text" id="editPrice" placeholder="Prix">
-
-      <button class="form-btn" onclick="validerEditionProduit()">Valider</button>
+    
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+        <button class="form-btn" onclick="validerEditionProduit()">Valider</button>
+        <button class="form-btn" style="background-color: var(--danger);" onclick="fermerModal()">Annuler</button>
+      </div>
     </div>
+    
+    
 
     <footer>
       <p><strong>© 2025 Boozy Inc.</strong> Tous droits réservés.</p>
@@ -169,10 +190,35 @@
   </div>
 
   <script>
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+const session = getCookie("session");
+let utilisateur = null;
+
+try {
+  utilisateur = JSON.parse(atob(session));
+  if (utilisateur.user_type !== "admin") {
+    window.location.href = "seConnecter.html";
+  }
+} catch {
+  window.location.href = "seConnecter.html";
+}
+
+
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("show");
       document.getElementById("overlay").classList.toggle("show");
     }
+
+    function fermerModal() {
+  document.getElementById('editModal').style.display = 'none';
+}
+
 
     const categories = {};
     let produitActuel = null;
@@ -237,22 +283,25 @@
         const div = document.createElement('div');
         div.className = 'product-entry';
         div.innerHTML = `
-          <div>
-            <p><strong>Nom:</strong> ${product.name}</p>
-            <p><strong>Catégorie:</strong> ${cat}</p>
-            <p><strong>Description:</strong> ${product.description}</p>
-            <p><strong>Prix:</strong> ${product.price}$</p>
-          </div>
-          <div class="entry-actions">
-            <button class="edit-btn" onclick="editProduct('${cat}', ${index})">Modifier</button>
-            <button class="delete-btn" onclick="deleteProduct('${cat}', ${index})">Supprimer</button>
-          </div>`;
+  <div style="display: flex; gap: 16px;">
+    <img src="${getImageURL(product.product_id)}" alt="Image produit" style="width: 80px; height: auto; border-radius: 8px; object-fit: cover;"/>
+    <div>
+      <p><strong>Nom:</strong> ${product.name}</p>
+      <p><strong>Catégorie:</strong> ${cat}</p>
+      <p><strong>Description:</strong> ${product.description}</p>
+      <p><strong>Prix:</strong> ${product.price}$</p>
+    </div>
+  </div>
+  <div class="entry-actions">
+    <button class="edit-btn" onclick="editProduct('${cat}', ${index})">Modifier</button>
+    <button class="delete-btn" onclick="deleteProduct('${cat}', ${index})">Supprimer</button>
+  </div>`;
+
         productList.appendChild(div);
       }
     });
   });
 }
-
 
     function deleteProduct(cat, index) {
       categories[cat].splice(index, 1);
@@ -280,8 +329,8 @@
   const newPrice = parseFloat(document.getElementById('editPrice').value);
 
   const updatedData = {
-    admin_email: "edwar@boozy.com",
-    admin_password: "adminpass",
+    admin_email: utilisateur.email,
+    admin_password: utilisateur.password,
     product_id: produit.product_id, // identifiant requis pour la modification
     name: newName,
     description: newDesc,
@@ -312,36 +361,47 @@ function addProduct() {
   const name = document.getElementById('productName').value;
   const description = document.getElementById('productDesc').value;
   const category = document.getElementById('productCategory').value;
-  const price = parseFloat(document.getElementById('productPrice').value);
+  const price = document.getElementById('productPrice').value;
+  const image = document.getElementById('productImage').files[0];
 
-  const productData = {
-    admin_email: "edwar@boozy.com",
-    admin_password: "adminpass",
-    name: name,
-    description: description,
-    category: category,
-    price: price,
-    alcohol: 0 // ou tu peux ajouter un champ input pour cette valeur
-  };
+  if (!name || !category || !description || !price || isNaN(parseFloat(price))) {
+    alert("❌ Veuillez remplir tous les champs correctement.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("admin_email", utilisateur.email);
+  formData.append("admin_password", utilisateur.password);
+  formData.append("name", name);
+  formData.append("description", description);
+  formData.append("category", category);
+  formData.append("price", price);
+  formData.append("alcohol", 0);
+  if (image) formData.append("image", image);
 
   fetch("http://4.172.252.189:5000/admin/createProduct", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(productData)
+    body: formData, // Ne jamais ajouter de Content-Type manuellement ici
   })
-  .then(response => response.json())
+  .then(res => res.json())
   .then(data => {
-    console.log("Produit créé:", data);
-    alert("Produit ajouté avec succès !");
-    fetchProductsFromAPI(); // pour rafraîchir la liste
-    document.querySelectorAll('.form-box input').forEach(i => i.value = '');
-    document.getElementById('productCategory').selectedIndex = 0;
+    if (data.status === "success") {
+      alert("✅ Produit ajouté !");
+      fetchProductsFromAPI();
+      document.querySelectorAll('.form-box input').forEach(i => i.value = '');
+      document.getElementById('productCategory').selectedIndex = 0;
+    } else {
+      console.error("Réponse serveur:", data);
+      alert("❌ Échec de l'ajout !");
+    }
   })
-  .catch(error => {
-    console.error("Erreur lors de l'ajout du produit:", error);
-    alert("Échec de l'ajout !");
+  .catch(err => {
+    console.error("Erreur:", err);
+    alert("❌ Erreur réseau !");
   });
 }
+
+
 
 function modifierProduit(productData) {
   return fetch("http://4.172.252.189:5000/admin/modifyProduct", {
@@ -360,8 +420,9 @@ function deleteProduct(cat, index) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      admin_email: "edwar@boozy.com",
-      admin_password: "adminpass",
+      admin_email: utilisateur.email,
+      admin_password: utilisateur.password,
+
       product_id: produit.product_id
     })
   })
@@ -387,8 +448,13 @@ document.getElementById('searchBar').addEventListener('input', function () {
   renderAllProducts(value);
 });
 
+function getImageURL(product_id) {
+  return `http://4.172.252.189:5000/getImages/product/${product_id}`;
+}
 
-    window.onload = fetchProductsFromAPI;
+
+
+  window.onload = fetchProductsFromAPI;
   </script>
 </body>
 </html>

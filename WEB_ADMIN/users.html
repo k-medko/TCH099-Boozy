@@ -135,25 +135,9 @@
   .logout:hover {
     background-color: var(--primary-hover);
   }
-  footer {
-    background-color: var(--primary);
-    height: 90px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 14px;
-    padding: 10px;
-    text-align: center;
-  }
-  footer a {
-    color: #ffc0cb;
-    text-decoration: none;
-  }
-  footer a:hover {
-    text-decoration: underline;
-  }
+  footer { background-color: var(--primary); height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-size: 14px; padding: 10px; text-align: center; }
+    footer a { color: #ffc0cb; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
   .main {
   flex: 1;
   padding: 24px;
@@ -328,15 +312,15 @@
     <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
     <nav id="sidebar">
-      <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
-      <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
-      <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
-      <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
-      <a href="users.html" class="active"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+      <a href="dashboard.html"><img src="static/Frame 218.png" alt="Accueil">Accueil</a>
+      <a href="stores.html"><img src="static/store-alt.png" alt="Magasins">Magasins</a>
+      <a href="orders.html"><img src="static/border-all.png" alt="Commandes">Commandes</a>
+      <a href="products.html"><img src="static/wine-bottle.png" alt="Produits">Produits</a>
+      <a href="users.html" class="active"><img src="static/users.png" alt="Utilisateurs">Utilisateurs</a>
     </nav>
    <header>
       <div class="logo-container">
-        <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Utilisateurs</h1>
+        <h1><a href="dashboard.html"><img src="static/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Utilisateurs</h1>
       </div>
       <div class="search-bar">
         <input type="text" id="searchBar" placeholder="Rechercher...">
@@ -416,116 +400,104 @@
     </footer>
   </div>
   <script>
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("show");
-      document.getElementById("overlay").classList.toggle("show");
-    }
-    const ADMIN_EMAIL = "edwar@boozy.com";
-    const ADMIN_PASSWORD = "adminpass";
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
 
-    function toggleDriverFields() {
-      const type = document.getElementById("userType").value;
-      document.getElementById("driverFields").style.display = type === "carrier" ? "block" : "none";
-    }
+function getAdminCreds() {
+  const utilisateur = JSON.parse(atob(getCookie("session")));
+  return {
+    email: utilisateur.email,
+    password: utilisateur.password
+  };
+}
 
-    async function creerUtilisateur(userData) {
+try {
+  const utilisateur = JSON.parse(atob(getCookie("session")));
+  if (utilisateur.user_type !== "admin") {
+    window.location.href = "seConnecter.html";
+  }
+} catch {
+  window.location.href = "seConnecter.html";
+}
+
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("show");
+  document.getElementById("overlay").classList.toggle("show");
+}
+
+function toggleDriverFields() {
+  const type = document.getElementById("userType").value;
+  document.getElementById("driverFields").style.display = type === "carrier" ? "block" : "none";
+}
+
+async function creerUtilisateur(userData) {
+  const { email, password } = getAdminCreds();
   const response = await fetch("http://4.172.252.189:5000/admin/createUser", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      admin_email: "edwar@boozy.com",             // ton admin
-      admin_password: "adminpass",                // ton mot de passe admin
-      email: userData.email,
-      password: userData.password,
-      last_name: userData.last_name,
-      first_name: userData.first_name,
-      phone_number: userData.phone_number,
-      user_type: userData.user_type,
-      license_plate: userData.license_plate,
-      car_brand: userData.car_brand,
-      address: {
-        civic: userData.address.civic,
-        apartment: userData.address.apartment,
-        street: userData.address.street,
-        city: userData.address.city,
-        postal_code: userData.address.postal_code
-      }
+      admin_email: email,
+      admin_password: password,
+      ...userData
     })
   });
-
   return await response.json();
 }
 
-
-    async function modifierUtilisateur(userId, updatedData) {
+async function modifierUtilisateur(userId, updatedData) {
+  const { email, password } = getAdminCreds();
   const response = await fetch("http://4.172.252.189:5000/admin/modifyUser", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      admin_email: ADMIN_EMAIL,
-      admin_password: ADMIN_PASSWORD,
+      admin_email: email,
+      admin_password: password,
       user_id: userId,
-      email: updatedData.email,
-      password: updatedData.password, // ← assure-toi que ce champ est rempli côté UI si nécessaire
-      last_name: updatedData.last_name,
-      first_name: updatedData.first_name,
-      phone_number: updatedData.phone_number,
-      user_type: updatedData.user_type,
-      license_plate: updatedData.license_plate,
-      car_brand: updatedData.car_brand,
-      total_earnings: updatedData.total_earnings || 0, // valeur par défaut
-      address: {
-        civic: updatedData.address.civic,
-        apartment: updatedData.address.apartment,
-        street: updatedData.address.street,
-        city: updatedData.address.city,
-        postal_code: updatedData.address.postal_code
-      }
+      ...updatedData
     })
   });
   return response.json();
 }
 
-
 async function supprimerUtilisateur(userId) {
+  const { email, password } = getAdminCreds();
   const response = await fetch("http://4.172.252.189:5000/admin/deleteUser", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       user_id: userId,
-      admin_email: ADMIN_EMAIL,
-      admin_password: ADMIN_PASSWORD
+      admin_email: email,
+      admin_password: password
     })
   });
-
   const result = await response.json();
-
   if (result.status === "success") {
     alert("Utilisateur supprimé !");
   } else {
     alert("Échec de la suppression !");
   }
-
   return result;
 }
 
+async function getUtilisateurs() {
+  const { email, password } = getAdminCreds();
+  const response = await fetch("http://4.172.252.189:5000/admin/getUsers", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ admin_email: email, admin_password: password })
+  });
+  const res = await response.json();
+  if (res.status === "success") {
+    document.getElementById("userList").innerHTML = "";
+    res.users.forEach(u => afficherUtilisateurDansListe(u));
+  } else {
+    alert("Échec de récupération des utilisateurs");
+  }
+}
 
-    async function getUtilisateurs() {
-      const response = await fetch("http://4.172.252.189:5000/admin/getUsers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ admin_email: ADMIN_EMAIL, admin_password: ADMIN_PASSWORD })
-      });
-      const res = await response.json();
-      if (res.status === "success") {
-        document.getElementById("userList").innerHTML = "";
-        res.users.forEach(u => afficherUtilisateurDansListe(u));
-      } else {
-        alert("Échec de récupération des utilisateurs");
-      }
-    }
 
     function afficherUtilisateurDansListe(user) {
   const userList = document.getElementById("userList");
@@ -605,16 +577,16 @@ function closeModal() {
 
 function saveUserEdit() {
   const userId = document.getElementById("editModal").dataset.userId;
+
   const updatedData = {
     email: document.getElementById("editEmail").value,
-    password: document.getElementById("editPassword")?.value || "", // ← ajoute ce champ
     first_name: document.getElementById("editFirstName").value,
     last_name: document.getElementById("editLastName").value,
     phone_number: document.getElementById("editPhone").value,
     user_type: document.getElementById("editUserType").value,
     license_plate: document.getElementById("editLicense")?.value || "",
     car_brand: document.getElementById("editBrand")?.value || "",
-    total_earnings: 0, // par défaut
+    total_earnings: 0,
     address: {
       civic: document.getElementById("editCivic").value,
       apartment: document.getElementById("editApartment").value,
@@ -624,14 +596,26 @@ function saveUserEdit() {
     }
   };
 
-  modifierUtilisateur(userId, updatedData).then(() => {
-    getUtilisateurs();
-    closeModal();
-    alert("Utilisateur modifié avec succès !");
-  });
+  const passwordInput = document.getElementById("editPassword").value;
+  if (passwordInput) {
+    updatedData.password = passwordInput;
+  }
+
+  modifierUtilisateur(userId, updatedData)
+    .then(response => {
+      if (response.status === "success") {
+        alert("✅ Utilisateur modifié !");
+        getUtilisateurs();
+        closeModal();
+      } else {
+        alert("❌ Échec modification : " + (response.message || "erreur inconnue"));
+      }
+    })
+    .catch(err => {
+      console.error("Erreur:", err);
+      alert("❌ Erreur réseau !");
+    });
 }
-
-
 
     function handleDelete(userId) {
       if (confirm("Supprimer cet utilisateur?")) {
@@ -691,3 +675,4 @@ document.getElementById("searchBar").addEventListener("input", function () {
   </script>
 </body>
 </html>
+

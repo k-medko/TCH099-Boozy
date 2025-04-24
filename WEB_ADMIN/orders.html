@@ -239,19 +239,20 @@
   </style>
 </head>
 <body>
+  
   <div class="wrapper">
     <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
     <nav id="sidebar">
-      <a href="dashboard.html"><img src="assets/image/Frame 218.png" alt="Accueil">Accueil</a>
-      <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
-      <a href="orders.html" class="active"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
-      <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
-      <a href="users.html"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+      <a href="dashboard.html"><img src="static/Frame 218.png" alt="Accueil">Accueil</a>
+      <a href="stores.html"><img src="static/store-alt.png" alt="Magasins">Magasins</a>
+      <a href="orders.html" class="active"><img src="static/border-all.png" alt="Commandes">Commandes</a>
+      <a href="products.html"><img src="static/wine-bottle.png" alt="Produits">Produits</a>
+      <a href="users.html"><img src="static/users.png" alt="Utilisateurs">Utilisateurs</a>
     </nav>
     <header>
       <div class="logo-container">
-        <h1><a href="dashboard.html"><img src="assets/image/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Tableau des Commandes</h1>
+        <h1><a href="dashboard.html"><img src="static/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Tableau des Commandes</h1>
       </div>
       <div class="search-bar">
         <input type="text" id="searchBar" placeholder="Rechercher...">
@@ -307,6 +308,23 @@
   </div>
 
   <script>
+    function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+const session = getCookie("session");
+let utilisateur = null;
+
+try {
+  utilisateur = JSON.parse(atob(session));
+  if (utilisateur.user_type !== "admin") {
+    window.location.href = "seConnecter.html";
+  }
+} catch {
+  window.location.href = "seConnecter.html";
+}
     function switchLanguage() {
       window.location.href = "orders_en.html";
     }
@@ -333,6 +351,55 @@
     function fermerModal() {
       document.getElementById("detailsModal").style.display = "none";
     }
+
+    window.onload = async function () {
+  try {
+    const response = await fetch("http://4.172.252.189:5000/admin/getAllOrders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        admin_email: utilisateur.email,
+        admin_password: utilisateur.password
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.status === "success" && Array.isArray(data.orders)) {
+      const tbody = document.querySelector("tbody");
+      tbody.innerHTML = ""; // Clear placeholder row
+
+      data.orders.forEach(order => {
+        const tr = document.createElement("tr");
+
+        // Exemple : adaptez selon la structure réelle
+        const produits = order.products || [];
+        const produitsJS = JSON.stringify(produits).replace(/"/g, '&quot;'); // Safe inject
+
+        tr.innerHTML = `
+          <td>${order.order_id}</td>
+          <td>${order.client_name || "—"}</td>
+          <td>${order.address || "—"}</td>
+          <td><span style="background:#FEF3C7;padding:4px 8px;border-radius:6px;font-size:13px;">${order.status || "En cours"}</span></td>
+          <td>${new Date(order.date).toLocaleDateString()}</td>
+          <td>${order.total_price?.toFixed(2) || "0.00"}$</td>
+          <td>
+            <button class="action-btn" onclick='voirDetailsCommande(${produitsJS})'>Détails</button>
+            <button class="action-btn" style="background-color: var(--danger);" onclick="annulerCommande(this)">Annuler</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } else {
+      console.error("❌ Erreur API :", data.message || data);
+    }
+  } catch (err) {
+    console.error("❌ Erreur lors du chargement des commandes :", err);
+  }
+};
+
+
+    
   </script>
 </body>
 </html>
