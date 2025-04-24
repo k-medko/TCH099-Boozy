@@ -37,6 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
                 android:scrollbars="none">
 
                 <LinearLayout
@@ -134,29 +135,12 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:background="@drawable/image_border"
-                android:layout_margin="16dp"
-                android:padding="4dp">
-
-                <ImageView
-                    android:id="@+id/banner"
-                    android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:contentDescription="@string/banner"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/banner" />
-            </FrameLayout>
-
             <TextView
                 android:id="@+id/shopListTitle"
                 style="@style/TextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="18dp"
+                android:layout_marginStart="20dp"
                 android:text="@string/magasins_dispo"
                 android:textSize="16sp"
                 android:textStyle="bold" />

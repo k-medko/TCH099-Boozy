@@ -21,6 +21,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AddressComponent;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.stripe.android.PaymentConfiguration;
@@ -84,16 +85,25 @@ public class ModifierProfilClientActivity extends AppCompatActivity {
         editAdresseGoogle.setHint("Rechercher une adresse");
         editAdresseGoogle.setFocusable(false);
         editAdresseGoogle.setOnClickListener(v -> {
+
+            RectangularBounds bounds = RectangularBounds.newInstance(
+                    new com.google.android.gms.maps.model.LatLng(45.4100, -73.9500),
+                    new com.google.android.gms.maps.model.LatLng(45.7000, -73.5000)
+            );
+
             Intent intent = new com.google.android.libraries.places.widget.Autocomplete
                     .IntentBuilder(com.google.android.libraries.places.widget.model.AutocompleteActivityMode.OVERLAY,
                     Arrays.asList(
                             Place.Field.ADDRESS_COMPONENTS, Place.Field.ADDRESS
                     ))
                     .setCountry("CA")
+                    .setLocationBias(bounds)
                     .build(this);
+
             startActivityForResult(intent, 1002);
         });
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

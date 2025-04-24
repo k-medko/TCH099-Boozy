@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,7 @@ import com.example.boozy.adapter.ProductAdapter;
 import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.AvailabilityResponse;
 import com.example.boozy.data.model.Produit;
+import com.example.boozy.data.model.UtilisateurManager;
 import com.example.boozy.ui.client.ClientHomeActivity;
 import com.example.boozy.ui.client.PaiementActivity;
 import com.example.boozy.ui.client.ProfilClientActivity;
@@ -26,7 +28,9 @@ import com.example.boozy.ui.order.SuiviCommandeActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -200,6 +204,7 @@ public class ShopDetailActivity extends AppCompatActivity {
 
     private void navigateToCart() {
         Intent intent = new Intent(this, PaiementActivity.class);
+        intent.putExtra("refresh", true);
         startActivity(intent);
     }
 
@@ -209,7 +214,54 @@ public class ShopDetailActivity extends AppCompatActivity {
     }
 
     private void navigateToOrder() {
-        Intent intent = new Intent(this, SuiviCommandeActivity.class);
-        startActivity(intent);
+        String email = UtilisateurManager.getInstance(this).getEmail();
+        String password = UtilisateurManager.getInstance(this).getPassword();
+
+        Map<String, String> credentials = new HashMap<>();
+        credentials.put("email", email);
+        credentials.put("password", password);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://4.172.252.189:5000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        ApiService api = retrofit.create(ApiService.class);
+
+        api.getUserOrders(credentials).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Map<String, Object>> orders = (List<Map<String, Object>>) response.body().get("orders");
+
+                    if (orders != null && !orders.isEmpty()) {
+                        orders.sort((o1, o2) -> {
+                            String d1 = (String) o1.get("creation_date");
+                            String d2 = (String) o2.get("creation_date");
+                            return d2.compareTo(d1);
+                        });
+
+                        Map<String, Object> latestOrder = orders.get(0);
+                        int latestOrderId = ((Double) latestOrder.get("order_id")).intValue();
+
+                        Intent intent = new Intent(ShopDetailActivity.this, SuiviCommandeActivity.class);
+                        intent.putExtra("order_id", latestOrderId);
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(ShopDetailActivity.this, "Aucune commande trouvée", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(ShopDetailActivity.this, "Erreur serveur", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                t.printStackTrace();
+                Toast.makeText(ShopDetailActivity.this, "Erreur réseau", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
+
 }

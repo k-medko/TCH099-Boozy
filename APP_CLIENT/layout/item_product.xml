@@ -21,7 +21,7 @@
             android:scaleType="centerCrop"
             android:contentDescription="Produit" />
     </FrameLayout>
-    
+
     <TextView
         android:id="@+id/productCategoryText"
         android:layout_width="wrap_content"

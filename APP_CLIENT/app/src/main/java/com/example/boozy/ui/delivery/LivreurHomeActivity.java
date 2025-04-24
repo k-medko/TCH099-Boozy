@@ -67,17 +67,55 @@ public class LivreurHomeActivity extends AppCompatActivity {
                 startActivity(new Intent(this, HistoriqueActivity.class)));
 
         findViewById(R.id.buttonCommandesEnCours).setOnClickListener(v -> {
-            if (UtilisateurManager.getInstance(this).hasCommandeActive()) {
-                Intent intent = new Intent(this, CommandeEnCoursActivity.class);
-                intent.putExtra("orderId", UtilisateurManager.getInstance(this).getOrderId());
-                intent.putExtra("shopName", UtilisateurManager.getInstance(this).getShopName());
-                intent.putExtra("shopAddress", UtilisateurManager.getInstance(this).getShopAddress());
-                intent.putExtra("totalAmount", UtilisateurManager.getInstance(this).getTotalAmount());
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "Aucune commande active", Toast.LENGTH_SHORT).show();
-            }
+            String email = UtilisateurManager.getInstance(this).getEmail();
+            String password = UtilisateurManager.getInstance(this).getPassword();
+
+            Map<String, String> credentials = new HashMap<>();
+            credentials.put("email", email);
+            credentials.put("password", password);
+
+            api.getUserOrders(credentials).enqueue(new Callback<Map<String, Object>>() {
+                @Override
+                public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<Map<String, Object>> orders = (List<Map<String, Object>>) response.body().get("orders");
+
+                        if (orders != null && !orders.isEmpty()) {
+                            for (Map<String, Object> order : orders) {
+                                String status = (String) order.get("status");
+                                if ("Shipping".equalsIgnoreCase(status)) {
+                                    int orderId = ((Double) order.get("order_id")).intValue();
+                                    String shopName = (String) order.get("shop_name");
+                                    String shopAddress = (String) order.get("shop_address");
+                                    double totalAmount = (Double) order.get("total_amount");
+
+                                    UtilisateurManager.getInstance(LivreurHomeActivity.this).setDerniereCommande(orderId, shopName, shopAddress, totalAmount);
+
+                                    Intent intent = new Intent(LivreurHomeActivity.this, CommandeEnCoursActivity.class);
+                                    intent.putExtra("orderId", orderId);
+                                    intent.putExtra("shopName", shopName);
+                                    intent.putExtra("shopAddress", shopAddress);
+                                    intent.putExtra("totalAmount", totalAmount);
+                                    startActivity(intent);
+                                    return;
+                                }
+                            }
+                        }
+
+                        Toast.makeText(LivreurHomeActivity.this, "Aucune commande en cours", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(LivreurHomeActivity.this, "Erreur lors du chargement", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                    Toast.makeText(LivreurHomeActivity.this, "Erreur réseau", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
+
+
 
         findViewById(R.id.buttonProfil).setOnClickListener(v ->
                 startActivity(new Intent(this, ProfilLivreurActivity.class)));
