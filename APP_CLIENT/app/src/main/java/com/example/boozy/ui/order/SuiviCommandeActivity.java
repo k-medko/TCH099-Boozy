@@ -3,8 +3,10 @@ package com.example.boozy.ui.order;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -15,8 +17,12 @@ import com.example.boozy.R;
 import com.example.boozy.data.api.ApiService;
 import com.example.boozy.data.model.UtilisateurManager;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -29,6 +35,13 @@ public class SuiviCommandeActivity extends AppCompatActivity {
 
     private TextView numeroCommande, dateCommande, montantCommande, livreurCommande;
     private View ligne1, ligne2, ligne3;
+    private Button buttonAnnuler;
+
+    private final Handler refreshHandler = new Handler();
+    private Runnable refreshRunnable;
+    private static final int REFRESH_INTERVAL_MS = 1000;
+    private int orderId;
+    private String currentStatus = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +58,24 @@ public class SuiviCommandeActivity extends AppCompatActivity {
 
         setupViews();
         setupBackButton();
+
+        orderId = getIntent().getIntExtra("order_id", -1);
         fetchOrderStatus();
+
+        refreshRunnable = new Runnable() {
+            @Override
+            public void run() {
+                fetchOrderStatus();
+                refreshHandler.postDelayed(this, REFRESH_INTERVAL_MS);
+            }
+        };
+        refreshHandler.postDelayed(refreshRunnable, REFRESH_INTERVAL_MS);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        refreshHandler.removeCallbacks(refreshRunnable);
     }
 
     private void setupViews() {
@@ -56,6 +86,9 @@ public class SuiviCommandeActivity extends AppCompatActivity {
         ligne1 = findViewById(R.id.ligne1);
         ligne2 = findViewById(R.id.ligne2);
         ligne3 = findViewById(R.id.ligne3);
+        buttonAnnuler = findViewById(R.id.buttonAnnulerCommande);
+
+        buttonAnnuler.setOnClickListener(v -> cancelOrder());
     }
 
     private void setupBackButton() {
@@ -64,7 +97,6 @@ public class SuiviCommandeActivity extends AppCompatActivity {
     }
 
     private void fetchOrderStatus() {
-        int orderId = getIntent().getIntExtra("order_id", -1);
         if (orderId == -1) return;
 
         String email = UtilisateurManager.getInstance(this).getEmail();
@@ -90,24 +122,39 @@ public class SuiviCommandeActivity extends AppCompatActivity {
                     for (Map<String, Object> order : orders) {
                         int id = ((Double) order.get("order_id")).intValue();
                         if (id == orderId) {
-                            String date = (String) order.get("creation_date");
-                            String montant = order.get("total_amount") + "$";
+                            String rawDate = (String) order.get("creation_date");
+                            String montantRaw = order.get("total_amount").toString();
                             String status = (String) order.get("status");
-
                             String livreur = (String) order.get("carrier_name");
-                            if (livreur == null || livreur.equalsIgnoreCase("Unassigned Dummy")) {
+
+                            currentStatus = status;
+
+                            try {
+                                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA_FRENCH);
+                                Date date = inputFormat.parse(rawDate);
+                                SimpleDateFormat outputFormat = new SimpleDateFormat("d MMMM yyyy 'à' HH:mm:ss", Locale.CANADA_FRENCH);
+                                rawDate = outputFormat.format(date);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            DecimalFormat df = new DecimalFormat("0.00");
+                            String montant = df.format(Double.parseDouble(montantRaw)) + "$";
+
+                            numeroCommande.setText(String.valueOf(id));
+                            dateCommande.setText(rawDate);
+                            montantCommande.setText(montant);
+
+                            if ("Cancelled".equalsIgnoreCase(status)) {
+                                livreurCommande.setText("Commande annulée");
+                            } else if (livreur == null || livreur.equalsIgnoreCase("Unassigned Dummy")) {
                                 livreurCommande.setText("En recherche d’un livreur...");
                             } else {
                                 livreurCommande.setText(livreur);
                             }
 
-
-                            numeroCommande.setText(String.valueOf(id));
-                            dateCommande.setText(date);
-                            montantCommande.setText(montant);
-
-
                             updateProgression(status);
+                            updateCancelButtonVisibility(status);
                             break;
                         }
                     }
@@ -124,13 +171,64 @@ public class SuiviCommandeActivity extends AppCompatActivity {
     private void updateProgression(String status) {
         int green = getColor(R.color.green);
 
-        ligne1.setBackgroundColor(green);
+        if ("Cancelled".equalsIgnoreCase(status)) {
+            ligne1.setBackgroundColor(Color.GRAY);
+            ligne2.setBackgroundColor(Color.GRAY);
+            ligne3.setBackgroundColor(Color.GRAY);
+        } else {
+            ligne1.setBackgroundColor(green);
 
-        if ("Shipping".equalsIgnoreCase(status)) {
-            ligne2.setBackgroundColor(green);
-        } else if ("Completed".equalsIgnoreCase(status)) {
-            ligne2.setBackgroundColor(green);
-            ligne3.setBackgroundColor(green);
+            if ("Shipping".equalsIgnoreCase(status)) {
+                ligne2.setBackgroundColor(green);
+            } else if ("Completed".equalsIgnoreCase(status)) {
+                ligne2.setBackgroundColor(green);
+                ligne3.setBackgroundColor(green);
+            }
         }
+    }
+
+    private void updateCancelButtonVisibility(String status) {
+        if ("Cancelled".equalsIgnoreCase(status) ||
+                "Shipping".equalsIgnoreCase(status) ||
+                "Completed".equalsIgnoreCase(status)) {
+            buttonAnnuler.setVisibility(View.GONE);
+        } else {
+            buttonAnnuler.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void cancelOrder() {
+        if (orderId == -1) return;
+
+        String email = UtilisateurManager.getInstance(this).getEmail();
+        String password = UtilisateurManager.getInstance(this).getPassword();
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("email", email);
+        body.put("password", password);
+        body.put("order_id", orderId);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://4.172.252.189:5000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        ApiService api = retrofit.create(ApiService.class);
+
+        api.cancelOrder(body).enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
+                if (response.isSuccessful()) {
+                    livreurCommande.setText("Commande annulée");
+                    updateCancelButtonVisibility("Cancelled");
+                    fetchOrderStatus(); // actualiser pour montrer la progression grisée
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 }

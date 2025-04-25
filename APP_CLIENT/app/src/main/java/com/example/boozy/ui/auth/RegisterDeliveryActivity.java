@@ -87,9 +87,9 @@ public class RegisterDeliveryActivity extends AppCompatActivity {
         livreur.setNumTel(tel);
         livreur.setPlaqueAuto(permis);
         livreur.setPassword(mdp);
+        livreur.setCarBrand("null");
         livreur.setTypeUtilisateur("carrier");
 
-        // Log JSON
         Gson gson = new GsonBuilder()
                 .excludeFieldsWithoutExposeAnnotation()
                 .setPrettyPrinting()
@@ -97,7 +97,6 @@ public class RegisterDeliveryActivity extends AppCompatActivity {
         String json = gson.toJson(livreur);
         Log.d("JSON_LIVREUR", json);
 
-        // Retrofit
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://4.172.252.189:5000/")
                 .addConverterFactory(GsonConverterFactory.create(gson))

@@ -45,7 +45,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class CommandeEnCoursActivity extends AppCompatActivity {
 
     private TextView textNumeroCommande, textClient, textRecuperation, textDestination;
-    private Button buttonDemarrer, buttonLivree;
+    private Button buttonDemarrer, buttonLivree, buttonAnnulerCommande;
     private ImageView buttonBack;
     private String adresseMagasin;
     private String adresseLivraison;
@@ -78,6 +78,7 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
         afficherCommandeDepuisExtras();
 
         buttonBack.setOnClickListener(v -> navigateBack());
+
         buttonDemarrer.setOnClickListener(v -> {
             if (!shippingDejaFait) {
                 updateOrderStatus("Shipping");
@@ -85,7 +86,27 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
                 showNavigationOptions();
             }
         });
-        buttonLivree.setOnClickListener(v -> updateOrderStatus("Completed"));
+
+        buttonLivree.setOnClickListener(v -> {
+            new AlertDialog.Builder(CommandeEnCoursActivity.this)
+                    .setTitle("Vérification de l'âge")
+                    .setMessage("Avez-vous vérifié l'âge du client (18+)?")
+                    .setCancelable(false)
+                    .setPositiveButton("Oui", (dialog, which) -> updateOrderStatus("Completed"))
+                    .setNegativeButton("Non", (dialog, which) -> {
+                        Toast.makeText(CommandeEnCoursActivity.this, "Vérification requise avant livraison.", Toast.LENGTH_SHORT).show();
+                    })
+                    .show();
+        });
+
+        buttonAnnulerCommande.setOnClickListener(v -> {
+            new AlertDialog.Builder(CommandeEnCoursActivity.this)
+                    .setTitle("Annuler la commande")
+                    .setMessage("Es-tu sûr de vouloir annuler cette commande ?")
+                    .setPositiveButton("Oui", (dialog, which) -> updateOrderStatus("Searching"))
+                    .setNegativeButton("Non", null)
+                    .show();
+        });
     }
 
     private void setupFullScreen() {
@@ -105,20 +126,53 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
         textDestination = findViewById(R.id.textDestination);
         buttonDemarrer = findViewById(R.id.buttonDemarrer);
         buttonLivree = findViewById(R.id.buttonLivree);
+        buttonAnnulerCommande = findViewById(R.id.buttonAnnulerCommande);
         buttonBack = findViewById(R.id.buttonBack);
     }
 
     private void afficherCommandeDepuisExtras() {
-        orderId = getIntent().getIntExtra("orderId", -1);
-        String shopAddress = getIntent().getStringExtra("shopAddress");
+        String email = UtilisateurManager.getInstance(this).getEmail();
+        String password = UtilisateurManager.getInstance(this).getPassword();
 
-        textNumeroCommande.setText("Commande #" + orderId);
-        textClient.setText("Client : Information privée");
-        textRecuperation.setText(shopAddress);
-        textDestination.setText("Destination : sera disponible après Démarrer");
+        Map<String, String> credentials = new HashMap<>();
+        credentials.put("email", email);
+        credentials.put("password", password);
 
-        adresseMagasin = shopAddress;
-        adresseLivraison = "Adresse du client (à afficher après Shipping)";
+        api.getUserOrders(credentials).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    var orders = (java.util.List<Map<String, Object>>) response.body().get("orders");
+
+                    for (Map<String, Object> order : orders) {
+                        String status = (String) order.get("status");
+                        if ("Shipping".equalsIgnoreCase(status) || "InRoute".equalsIgnoreCase(status)) {
+                            orderId = ((Double) order.get("order_id")).intValue();
+                            textNumeroCommande.setText("Commande #" + orderId);
+                            textClient.setText("Client : Information privée");
+
+                            Map<String, Object> shop = (Map<String, Object>) order.get("shop");
+                            Map<String, Object> address = (Map<String, Object>) shop.get("address");
+                            adresseMagasin = (String) address.get("full_address");
+                            textRecuperation.setText(adresseMagasin);
+
+                            adresseLivraison = "Destination : sera disponible après Démarrer";
+                            textDestination.setText(adresseLivraison);
+                            return;
+                        }
+                    }
+
+                    Toast.makeText(CommandeEnCoursActivity.this, "Aucune commande en cours", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(CommandeEnCoursActivity.this, "Erreur lors de la récupération", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                Toast.makeText(CommandeEnCoursActivity.this, "Erreur réseau", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void updateOrderStatus(String status) {
@@ -149,7 +203,7 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
                         }
                     }
 
-                    if ("Completed".equals(status)) {
+                    if ("Completed".equals(status) || "Searching".equals(status)) {
                         UtilisateurManager.getInstance(CommandeEnCoursActivity.this).clearCommandeActive();
                         navigateBack();
                     }
@@ -231,7 +285,6 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
 
-
     private void openInWaze() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
@@ -255,7 +308,6 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
                 double lat = location.getLatitude();
                 double lon = location.getLongitude();
 
-                String origin = lat + "," + lon;
                 String destination = Uri.encode(adresseLivraison.replaceAll("(?i)apt\\s*\\d+", "").trim());
 
                 String uri = "https://waze.com/ul?ll=" + destination + "&navigate=yes";
@@ -272,7 +324,6 @@ public class CommandeEnCoursActivity extends AppCompatActivity {
 
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
-
 
     private void navigateBack() {
         Intent intent = new Intent(this, LivreurHomeActivity.class);

@@ -55,4 +55,8 @@ public interface ApiService {
     @POST("/updateOrder")
     Call<Map<String, Object>> updateOrder(@Body Map<String, Object> body);
 
+    @POST("/cancelOrder")
+    Call<Map<String, Object>> cancelOrder(@Body Map<String, Object> body);
+
+
 }
