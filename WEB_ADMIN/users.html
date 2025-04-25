@@ -671,6 +671,19 @@ document.getElementById("searchBar").addEventListener("input", function () {
 });
 
 
+// Restrictions en temps réel
+document.getElementById("phoneNumber").addEventListener("input", function () {
+  this.value = this.value.replace(/\D/g, "").slice(0, 10);
+});
+
+document.getElementById("civic").addEventListener("input", function () {
+  this.value = this.value.replace(/\D/g, "").slice(0, 3);
+});
+
+document.getElementById("postalCode").addEventListener("input", function () {
+  this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+});
+
     window.onload = getUtilisateurs;
   </script>
 </body>

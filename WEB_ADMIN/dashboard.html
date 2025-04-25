@@ -391,10 +391,11 @@
         let produitsTotaux = 0;
 
 data.orders.forEach(order => {
-  if (Array.isArray(order.products)) {
-    order.products.forEach(p => {
-      produitsTotaux += p.quantity || 1; // Si y’a pas de `quantity`, on compte 1 par produit
-    });
+  if (Array.isArray(order.items)) {
+  order.items.forEach(p => {
+    produitsTotaux += p.quantity || 1;
+  });
+
   }
 });
 
@@ -402,7 +403,7 @@ document.getElementById("produitsTotaux").textContent = `${produitsTotaux}`;
 
 
         data.orders.forEach(order => {
-          const prix = parseFloat(order.total_price) || 0;
+          const prix = parseFloat(order.total_amount) || 0;
           const status = order.status?.toLowerCase();
           revenuTotal += prix;
           if (status === "cancelled" || status === "annulée") {

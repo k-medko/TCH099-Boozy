@@ -370,6 +370,8 @@
           <input type="text" id="appartement" name="appartement" placeholder="ex: 3B">
           <label for="postal_code">Code postal</label>
           <input type="text" id="postal_code" name="postal_code" placeholder="ex: H3A 1A1">
+          <label for="storeImage">Image du magasin (PNG)</label>
+          <input type="file" id="storeImage" accept="image/png" required>
           <button type="submit">Ajouter le magasin</button>
         </form>
       </div>
@@ -389,7 +391,9 @@
   <input type="text" id="edit-ville" placeholder="Ville">
   <input type="text" id="edit-appartement" placeholder="Appartement">
   <input type="text" id="edit-postal" placeholder="Code Postal">
-  <div style="display: flex; gap: 10px; margin-top: 12px;">
+  <label for="editImage">Image du magasin (PNG)</label>
+  <input type="file" id="editImage" accept="image/png">
+  
     <button onclick="validerModification()">Valider</button>
     <button style="background-color: #6b7280;" onclick="document.getElementById('modal').style.display='none'">Fermer</button>
   </div>
@@ -537,35 +541,56 @@ try {
 function validerModification() {
   if (!currentEditStore) return;
 
-  const { div, store } = currentEditStore;
+  const { store } = currentEditStore;
+  const newImageFile = document.getElementById("editImage").files[0];
 
-  const updatedStore = {
+  const baseData = {
+    admin_email: utilisateur.email,
+    admin_password: utilisateur.password,
     shop_id: store.shop_id,
     name: document.getElementById("edit-nom").value,
     civic: document.getElementById("edit-num").value,
+    apartment: document.getElementById("edit-appartement").value,
     street: document.getElementById("edit-rue").value,
     city: document.getElementById("edit-ville").value,
-    apartment: document.getElementById("edit-appartement").value,
-    postal_code: document.getElementById("edit-postal").value,
+    postal_code: document.getElementById("edit-postal").value
   };
 
-  modifierMagasin(updatedStore)
-    .then(data => {
-      if (data.status === "success") {
-        alert("Magasin modifié !");
-        fetchStoresFromAPI();
-        document.getElementById("modal").style.display = "none";
-        currentEditStore = null;
-      } else {
-        alert("Erreur lors de la modification !");
-        console.error("Réponse API:", data);
-      }
+  const sendUpdate = (imageBase64 = null) => {
+    const finalData = { ...baseData };
+    if (imageBase64) finalData.image_base64 = imageBase64;
+
+    fetch("http://4.172.252.189:5000/admin/modifyShop", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(finalData)
     })
-    .catch(err => {
-      alert("Erreur réseau !");
-      console.error("Erreur:", err);
-    });
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          alert("✅ Magasin modifié !");
+          fetchStoresFromAPI();
+          document.getElementById("modal").style.display = "none";
+          currentEditStore = null;
+        } else {
+          alert("❌ Erreur de modification !");
+        }
+      })
+      .catch(err => {
+        alert("❌ Erreur réseau !");
+        console.error("Erreur:", err);
+      });
+  };
+
+  if (newImageFile) {
+    const reader = new FileReader();
+    reader.onload = () => sendUpdate(reader.result);
+    reader.readAsDataURL(newImageFile);
+  } else {
+    sendUpdate();
+  }
 }
+
 
   function fetchStoresFromAPI() {
     fetch("http://4.172.252.189:5000/getShops")
@@ -625,46 +650,55 @@ function validerModification() {
 
 
 
-  function addStore(event) {
+function addStore(event) {
   event.preventDefault();
+  const imageFile = document.getElementById("storeImage").files[0];
 
-  const name = document.getElementById("nom").value;
-  const civic = document.getElementById("num_civique").value;
-  const street = document.getElementById("rue").value;
-  const city = document.getElementById("ville").value;
+  if (!imageFile) {
+    alert("Veuillez choisir une image PNG.");
+    return;
+  }
 
-  const storeData = {
-    admin_email: utilisateur.email,
-    admin_password: utilisateur.password,
-    name: name,
-    civic: civic,
-    apartment: document.getElementById("appartement").value,
-    street: street,
-    city: city,
-    postal_code: document.getElementById("postal_code").value,
+  const reader = new FileReader();
+  reader.onload = function () {
+    const base64Image = reader.result;
+
+    const storeData = {
+      admin_email: utilisateur.email,
+      admin_password: utilisateur.password,
+      name: document.getElementById("nom").value,
+      civic: document.getElementById("num_civique").value,
+      apartment: document.getElementById("appartement").value,
+      street: document.getElementById("rue").value,
+      city: document.getElementById("ville").value,
+      postal_code: document.getElementById("postal_code").value,
+      image_base64: base64Image
+    };
+
+    fetch("http://4.172.252.189:5000/admin/createShop", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(storeData)
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          alert("Magasin ajouté !");
+          fetchStoresFromAPI();
+          document.querySelector("form").reset();
+        } else {
+          alert("Erreur lors de l'ajout !");
+        }
+      })
+      .catch(err => {
+        alert("Erreur réseau !");
+        console.error("Erreur:", err);
+      });
   };
 
-  fetch("http://4.172.252.189:5000/admin/createShop", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(storeData)
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.status === "success") {
-      alert("Magasin ajouté !");
-      fetchStoresFromAPI(); // Recharge la liste
-      document.querySelector("form").reset();
-    } else {
-      alert("Erreur lors de l'ajout !");
-      console.error("Réponse API:", data);
-    }
-  })
-  .catch(err => {
-    alert("Erreur réseau !");
-    console.error("Erreur:", err);
-  });
+  reader.readAsDataURL(imageFile);
 }
+
 
 function modifierMagasin(shopData) {
   return fetch("http://4.172.252.189:5000/admin/modifyShop", {
@@ -695,6 +729,32 @@ function supprimerMagasin(shop_id) {
     })
   }).then(res => res.json());
 }
+
+document.getElementById("num_civique").addEventListener("input", function () {
+  this.value = this.value.replace(/\D/g, "").slice(0, 3);
+});
+document.getElementById("postal_code").addEventListener("input", function () {
+  this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+});
+
+const villesQuebec = [
+  "Montréal", "Québec", "Laval", "Gatineau", "Longueuil",
+  "Terrebonne", "Sherbrooke", "Trois-Rivières", "Repentigny", "Saint-Jean-sur-Richelieu",
+  "Granby", "Blainville", "Brossard", "Drummondville", "Saint-Jérôme",
+  "Mirabel", "Mascouche", "Lévis", "Victoriaville", "Shawinigan"
+];
+
+const villeInput = document.getElementById("ville");
+villeInput.setAttribute("list", "villesQC");
+
+const datalist = document.createElement("datalist");
+datalist.id = "villesQC";
+villesQuebec.forEach(ville => {
+  const option = document.createElement("option");
+  option.value = ville;
+  datalist.appendChild(option);
+});
+document.body.appendChild(datalist);
 
 
   window.onload = fetchStoresFromAPI;

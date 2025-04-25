@@ -498,6 +498,17 @@ function getImageURL(product_id) {
 }
 
 
+document.getElementById("productPrice").addEventListener("input", function () {
+  this.value = this.value
+    .replace(/[^0-9.]/g, "")        // Supprime tout sauf chiffres et point
+    .replace(/(\..*)\./g, "$1");    // Empêche d'avoir plus d'un point
+});
+
+document.getElementById("editPrice").addEventListener("input", function () {
+  this.value = this.value
+    .replace(/[^0-9.]/g, "")
+    .replace(/(\..*)\./g, "$1");
+});
 
 
   window.onload = fetchProductsFromAPI;

@@ -285,7 +285,8 @@
             <td>18/03/2025</td>
             <td>38.49$</td>
             <td>
-              <button class="action-btn" onclick="voirDetailsCommande([{ nom: 'Vin Rouge', prix: 19.99 }, { nom: 'Vin Blanc', prix: 18.50 }])">Détails</button>
+              <button class="action-btn btn-details" data-produits='${JSON.stringify(produits)}'>Détails</button>
+
               <button class="action-btn" style="background-color: var(--danger);" onclick="annulerCommande(this)">Annuler</button>
             </td>
           </tr>
@@ -407,36 +408,57 @@
           let commandesAnnulees = 0;
     
           data.orders.forEach(order => {
-            const produits = order.products || [];
-            const produitsJS = JSON.stringify(produits).replace(/"/g, '&quot;');
-    
-            // Affichage tableau
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-  <tr 
-    data-client="${order.client_name || ''}" 
-    data-adresse="${order.address || ''}" 
-    data-statut="${order.status || ''}" 
-  >
+  const produits = order.items || [];
+
+  const clientName = `${order.client?.first_name || ""} ${order.client?.last_name || ""}`.trim() || "—";
+  const address = order.delivery_address || "—";
+  const date = order.payment?.payment_date
+    ? new Date(order.payment.payment_date).toLocaleDateString()
+    : "—";
+  const total = order.total_amount?.toFixed(2) || "0.00";
+  const status = order.status?.toLowerCase() || "";
+
+  const isCancellable = status !== "cancelled" && status !== "completed";
+
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
     <td>${order.order_id}</td>
-    <td>${order.client_name || "—"}</td>
-    <td>${order.address || "—"}</td>
-    <td><span style="background:#FEF3C7;padding:4px 8px;border-radius:6px;font-size:13px;">${order.status || "En cours"}</span></td>
-    <td>${new Date(order.date).toLocaleDateString()}</td>
-    <td>${order.total_price?.toFixed(2) || "0.00"}$</td>
+    <td>${clientName}</td>
+    <td>${address}</td>
+    <td><span style="background:#FEF3C7;padding:4px 8px;border-radius:6px;font-size:13px;">${order.status || "—"}</span></td>
+    <td>${date}</td>
+    <td>${total}$</td>
     <td>
-      <button class="action-btn" onclick='voirDetailsCommande(${produitsJS})'>Détails</button>
-      <button class="action-btn" style="background-color: var(--danger);" onclick="annulerCommande(this)">Annuler</button>
+      <button class="action-btn btn-details">Détails</button>
+      ${
+        isCancellable
+          ? `<button class="action-btn" style="background-color: var(--danger);" onclick="annulerCommande(${order.order_id}, this)">Annuler</button>`
+          : `<button class="action-btn" disabled style="background-color: #d1d5db;">Annuler</button>`
+      }
     </td>
-  </tr>
-`;
-            tbody.appendChild(tr);
+  `;
+  tbody.appendChild(tr);
+
+  // ➤ Attache le bouton "Détails"
+  const btnDetails = tr.querySelector(".btn-details");
+btnDetails.addEventListener("click", function () {
+  const produits = JSON.parse(this.dataset.produits);
+  voirDetailsCommande(produits);
+});
+
+  // Calculs
+  const prix = parseFloat(order.total_amount) || 0;
+  revenuTotal += prix;
+  if (status === "cancelled" || status === "annulée") commandesAnnulees++;
+
+
+
+  revenuTotal += parseFloat(order.total_amount || 0);
+  if (status === "cancelled" || status === "annulée") commandesAnnulees++;
+
+            // Calcul revenus + annulé
     
-            // Calcul revenus + annulées
-            const prix = parseFloat(order.total_price) || 0;
-            revenuTotal += prix;
-    
-            const status = order.status?.toLowerCase();
+           order.status?.toLowerCase();
             if (status === "cancelled" || status === "annulée") {
               commandesAnnulees++;
             }
@@ -466,6 +488,37 @@ document.getElementById("searchBar").addEventListener("input", function () {
     ligne.style.display = match ? "" : "none";
   });
 });
+
+function annulerCommande(orderId, btn) {
+  if (!confirm("Êtes-vous sûr de vouloir annuler cette commande ?")) return;
+
+  fetch("http://4.172.252.189:5000/admin/cancelOrder", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      admin_email: utilisateur.email,
+      admin_password: utilisateur.password,
+      order_id: orderId
+    })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "success") {
+        alert("✅ Commande annulée !");
+        btn.closest("td").previousElementSibling.innerHTML = `<span style="background:#FEF3C7;padding:4px 8px;border-radius:6px;font-size:13px;">Cancelled</span>`;
+        btn.disabled = true;
+        btn.style.backgroundColor = "#d1d5db";
+      } else {
+        alert("❌ Erreur lors de l’annulation !");
+        console.error(data);
+      }
+    })
+    .catch(err => {
+      alert("❌ Erreur réseau !");
+      console.error(err);
+    });
+}
+
 
     </script>
     
