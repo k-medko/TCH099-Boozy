@@ -164,7 +164,7 @@ public class ClientHomeActivity extends AppCompatActivity {
                         orders.sort((o1, o2) -> {
                             String d1 = (String) o1.get("creation_date");
                             String d2 = (String) o2.get("creation_date");
-                            return d2.compareTo(d1); // décroissant
+                            return d2.compareTo(d1);
                         });
 
                         Map<String, Object> latestOrder = orders.get(0);

@@ -41,11 +41,10 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
     public void onBindViewHolder(@NonNull ShopViewHolder holder, int position) {
         Magasin magasin = magasins.get(position);
         holder.shopNameText.setText(magasin.getName());
-        String imageUrl = "http://4.172.252.189:5000/getImages/shop/" + magasin.getShopId() +"store";
+        String imageUrl = "http://4.172.252.189:5000/getImages/shop/" + magasin.getShopId();
 
         Glide.with(holder.itemView.getContext())
                 .load(imageUrl)
-                .placeholder(R.drawable.ic_saq)
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(holder.shopImageView);
