@@ -519,6 +519,7 @@ def create_order():
     tip_amount = total_amount * 0.15
     final_total = total_amount + tip_amount
 
+
     creation_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     # Get a valid dummy carrier id.
     dummy_carrier_id = get_dummy_carrier_id()
