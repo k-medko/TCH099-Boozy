@@ -264,13 +264,21 @@ def get_user_order():
     
     # Different queries based on user role
     if user_role == 'client':
-        # Client query: Get all orders for this client
+        # Client query: Get all orders for this client including address information
         query = """
         SELECT co.client_order_id, co.total_amount, co.status, co.shop_id, 
                ua.first_name AS carrier_first_name, ua.last_name AS carrier_last_name, 
-               co.creation_date
+               co.creation_date,
+               al.address_id, al.civic, al.apartment, al.street, al.city, al.postal_code,
+               s.name AS shop_name, 
+               sal.address_id AS shop_address_id, sal.civic AS shop_civic, 
+               sal.apartment AS shop_apartment, sal.street AS shop_street, 
+               sal.city AS shop_city, sal.postal_code AS shop_postal_code
         FROM ClientOrder co
         JOIN UserAccount ua ON co.carrier_id = ua.user_id
+        JOIN AddressLine al ON co.address_id = al.address_id
+        JOIN Shop s ON co.shop_id = s.shop_id
+        JOIN AddressLine sal ON s.address_id = sal.address_id
         WHERE co.client_id = %s
         ORDER BY co.creation_date DESC
         """
@@ -279,7 +287,7 @@ def get_user_order():
         if not orders:
             return jsonify({"status": "success", "message": "No orders found", "orders": []}), 200
         
-        # Format the results for client view
+        # Format the results for client view with address information
         formatted_orders = []
         for order in orders:
             formatted_orders.append({
@@ -288,14 +296,46 @@ def get_user_order():
                 "status": order[2],
                 "shop_id": order[3],
                 "carrier_name": f"{order[4]} {order[5]}",
-                "creation_date": order[6].strftime("%Y-%m-%d %H:%M:%S") if order[6] else None
+                "creation_date": order[6].strftime("%Y-%m-%d %H:%M:%S") if order[6] else None,
+                "delivery_address": {
+                    "address_id": order[7],
+                    "civic": order[8],
+                    "apartment": order[9],
+                    "street": order[10],
+                    "city": order[11],
+                    "postal_code": order[12],
+                    "full_address": f"{order[8]} {order[10]}{', '+order[9] if order[9] else ''}, {order[11]}, {order[12]}"
+                },
+                "shop": {
+                    "name": order[13],
+                    "address": {
+                        "address_id": order[14],
+                        "civic": order[15],
+                        "apartment": order[16],
+                        "street": order[17],
+                        "city": order[18],
+                        "postal_code": order[19],
+                        "full_address": f"{order[15]} {order[17]}{', '+order[16] if order[16] else ''}, {order[18]}, {order[19]}"
+                    }
+                }
             })
         
     elif user_role == 'carrier':
-        # Carrier query: Get all deliveries carried by this carrier
+        # Carrier query: Get all deliveries carried by this carrier with address information
         query = """
-        SELECT co.client_order_id, co.total_amount, co.status, co.shop_id
+        SELECT co.client_order_id, co.total_amount, co.status, co.shop_id,
+               ua.first_name AS client_first_name, ua.last_name AS client_last_name,
+               al.address_id, al.civic, al.apartment, al.street, al.city, al.postal_code,
+               s.name AS shop_name, 
+               sal.address_id AS shop_address_id, sal.civic AS shop_civic, 
+               sal.apartment AS shop_apartment, sal.street AS shop_street, 
+               sal.city AS shop_city, sal.postal_code AS shop_postal_code,
+               co.creation_date
         FROM ClientOrder co
+        JOIN UserAccount ua ON co.client_id = ua.user_id
+        JOIN AddressLine al ON co.address_id = al.address_id
+        JOIN Shop s ON co.shop_id = s.shop_id
+        JOIN AddressLine sal ON s.address_id = sal.address_id
         WHERE co.carrier_id = %s
         ORDER BY co.creation_date DESC
         """
@@ -304,18 +344,63 @@ def get_user_order():
         if not orders:
             return jsonify({"status": "success", "message": "No deliveries found", "orders": []}), 200
         
-        # Format the results for carrier view (simplified)
+        # Format the results for carrier view with address information
         formatted_orders = []
         for order in orders:
             formatted_orders.append({
                 "order_id": order[0],
                 "total_amount": float(order[1]),
                 "status": order[2],
-                "shop_id": order[3]
+                "shop_id": order[3],
+                "client_name": f"{order[4]} {order[5]}",
+                "delivery_address": {
+                    "address_id": order[6],
+                    "civic": order[7],
+                    "apartment": order[8],
+                    "street": order[9],
+                    "city": order[10],
+                    "postal_code": order[11],
+                    "full_address": f"{order[7]} {order[9]}{', '+order[8] if order[8] else ''}, {order[10]}, {order[11]}"
+                },
+                "shop": {
+                    "name": order[12],
+                    "address": {
+                        "address_id": order[13],
+                        "civic": order[14],
+                        "apartment": order[15],
+                        "street": order[16],
+                        "city": order[17],
+                        "postal_code": order[18],
+                        "full_address": f"{order[14]} {order[16]}{', '+order[15] if order[15] else ''}, {order[17]}, {order[18]}"
+                    }
+                },
+                "creation_date": order[19].strftime("%Y-%m-%d %H:%M:%S") if order[19] else None
             })
     else:
         # Not a client or carrier
         return jsonify({"status": "error", "message": "Unauthorized access. Only clients and carriers can view orders."}), 403
+    
+    # Add products for each order
+    for order in formatted_orders:
+        products_query = """
+        SELECT p.product_id, p.name, p.price, cop.quantity
+        FROM ClientOrderProduct cop
+        JOIN Product p ON cop.product_id = p.product_id
+        WHERE cop.client_order_id = %s
+        """
+        products = execute_query(products_query, (order["order_id"],))
+        
+        order_products = []
+        for product in products:
+            order_products.append({
+                "product_id": product[0],
+                "name": product[1],
+                "price": float(product[2]),
+                "quantity": product[3],
+                "subtotal": float(product[2]) * product[3]
+            })
+        
+        order["products"] = order_products
     
     return jsonify({
         "status": "success", 
@@ -559,30 +644,76 @@ def cancel_order():
         if r not in data:
             return jsonify({"status": "error", "message": f"Missing required field: {r}"}), 400
 
-    user = execute_query("SELECT * FROM UserAccount WHERE email = %s AND password = %s", (data["email"], data["password"]))
+    # Get user information including user_type
+    user = execute_query("SELECT user_id, user_type FROM UserAccount WHERE email = %s AND password = %s", 
+                         (data["email"], data["password"]))
     if not user:
         return jsonify({"status": "error", "message": "Invalid credentials"}), 401
 
+    user_id = user[0][0]
+    user_type = user[0][1]
     order_id = data["order_id"]
-    order = execute_query("SELECT * FROM ClientOrder WHERE client_order_id = %s", (order_id,))
+    
+    # Get order with client_id and carrier_id
+    order = execute_query("SELECT client_order_id, status, shop_id, client_id, carrier_id FROM ClientOrder WHERE client_order_id = %s", 
+                         (order_id,))
     if not order:
         return jsonify({"status": "error", "message": "Order not found"}), 404
 
-    # Verify order ownership: client_id is assumed to be at index 6.
-    if order[0][6] != user[0][0]:
-        return jsonify({"status": "error", "message": "You do not own this order"}), 401
-
-    if order[0][2] == "Cancelled":
+    order_status = order[0][1]
+    client_id = order[0][3]
+    carrier_id = order[0][4]
+    shop_id = order[0][2]
+    
+    # Check if order is already cancelled
+    if order_status == "Cancelled":
         return jsonify({"status": "error", "message": "Order is already cancelled"}), 400
-
-    items = execute_query("SELECT product_id, quantity FROM ClientOrderProduct WHERE client_order_id = %s", (order_id,))
-    for it in items:
-        prod_id = it[0]
-        qty = it[1]
-        shop_id = order[0][5]
-        execute_query("UPDATE ShopProduct SET quantity = quantity + %s WHERE shop_id = %s AND product_id = %s", (qty, shop_id, prod_id), fetch=False)
-    execute_query("UPDATE ClientOrder SET status = 'Cancelled' WHERE client_order_id = %s", (order_id,), fetch=False)
-    return jsonify({"status": "success", "message": "Order cancelled successfully"})
+    
+    # Check if order is completed
+    if order_status == "Completed":
+        return jsonify({"status": "error", "message": "Cannot cancel a completed order"}), 400
+    
+    # Handle cancellation based on user role
+    if user_type == 'client':
+        # Client cancellation - verify ownership
+        if client_id != user_id:
+            return jsonify({"status": "error", "message": "You are not authorized to cancel this order"}), 403
+        
+        # Client can cancel: Return products to inventory and set status to Cancelled
+        items = execute_query("SELECT product_id, quantity FROM ClientOrderProduct WHERE client_order_id = %s", (order_id,))
+        for item in items:
+            prod_id = item[0]
+            qty = item[1]
+            execute_query("UPDATE ShopProduct SET quantity = quantity + %s WHERE shop_id = %s AND product_id = %s", 
+                         (qty, shop_id, prod_id), fetch=False)
+        
+        execute_query("UPDATE ClientOrder SET status = 'Cancelled' WHERE client_order_id = %s", (order_id,), fetch=False)
+        return jsonify({"status": "success", "message": "Order cancelled successfully"})
+        
+    elif user_type == 'carrier':
+        # Carrier cancellation - verify assignment
+        if carrier_id != user_id:
+            return jsonify({"status": "error", "message": "You are not the assigned carrier for this order"}), 403
+        
+        # Carrier can only unbind themselves if order is InRoute or Shipping
+        if order_status not in ["InRoute", "Shipping"]:
+            return jsonify({"status": "error", "message": f"Cannot cancel order in {order_status} status as carrier"}), 400
+        
+        # Unbind carrier and set status back to Searching
+        execute_query("""
+            UPDATE ClientOrder 
+            SET status = 'Searching', carrier_id = NULL 
+            WHERE client_order_id = %s
+            """, (order_id,), fetch=False)
+            
+        return jsonify({
+            "status": "success", 
+            "message": "You have been unassigned from this delivery. Order status is now 'Searching' for a new carrier."
+        })
+        
+    else:
+        # Admin or other role
+        return jsonify({"status": "error", "message": "You are not authorized to cancel this order"}), 403
 
 ######## CARRIER ROUTES ########
 @app.route('/takeOrder', methods=['POST'])
