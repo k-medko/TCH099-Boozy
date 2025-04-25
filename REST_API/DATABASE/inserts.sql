@@ -34,8 +34,8 @@ VALUES
   (1450, 'De la Montagne', 'Montreal', 'HH3G 1Z5'), -- 5
   (677, 'Saint-Catherine', 'Montreal', 'H3B 5K4'), -- 6
   (425, 'Blvd. De Maisonneuve Ouest', 'Montreal', 'H3A 3G5'), -- 7
-  (231, 'Peel', 'Montreal', 'H3C 2G6'); -- 8
-  (2685, 'Masson', 'Montreal', 'H1Y 1W3'); -- 9
+  (231, 'Peel', 'Montreal', 'H3C 2G6'), -- 8
+  (2685, 'Masson', 'Montreal', 'H1Y 1W3'), -- 9
   (2100, 'Beaubien', 'Montreal', 'H2G 1M6'); -- 10
 
 
@@ -49,8 +49,8 @@ VALUES
   ('SAQ Sélection-De la Montagne', 5),
   ('SAQ Centre Eaton', 6),
   ('SAQ Sélection', 7),
-  ('SAQ Griffintown', 8);
-  ('SAQ Classique Rue Masson', 9);
+  ('SAQ Griffintown', 8),
+  ('SAQ Classique Rue Masson', 9),
   ('SAQ Express-Beaubien', 10);
 
 
