@@ -35,6 +35,11 @@ VALUES
   (677, 'Saint-Catherine', 'Montreal', 'H3B 5K4'), -- 6
   (425, 'Blvd. De Maisonneuve Ouest', 'Montreal', 'H3A 3G5'), -- 7
   (231, 'Peel', 'Montreal', 'H3C 2G6'); -- 8
+  (2685, 'Masson', 'Montreal', 'H1Y 1W3'); -- 9
+  (2100, 'Beaubien', 'Montreal', 'H2G 1M6'); -- 10
+
+
+
 
 -- Insert 6 SAQ stores linked to the addresses above (assuming auto-increment produces address_id 1 to 6)
 INSERT INTO Shop (name, address_id)
@@ -42,9 +47,14 @@ VALUES
   ('SAQ Sélection-Marché Atwater', 3),
   ('SAQ Express', 4),
   ('SAQ Sélection-De la Montagne', 5),
-  ('SAQ-Centre Eaton', 6),
+  ('SAQ Centre Eaton', 6),
   ('SAQ Sélection', 7),
-  ('SAQ', 8);
+  ('SAQ Griffintown', 8);
+  ('SAQ Classique Rue Masson', 9);
+  ('SAQ Express-Beaubien', 10);
+
+
+
 
 
 INSERT INTO Product (name, description, price, category, alcohol) VALUES
@@ -77,7 +87,27 @@ INSERT INTO Product (name, description, price, category, alcohol) VALUES
 ('Coureur des Bois Crème d’érable', '« Faite de sirop d’’érable québécois pur de première qualité, de la plus fraîche des crèmes ainsi que d’’un assemblage d’’alcool de grains et de rhum, la crème d’’érable Coureur des Bois est un produit authentiquement d’’ici. Les arômes de cacao, de cannelle et d’’amaretto se marient avec l’’érable, créant une puissante synergie de saveurs, qui se prolonge en une finale cacaotée et s’’exprime dans une texture vaporeuse et aérienne. »', 35.00, 'Boisson à la crème (érable)', 15),
 ('Chimay Bleue Grande Réserve', '« Les moines trappistes cisterciens de Chimay brassent de la bière depuis 1862. La Chimay bleue, ou “Grande Réserve”, est brassée depuis 1954, alors qu''on voulait créer une bière de Noël. Avec ses accents de fruits confits, de caramel et d''épices, c''est une des bières belges les plus prisées pour sa complexité et sa richesse, et elle peut se bonifier sur quelques années lorsque conservée dans de bonnes conditions. »', 5.65, 'Bière brune de type Ale', 9),
 ('Lindemans Kriek Lambic', '« Cette Kriek belge élaborée à partir d’’une base de lambic à laquelle est ajouté 25 % de filtrat de griottes fraîches, marie acidité et douceur à la perfection. Légèrement trouble et d’’un rouge éclatant, la robe laisse place à une bouche ronde et riche, marquée par la cerise confite et le bonbon acidulé. »', 6.25, 'Bière rouge de type Spontanée', 3.5),
-('Famille Fabre Sauvignon Blanc/Viognier 2022', '« Belle longueur en bouche avec des notes de fruits tropicaux tels la mangue, le fruit de la passion, fleur blanche et légèrement herbacé. Belle découverte! »', 14.70, 'Vin blanc', 13);
+('Famille Fabre Sauvignon Blanc/Viognier 2022', '« Belle longueur en bouche avec des notes de fruits tropicaux tels la mangue, le fruit de la passion, fleur blanche et légèrement herbacé. Belle découverte! »', 14.70, 'Vin blanc', 13),
+('Château Ste. Michelle Riesling Columbia Valley 2022', '« Ce riesling d''origine américaine dévoile des arômes de citron, de pêche blanche et une pointe minérale. Idéal à l''apéritif comme avec des poissons grillés. »', 18.50, 'Vin blanc', 12),
+('Orin Swift Abstract Red Blend 2021', '« Assemblage californien audacieux mêlant cabernet sauvignon, petit verdot et syrah, avec des notes de mûre et de cacao. Puissant et élégant. »', 45.30, 'Vin rouge', 14.5),
+('La Choulette Ambrée', '« Bière ambrée nordiste, relevée de notes de caramel, de malt toasté et d’une légère amertume. À déguster à 10 °C. »', 3.50, 'Bière ambrée', 6),
+('Goose Island IPA', '« India Pale Ale américaine aux arômes d’agrumes et de résine de pin, offrant une amertume franche et une finale sèche. »', 4.75, 'Bière IPA', 5.9),
+('Kronenbourg 1664 Blanc', '« Bière blanche française légère, parfumée à la coriandre et au zeste d’orange, parfaite pour l’été. »', 4.25, 'Bière blanche', 5),
+('Domaine Tempier Bandol Rosé 2023', '« Icône de Provence, ce rosé dévoile des arômes de fraise des bois et d’agrumes, avec une belle structure. »', 36.50, 'Vin rosé', 13),
+('The Botanist Islay Dry Gin', '« Gin écossais distillé à partir de 22 plantes locales, offrant une complexité herbacée et une belle fraîcheur en bouche. »', 49.95, 'Dry gin', 46),
+('Belvedere Vodka', '« Vodka polonaise de qualité supérieure, distillée à partir de seigle Dankowskie, d’une grande pureté et d’une finale soyeuse. »', 39.50, 'Vodka', 40),
+('Clase Azul Plata Tequila', '« Tequila blanco mexicaine premium, embouteillée dans une jarre artisanale peinte à la main, aux notes d’agave frais et d’agrumes. »', 89.95, 'Téquila (blanco)', 40),
+('Hibiki Harmony Japanese Blend', '« Whisky japonais harmonieux, assemblage de malts et de grain, dévoilant des notes de fleur d’’oranger et de miel. »', 59.75, 'Whisky japonais', 43),
+('Rémy Martin XO', '« Cognac intense et velouté, mariant fruits confits, épices douces et une pointe de bois de santal. »', 139.75, 'Cognac', 40),
+('Taylors Vintage Port 2017', '« Porto millésimé riche et tannique, aux arômes de fruits noirs, de cacao et d’épices, à carafer avant dégustation. »', 49.80, 'Porto', 20),
+('Taylor Fladgate 10 Years Tawny Port', '« Porto tawny vieilli 10 ans en fûts, offrant des notes de noix, de caramel et de figue séchée. »', 35.25, 'Porto', 20),
+('Martini & Rossi Rosso', '« Vermouth italien classique, aux arômes d’herbes et d’épices, parfait en cocktail ou sur glace avec une tranche d’orange. »', 19.50, 'Vermouth', 15),
+('Campari', '« Apéritif italien à base de plantes et d’agrumes amers, indispensable pour vos Negroni et Spritz. »', 28.60, 'Apéritif', 25),
+('Jägermeister', '« Liqueur allemande à base de 56 plantes, épices et racines, réputée pour sa douceur, ses notes de réglisse et une finale herbacée. »', 32.40, 'Liqueur', 35),
+('Grey Goose L’Orange', '« Vodka aromatisée à l’orange, distillée en France, idéale pour apporter une touche fruitée à vos cocktails. »', 34.50, 'Vodka aromatisée', 40),
+('St-Germain', '« Liqueur de fleurs de sureau récoltées à la main en France, révélant des arômes délicats et gourmands. »', 29.99, 'Liqueur de fleur de sureau', 20),
+('Gin Vine Floraison Gin', '« Gin français innovant distillé à base de raisins de vigne et de fleurs de vigne, frais et floral. »', 44.50, 'Gin', 40),
+('Eric Bordelet Poiré Granit', '« Poiré artisanal élaboré à partir de poires du verger familial, offrant des notes beurrées et une belle fraîcheur. »', 24.80, 'Cidre de poire', 6.5);
 
 
 INSERT INTO ShopProduct (shop_id, product_id, quantity) VALUES
