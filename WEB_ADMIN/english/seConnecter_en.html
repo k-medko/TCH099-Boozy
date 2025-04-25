@@ -18,30 +18,12 @@
 
     .top-bar {
       position: absolute;
-      top: 5px;
+      top: 20px;
       left: 20px;
       right: 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-
-    .logo-circle {
-      background-color: #ffffff;
-      border-radius: 50%;
-      padding: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 60px;
-      width: 60px;
-      text-decoration: none;
-    }
-
-    .logo-circle img {
-      height: 40px;
-      width: auto;
     }
 
     .lang-btn {
@@ -119,12 +101,30 @@
       color: #1F2937;
       text-decoration: none;
     }
+
+    .back-btn {
+      font-size: 15px;
+      font-weight: 500;
+      color: #1F2937;
+      background-color: white;
+      padding: 8px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      border: 1px solid #d1d5db;
+      transition: 0.3s;
+    }
+
+    .back-btn:hover {
+      background-color: #1F2937;
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <div class="top-bar">
-    <a href="accueil_en.html" class="logo-circle">
-      <img src="assets/image/LOGO 1.png" alt="Boozy Logo" style="width: 100px; height: 100px;">
+  <div class="top-bar" style="top: 5px;">
+    <a href="accueil_en.html" class="back-btn">
+      ← Home
     </a>
     <button class="lang-btn" onclick="switchLanguage()">FR</button>
   </div>
@@ -133,7 +133,7 @@
     <h1>Login</h1>
     <form id="login-form">
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">Email address</label>
         <input type="email" id="email" name="email" required>
       </div>
       <div class="form-group">
@@ -141,18 +141,52 @@
         <input type="password" id="password" name="password" required>
       </div>
       <button type="submit">Log in</button>
+      <div class="link">
+      </div>
     </form>
   </div>
 
   <script>
-    document.getElementById('login-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      window.location.href = 'dashboard_en.html';
-    });
-
-    function switchLanguage() {
-      window.location.href = 'seConnecter.html';
+    async function switchLanguage() {
+      window.location.href = '../seConnecter.html';
     }
+
+    document.getElementById('login-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const response = await fetch('http://4.172.252.189:5000/connectUser', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.status !== "success" || !data.user) {
+          throw new Error("Invalid credentials.");
+        }
+
+        if (data.user.user_type !== "admin") {
+          alert("⛔ Access denied. This interface is for administrators only.");
+          return;
+        }
+
+        const utilisateur = {
+          email: email,
+          password: password,
+          user_type: data.user.user_type,
+          first_name: data.user.first_name
+        };
+
+        document.cookie = `session=${btoa(JSON.stringify(utilisateur))}; max-age=7200; path=/`;
+        window.location.href = "dashboard_en.html";
+      } catch (err) {
+        alert("❌ Login failed.");
+      }
+    });
   </script>
 </body>
 </html>

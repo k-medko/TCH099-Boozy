@@ -4,313 +4,686 @@
   <meta charset="UTF-8">
   <title>User Management</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/style.css">
   <style>
-    body {
+    :root {
+      --primary: #34495e;
+      --primary-hover: #2c3e50;
+      --gray-light: #f4f6f8;
+      --gray-dark: #2c3e50;
+      --white: #ffffff;
+      --gray-border: #d0d7de;
+      --danger: #dc2626;
+    }
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+    body, html {
       font-family: 'Poppins', sans-serif;
-      background-color: #F4F6F9;
+      background-color: var(--gray-light);
+      height: 100%;
+    }
+    .wrapper {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
     }
-
-    header, footer {
-      height: 80px;
-      background-color: #ffffff;
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background-color: var(--white);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .logo-container {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 40px;
-      border-bottom: 1px solid #E0E6ED;
+      gap: 12px;
+      margin-left: 40px;
     }
-
-    footer {
-      border-top: 1px solid #E0E6ED;
-      justify-content: center;
-      font-size: 16px;
-      color: #333;
-    }
-
-    .main {
-      display: flex;
-      padding: 40px;
-      flex: 1;
-      gap: 40px;
-    }
-
-    .form-section {
-      flex: 1;
-      max-width: 300px;
-    }
-
-    .form-section h2 {
+    header h1 {
       font-size: 24px;
-      margin-bottom: 20px;
-      color: #2F3E46;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 500;
-      color: #34495E;
-    }
-
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
-    .form-group button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      background-color: #1F2937;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .user-list {
-      flex: 2;
-      max-height: 500px;
-      overflow-y: auto;
-    }
-
-    .user {
+      font-weight: 600;
+      color: var(--gray-dark);
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      background: white;
-      padding: 12px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      gap: 12px;
     }
-
-    .user-info {
+    nav {
+      width: 300px;
+      max-width: 80%;
+      background-color: var(--white);
+      position: fixed;
+      top: 0;
+      left: -100%;
+      height: 100vh;
+      padding: 40px 24px;
       display: flex;
       flex-direction: column;
+      gap: 28px;
+      z-index: 100;
+      box-shadow: 4px 0 12px rgba(0,0,0,0.2);
+      transition: left 0.3s ease;
     }
-
-    .user-name {
-      font-weight: 600;
-      font-size: 16px;
-    }
-
-    .user-email {
-      font-size: 14px;
-      color: #666;
-    }
-
-    .user-role {
-      font-size: 14px;
-      color: #444;
-    }
-
-    .delete-btn, .edit-btn {
-      background: darkred;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      font-size: 16px;
-      border-radius: 50%;
-      cursor: pointer;
-      margin-left: 5px;
-    }
-
-    .edit-btn {
-      background: #6f7279;
-      border-radius: 6px;
-    }
-
-    .search-input {
-      padding: 8px 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-      width: 220px;
-    }
-
-    .header-right {
+    nav.show { left: 0; }
+    nav a {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 14px;
+      padding: 14px 20px;
+      font-size: 16px;
+      color: var(--gray-dark);
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all 0.3s;
+      font-weight: 500;
     }
-
-    .lang-btn {
-      font-size: 14px;
-      background: transparent;
-      border: 1.5px solid #1F2937;
-      color: #1F2937;
-      border-radius: 5px;
-      padding: 6px 12px;
-      cursor: pointer;
-      transition: 0.3s;
+    nav a:hover, nav a.active { background-color: var(--gray-light); }
+    nav a img { width: 20px; height: 20px; }
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 98;
+      display: none;
     }
-
-    .lang-btn:hover {
-      background-color: #1F2937;
+    .sidebar-overlay.show { display: block; }
+    .sidebar-toggle {
+      position: fixed;
+      top: 28px;
+      left: 16px;
+      z-index: 99;
+      background-color: var(--primary);
       color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
     }
-
-    .back-button {
+    .header-controls {
       display: flex;
       align-items: center;
       gap: 10px;
-      text-decoration: none;
-      color: #1F2937;
+    }
+    .lang-btn, .logout {
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
       font-weight: 500;
-      font-size: 16px;
-      transition: color 0.3s;
     }
-
-    .back-button:hover {
-      color: #2563EB;
+    .lang-btn {
+      background: transparent;
+      border: 1.5px solid var(--gray-dark);
+      color: var(--gray-dark);
     }
-
-    .back-button img {
-      width: 24px;
-      height: 24px;
+    .lang-btn:hover {
+      background-color: var(--gray-dark);
+      color: white;
     }
+    .logout {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+    }
+    .logout:hover {
+      background-color: var(--primary-hover);
+    }
+    footer { background-color: var(--primary); height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-size: 14px; padding: 10px; text-align: center; }
+      footer a { color: #ffc0cb; text-decoration: none; }
+      footer a:hover { text-decoration: underline; }
+    .main {
+    flex: 1;
+    padding: 24px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap; /* pour s'assurer que ça passe bien en responsive */
+  }
+  
+  .content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .form-container {
+    flex: 1 1 400px;
+    max-width: 400px;
+    background-color: var(--white);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+  }
+  
+  .user-list-container {
+    flex: 1 1 500px;
+    background-color: var(--gray-dark);
+    border-radius: 16px;
+    padding: 16px;
+    color: white;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+  
+  
+  
+    .form-container input,
+    .form-container select {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--gray-border);
+    }
+    .form-container button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .user-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--white);
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 12px;
+    }
+    .user-card p {
+      margin: 0 0 4px 0;
+      font-size: 14px;
+      color: var(--gray-dark);
+    }
+    .entry-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .entry-actions button {
+      padding: 8px 12px;
+      font-size: 13px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      font-weight: 500;
+    }
+    .edit-btn {
+      background-color: var(--gray-dark);
+      color: white;
+    }
+    .delete-btn {
+      background-color: var(--danger);
+      color: white;
+    }
+  
+    .modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+  .modal-overlay#editModal.flex {
+    display: flex;
+  }
+  .modal {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    width: 500px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .modal input, .modal select {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid var(--gray-border);
+    border-radius: 8px;
+  }
+  .modal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+  }
+  .modal-actions button {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .edit-btn { background-color: var(--gray-dark); color: white; }
+  .delete-btn { background-color: var(--danger); color: white; }
+  
+  .search-bar {
+        display: flex;
+        align-items: center;
+        background-color: var(--white);
+        border: 1px solid var(--gray-border);
+        border-radius: 999px;
+        padding: 4px 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
+      .search-bar input {
+        border: none;
+        outline: none;
+        padding: 6px 12px;
+        font-size: 14px;
+        border-radius: 999px;
+        width: 160px;
+      }
+      .search-bar button {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: 0.3s;
+      }
+      .search-bar button:hover {
+        background-color: white;
+        color: var(--primary);
+        border: 1px solid var(--primary);
+      }
   </style>
 </head>
 <body>
-<header>
-  <h1>Users</h1>
-  <input type="text" id="searchBar" placeholder="Search..." class="search-input">
-  <div class="header-right">
-    <button onclick="switchLanguage()" class="lang-btn">FR</button>
-    <a href="dashboard_en.html" class="back-button">
-      <img src="assets/image/Frame 218.png" alt="Back">
-      <span>Back</span>
-    </a>
-  </div>
-</header>
-
-<div class="main">
-  <div class="form-section">
-    <h2>Add a User</h2>
-    <div class="form-group">
-      <label>Last Name</label>
-      <input type="text" id="nom" placeholder="e.g.: Smith">
-    </div>
-    <div class="form-group">
-      <label>First Name</label>
-      <input type="text" id="prenom" placeholder="e.g.: John">
-    </div>
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" id="email" placeholder="e.g.: john.smith@email.com">
-    </div>
-    <div class="form-group">
-      <label>Role</label>
-      <select id="role">
-        <option value="client">Client</option>
-        <option value="livreur">Delivery</option>
-        <option value="admin">Admin</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <button onclick="ajouterUtilisateur()">Add User</button>
-    </div>
-  </div>
-
-  <div class="user-list" id="userList"></div>
-</div>
-
-<footer>
-  If you need help, contact us at 514-652-3145
-</footer>
-
-<script>
-  function switchLanguage() {
-    window.location.href = "users.html";
-  }
-
-  function ajouterUtilisateur() {
-    const nom = document.getElementById("nom").value.trim();
-    const prenom = document.getElementById("prenom").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const role = document.getElementById("role").value;
-
-    if (!nom || !prenom || !email) return;
-
-    const userList = document.getElementById("userList");
-    const div = document.createElement("div");
-    div.className = "user";
-    div.innerHTML = `
-      <div class="user-info">
-        <span class="user-name">${nom} ${prenom}</span>
-        <span class="user-email">${email}</span>
-        <span class="user-role"><strong>Role:</strong> ${role}</span>
+  <div class="wrapper">
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    <nav id="sidebar">
+      <a href="dashboard_en.html"><img src="../static/Frame 218.png" alt="Home">Home</a>
+      <a href="stores_en.html"><img src="../static/store-alt.png" alt="Stores">Stores</a>
+      <a href="orders_en.html"><img src="../static/border-all.png" alt="Orders">Orders</a>
+      <a href="products_en.html"><img src="../static/wine-bottle.png" alt="Products">Products</a>
+      <a href="users_en.html" class="active"><img src="../static/users.png" alt="Users">Users</a>
+    </nav>
+    <header>
+      <div class="logo-container">
+        <h1><a href="dashboard_en.html"><img src="../static/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Users</h1>
       </div>
-      <div>
-        <button class="edit-btn" onclick="modifierUtilisateur(this)">✏️</button>
-        <button class="delete-btn" onclick="this.parentElement.parentElement.remove()">&times;</button>
+      <div class="search-bar">
+        <input type="text" id="searchBar" placeholder="Search...">
+        <button type="submit">Search</button>
       </div>
-    `;
-
-    userList.appendChild(div);
-
-    document.getElementById("nom").value = "";
-    document.getElementById("prenom").value = "";
-    document.getElementById("email").value = "";
-    document.getElementById("role").value = "client";
-  }
-
-  function modifierUtilisateur(btn) {
-    const userDiv = btn.parentElement.parentElement;
-    const name = userDiv.querySelector(".user-name").textContent.split(" ");
-    const email = userDiv.querySelector(".user-email").textContent;
-    const role = userDiv.querySelector(".user-role").textContent.split(": ")[1];
-
-    userDiv.innerHTML = `
-      <div class="user-info">
-        <input type="text" class="edit-nom" value="${name[0]}">
-        <input type="text" class="edit-prenom" value="${name[1]}">
-        <input type="email" class="edit-email" value="${email}">
-        <select class="edit-role">
-          <option value="client" ${role === "client" ? "selected" : ""}>Client</option>
-          <option value="livreur" ${role === "livreur" ? "selected" : ""}>Delivery</option>
-          <option value="admin" ${role === "admin" ? "selected" : ""}>Admin</option>
+      <div class="header-controls">
+        <button onclick="switchLanguage()" class="lang-btn">🌐 FR</button>
+        <a href="dashboard_en.html" class="logout">← Back</a>
+      </div>
+    </header>
+    <div class="main">
+      <div class="content">
+        <div class="form-container">
+          <h2>Create an Account</h2>
+          <input type="email" id="email" placeholder="Email">
+          <input type="password" id="password" placeholder="Password">
+          <input type="text" id="firstName" placeholder="First Name">
+          <input type="text" id="lastName" placeholder="Last Name">
+          <input type="tel" id="phoneNumber" placeholder="Phone Number">
+          <select id="userType" onchange="toggleDriverFields()">
+            <option value="client">Client</option>
+            <option value="carrier">Driver</option>
+            <option value="admin">Admin</option>
+          </select>
+          <div id="driverFields" style="display:none;">
+            <input type="text" id="licensePlate" placeholder="License Plate">
+            <input type="text" id="carBrand" placeholder="Car Brand">
+          </div>
+          <input type="text" id="civic" placeholder="Civic Number">
+          <input type="text" id="apartment" placeholder="Apartment">
+          <input type="text" id="street" placeholder="Street">
+          <input type="text" id="city" placeholder="City">
+          <input type="text" id="postalCode" placeholder="Postal Code">
+          <button onclick="soumettreFormulaire()">Create</button>
+        </div>
+        <div class="user-list-container">
+          <h2>User List</h2>
+          <div id="userList"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay" id="editModal">
+      <div class="modal">
+        <h3>Edit User</h3>
+        <input id="editEmail" placeholder="Email">
+        <input id="editPassword" placeholder="Password">
+        <input id="editFirstName" placeholder="First Name">
+        <input id="editLastName" placeholder="Last Name">
+        <input id="editPhone" placeholder="Phone Number">
+        <select id="editUserType" onchange="toggleModalDriverFields()">
+          <option value="client">Client</option>
+          <option value="carrier">Driver</option>
+          <option value="admin">Admin</option>
         </select>
+        <div id="modalDriverFields" style="display:none;">
+          <input id="editLicense" placeholder="License Plate">
+          <input id="editBrand" placeholder="Car Brand">
+        </div>
+        <input id="editCivic" placeholder="Civic Number">
+        <input id="editApartment" placeholder="Apartment">
+        <input id="editStreet" placeholder="Street">
+        <input id="editCity" placeholder="City">
+        <input id="editPostal" placeholder="Postal Code">
+        <div class="modal-actions">
+          <button onclick="closeModal()">Cancel</button>
+          <button onclick="saveUserEdit()">Save</button>
+        </div>
       </div>
-      <div>
-        <button class="edit-btn" onclick="sauvegarderUtilisateur(this)">💾</button>
-        <button class="delete-btn" onclick="this.parentElement.parentElement.remove()">&times;</button>
-      </div>
-    `;
-  }
-
-  function sauvegarderUtilisateur(btn) {
-    const userDiv = btn.parentElement.parentElement;
-    const nom = userDiv.querySelector(".edit-nom").value;
-    const prenom = userDiv.querySelector(".edit-prenom").value;
-    const email = userDiv.querySelector(".edit-email").value;
-    const role = userDiv.querySelector(".edit-role").value;
-
-    userDiv.innerHTML = `
-      <div class="user-info">
-        <span class="user-name">${nom} ${prenom}</span>
-        <span class="user-email">${email}</span>
-        <span class="user-role"><strong>Role:</strong> ${role}</span>
-      </div>
-      <div>
-        <button class="edit-btn" onclick="modifierUtilisateur(this)">✏️</button>
-        <button class="delete-btn" onclick="this.parentElement.parentElement.remove()">&times;</button>
-      </div>
-    `;
-  }
-</script>
+    </div>
+  </div>
+  <div>
+    <footer>
+      <p>&copy; 2025 Boozy Inc. All rights reserved.</p>
+      <p><a href="mailto:support@boozy.com">support@boozy.com</a> | <a href="tel:+15146523145">514-652-3145</a></p>
+    </footer>
+  </div>
+  <script>
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    
+    function getAdminCreds() {
+      const utilisateur = JSON.parse(atob(getCookie("session")));
+      return {
+        email: utilisateur.email,
+        password: utilisateur.password
+      };
+    }
+    
+    try {
+      const utilisateur = JSON.parse(atob(getCookie("session")));
+      if (utilisateur.user_type !== "admin") {
+        window.location.href = "seConnecter.html";
+      }
+    } catch {
+      window.location.href = "seConnecter.html";
+    }
+    
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("show");
+      document.getElementById("overlay").classList.toggle("show");
+    }
+    
+    function toggleDriverFields() {
+      const type = document.getElementById("userType").value;
+      document.getElementById("driverFields").style.display = type === "carrier" ? "block" : "none";
+    }
+    
+    async function creerUtilisateur(userData) {
+      const { email, password } = getAdminCreds();
+      const response = await fetch("http://4.172.252.189:5000/admin/createUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          admin_email: email,
+          admin_password: password,
+          ...userData
+        })
+      });
+      return await response.json();
+    }
+    
+    async function modifierUtilisateur(userId, updatedData) {
+      const { email, password } = getAdminCreds();
+      const response = await fetch("http://4.172.252.189:5000/admin/modifyUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          admin_email: email,
+          admin_password: password,
+          user_id: userId,
+          ...updatedData
+        })
+      });
+      return response.json();
+    }
+    
+    async function supprimerUtilisateur(userId) {
+      const { email, password } = getAdminCreds();
+      const response = await fetch("http://4.172.252.189:5000/admin/deleteUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: userId,
+          admin_email: email,
+          admin_password: password
+        })
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        alert("Utilisateur supprimé !");
+      } else {
+        alert("Échec de la suppression !");
+      }
+      return result;
+    }
+    
+    async function getUtilisateurs() {
+      const { email, password } = getAdminCreds();
+      const response = await fetch("http://4.172.252.189:5000/admin/getUsers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ admin_email: email, admin_password: password })
+      });
+      const res = await response.json();
+      if (res.status === "success") {
+        document.getElementById("userList").innerHTML = "";
+        res.users.forEach(u => afficherUtilisateurDansListe(u));
+      } else {
+        alert("Échec de récupération des utilisateurs");
+      }
+    }
+    
+    
+        function afficherUtilisateurDansListe(user) {
+      const userList = document.getElementById("userList");
+      const card = document.createElement("div");
+      card.className = "user-card";
+    
+      const adresse = user.address
+        ? `
+          Numéro civique: ${user.address.civic || ''}<br>
+          Appartement: ${user.address.apartment || ''}<br>
+          Rue: ${user.address.street || ''}<br>
+          Ville: ${user.address.city || ''}<br>
+          Code postal: ${user.address.postal_code || ''}<br>
+          Adresse complète: ${user.address.fullAddress || ''}
+        `
+        : 'Non spécifiée';
+    
+      card.innerHTML = `
+        <div>
+          <p><strong>Nom:</strong> ${user.last_name} ${user.first_name}</p>
+          <p><strong>Email:</strong> ${user.email}</p>
+          <p><strong>Mot de passe:</strong> ${user.password}</p>
+          <p><strong>Téléphone:</strong> ${user.phone_number}</p>
+          <p><strong>Type:</strong> ${user.user_type}</p>
+          ${user.user_type === "carrier" ? `
+            <p><strong>Plaque:</strong> ${user.license_plate || ''}</p>
+            <p><strong>Voiture:</strong> ${user.car_brand || ''}</p>` : ''
+          }
+          <p><strong>Adresse:</strong><br>${adresse}</p>
+        </div>
+        <div class="entry-actions">
+          <button class="edit-btn" onclick='lancerEdition(${JSON.stringify(user)})'>Modifier</button>
+          <button class="delete-btn" onclick="handleDelete(${user.user_id})">Supprimer</button>
+        </div>
+      `;
+      userList.appendChild(card);
+    }
+    
+    
+    
+    function lancerEdition(user) {
+      document.getElementById("editEmail").value = user.email;
+      document.getElementById("editFirstName").value = user.first_name;
+      document.getElementById("editLastName").value = user.last_name;
+      document.getElementById("editPhone").value = user.phone_number;
+      document.getElementById("editUserType").value = user.user_type;
+      document.getElementById("editCivic").value = user.address?.civic || "";
+      document.getElementById("editApartment").value = user.address?.apartment || "";
+      document.getElementById("editStreet").value = user.address?.street || "";
+      document.getElementById("editCity").value = user.address?.city || "";
+      document.getElementById("editPostal").value = user.address?.postal_code || "";
+    
+      toggleModalDriverFields();
+    
+      if (user.user_type === "carrier") {
+        document.getElementById("editLicense").value = user.license_plate || "";
+        document.getElementById("editBrand").value = user.car_brand || "";
+      }
+    
+      document.getElementById("editModal").style.display = "flex";
+      document.getElementById("editModal").dataset.userId = user.user_id;
+    }
+    
+    function toggleModalDriverFields() {
+      const type = document.getElementById("editUserType").value;
+      const driverFields = document.getElementById("modalDriverFields");
+      if (type === "carrier") {
+        driverFields.style.display = "block";
+      } else {
+        driverFields.style.display = "none";
+      }
+    }
+    
+    function closeModal() {
+      document.getElementById("editModal").style.display = "none";
+    }
+    
+    function saveUserEdit() {
+      const userId = document.getElementById("editModal").dataset.userId;
+    
+      const updatedData = {
+        email: document.getElementById("editEmail").value,
+        first_name: document.getElementById("editFirstName").value,
+        last_name: document.getElementById("editLastName").value,
+        phone_number: document.getElementById("editPhone").value,
+        user_type: document.getElementById("editUserType").value,
+        license_plate: document.getElementById("editLicense")?.value || "",
+        car_brand: document.getElementById("editBrand")?.value || "",
+        total_earnings: 0,
+        address: {
+          civic: document.getElementById("editCivic").value,
+          apartment: document.getElementById("editApartment").value,
+          street: document.getElementById("editStreet").value,
+          city: document.getElementById("editCity").value,
+          postal_code: document.getElementById("editPostal").value
+        }
+      };
+    
+      const passwordInput = document.getElementById("editPassword").value;
+      if (passwordInput) {
+        updatedData.password = passwordInput;
+      }
+    
+      modifierUtilisateur(userId, updatedData)
+        .then(response => {
+          if (response.status === "success") {
+            alert("✅ Utilisateur modifié !");
+            getUtilisateurs();
+            closeModal();
+          } else {
+            alert("❌ Échec modification : " + (response.message || "erreur inconnue"));
+          }
+        })
+        .catch(err => {
+          console.error("Erreur:", err);
+          alert("❌ Erreur réseau !");
+        });
+    }
+    
+        function handleDelete(userId) {
+          if (confirm("Supprimer cet utilisateur?")) {
+            supprimerUtilisateur(userId).then(() => getUtilisateurs());
+          }
+        }
+    
+        function soumettreFormulaire() {
+      const user = {
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+        first_name: document.getElementById("firstName").value,
+        last_name: document.getElementById("lastName").value,
+        phone_number: document.getElementById("phoneNumber").value,
+        user_type: document.getElementById("userType").value,
+        license_plate: document.getElementById("licensePlate")?.value || "",
+        car_brand: document.getElementById("carBrand")?.value || "",
+        address: {
+          civic: document.getElementById("civic").value,
+          apartment: document.getElementById("apartment").value,
+          street: document.getElementById("street").value,
+          city: document.getElementById("city").value,
+          postal_code: document.getElementById("postalCode").value
+        }
+      };
+    
+      creerUtilisateur(user).then(res => {
+        if (res.status === "success") {
+          alert("Utilisateur créé !");
+          getUtilisateurs();
+        } else {
+          alert("Erreur lors de la création !");
+        }
+      }).catch(err => {
+        console.error("Erreur API:", err);
+        alert("Erreur réseau !");
+      });
+    }
+    
+    // 🔍 Ajoutez ceci dans votre script juste avant window.onload :
+    document.getElementById("searchBar").addEventListener("input", function () {
+      const filtre = this.value.toLowerCase();
+      const users = document.querySelectorAll("#userList .user-card");
+    
+      users.forEach(userCard => {
+        const contenuTexte = userCard.textContent.toLowerCase();
+        if (contenuTexte.includes(filtre)) {
+          userCard.style.display = "flex";
+        } else {
+          userCard.style.display = "none";
+        }
+      });
+    });
+    
+    
+    // Restrictions en temps réel
+    document.getElementById("phoneNumber").addEventListener("input", function () {
+      this.value = this.value.replace(/\D/g, "").slice(0, 10);
+    });
+    
+    document.getElementById("civic").addEventListener("input", function () {
+      this.value = this.value.replace(/\D/g, "").slice(0, 3);
+    });
+    
+    document.getElementById("postalCode").addEventListener("input", function () {
+      this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+    });
+    
+    function switchLanguage() {
+        window.location.href = "../users.html";
+      }
+        window.onload = getUtilisateurs;
+      </script>
 </body>
 </html>
