@@ -278,13 +278,6 @@
         </thead>
         <tbody>
           <tr>
-            <td>1001</td>
-            <td>Jean Dupont</td>
-            <td>123 Rue Sainte-Catherine, Montréal</td>
-            <td><span style="background:#FEF3C7;padding:4px 8px;border-radius:6px;font-size:13px;">En cours</span></td>
-            <td>18/03/2025</td>
-            <td>38.49$</td>
-            <td>
               <button class="action-btn btn-details" data-produits='${JSON.stringify(produits)}'>Détails</button>
 
               <button class="action-btn" style="background-color: var(--danger);" onclick="annulerCommande(this)">Annuler</button>
@@ -357,7 +350,7 @@
     });
     
     function switchLanguage() {
-      window.location.href = "orders_en.html";
+      window.location.href = "english/orders_en.html";
     }
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("show");

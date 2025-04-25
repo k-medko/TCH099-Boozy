@@ -684,6 +684,10 @@ document.getElementById("postalCode").addEventListener("input", function () {
   this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
 });
 
+function switchLanguage() {
+        window.location.href = "english/users_en.html";
+      }
+
     window.onload = getUtilisateurs;
   </script>
 </body>

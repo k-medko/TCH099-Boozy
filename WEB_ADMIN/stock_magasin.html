@@ -328,6 +328,7 @@
   </div>
 
   <script>
+    
 function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
@@ -520,6 +521,10 @@ document.querySelector(".search-bar button").addEventListener("click", function 
   const searchEvent = new Event("input");
   document.getElementById("searchBar").dispatchEvent(searchEvent);
 });
+
+function switchLanguage() {
+        window.location.href = "english/stock_magasin_en.html";
+      }
 
 
   </script>

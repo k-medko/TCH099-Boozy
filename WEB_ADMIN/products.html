@@ -510,6 +510,9 @@ document.getElementById("editPrice").addEventListener("input", function () {
     .replace(/(\..*)\./g, "$1");
 });
 
+function switchLanguage() {
+      window.location.href = "english/products_en.html";
+    }
 
   window.onload = fetchProductsFromAPI;
   </script>
