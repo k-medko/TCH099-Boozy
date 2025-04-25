@@ -290,7 +290,7 @@
         <h1><a href="dashboard.html"><img src="static/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> <span id="magasinNom">Stock</span></h1>
       </div>
       <div class="search-bar">
-        <input type="text" id="searchBar" placeholder="Rechercher un produit...">
+        <input type="text" id="searchBar" placeholder="Rechercher...">
         <button type="submit">Recherche</button>
       </div>
       <div class="header-controls">
@@ -301,11 +301,10 @@
 
     <nav id="sidebar">
       <a href="dashboard.html"><img src="static/Frame 218.png" alt="Accueil">Accueil</a>
-      <a href="stores.html"><img src="assets/image/store-alt.png" alt="Magasins">Magasins</a>
-      <a href="orders.html"><img src="assets/image/border-all.png" alt="Commandes">Commandes</a>
-      <a href="pageCommande.html"><img src="static/Icon_Order-2.png" alt="Créer commande">Créer une commande</a>
-      <a href="products.html"><img src="assets/image/wine-bottle.png" alt="Produits">Produits</a>
-      <a href="users.html"><img src="assets/image/users.png" alt="Utilisateurs">Utilisateurs</a>
+      <a href="stores.html"><img src="static/store-alt.png" alt="Magasins">Magasins</a>
+      <a href="orders.html"><img src="static/border-all.png" alt="Commandes">Commandes</a>
+      <a href="products.html"><img src="static/wine-bottle.png" alt="Produits">Produits</a>
+      <a href="users.html"><img src="static/users.png" alt="Utilisateurs">Utilisateurs</a>
     </nav>
 
     <div class="main">
@@ -329,6 +328,25 @@
   </div>
 
   <script>
+    
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+const session = getCookie("session");
+let utilisateur = null;
+
+try {
+  utilisateur = JSON.parse(atob(session));
+  if (utilisateur.user_type !== "admin") {
+    window.location.href = "seConnecter.html";
+  }
+} catch {
+  window.location.href = "seConnecter.html";
+}
+
     const urlParams = new URLSearchParams(window.location.search);
     const magasinNom = urlParams.get("nom");
     const storeId = parseInt(urlParams.get("id"));
@@ -339,18 +357,38 @@
     let produitsAutres = [];
 
     async function fetchStock() {
-      try {
-        const res = await fetch("http://4.172.252.189:5000/getAvailability");
-        const data = await res.json();
+  try {
+    const res = await fetch("http://4.172.252.189:5000/getAvailability");
+    const data = await res.json();
 
-        produitsMagasin = data.filter(item => item.shop_id === storeId);
-        produitsAutres = data.filter(item => item.shop_id !== storeId);
-
-        renderProducts(produitsMagasin, produitsAutres);
-      } catch (error) {
-        console.error("❌ Erreur lors du chargement du stock:", error);
-      }
+    const produitsParId = {};
+    for (const item of data) {
+      const pid = item.product_id;
+      if (!produitsParId[pid]) produitsParId[pid] = [];
+      produitsParId[pid].push(item);
     }
+
+    produitsMagasin = [];
+    produitsAutres = [];
+
+    for (const pid in produitsParId) {
+  const lignes = produitsParId[pid];
+  const pourCeMagasin = lignes.find(l => l.shop_id === storeId);
+  if (pourCeMagasin && pourCeMagasin.quantity > 0) {
+    produitsMagasin.push(pourCeMagasin);
+  } else {
+    // On met l'un des autres (ex: le premier)
+    produitsAutres.push(lignes[0]);
+  }
+}
+
+
+    renderProducts(produitsMagasin, produitsAutres);
+  } catch (error) {
+    console.error("❌ Erreur lors du chargement du stock:", error);
+  }
+}
+
 
     function renderProducts(vendus, autres) {
       const divVendables = document.getElementById("produitsVendus");
@@ -358,65 +396,105 @@
       divVendables.innerHTML = "";
       divDisponibles.innerHTML = "";
 
-      vendus.forEach(item => {
-        const ligne = document.createElement("div");
-        ligne.className = "product-row";
-        ligne.innerHTML = `
-          <span>${item.product.name}</span>
-          <div>
-            <input type="number" value="${item.quantity}" min="0" class="quantity-select" id="vendu-${item.product_id}">
-            <button class="action-btn remove-btn" onclick="modifierQuantite(${item.product_id}, 0, '${item.product.name}')">Retirer</button>
-          </div>
-        `;
-        divVendables.appendChild(ligne);
-      });
+      vendus.forEach(async item => {
+  const ligne = document.createElement("div");
+  ligne.className = "product-row";
 
-      autres.forEach(item => {
-        const ligne = document.createElement("div");
-        ligne.className = "product-row";
-        ligne.innerHTML = `
-          <div style="display:flex; flex-direction: column;">
-            <span><strong>${item.product.name}</strong></span>
-            <small style="font-size: 12px;">Quantité : ${item.quantity} (Magasin : ${item.shop?.name || 'ID ' + item.shop_id})</small>
-          </div>
-          <button class="action-btn add-btn" onclick="modifierQuantite(${item.product_id}, 1, '${item.product.name}')">Ajouter</button>
-        `;
-        divDisponibles.appendChild(ligne);
-      });
+  const imageURL = await getImageUrl(item.product_id);
+
+  ligne.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+      <img src="${imageURL}" alt="Produit" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">
+      <span style="flex: 1;">${item.product.name}</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <input type="number" value="${item.quantity}" min="0" class="quantity-select" id="vendu-${item.product_id}" style="width: 60px;">
+      <button class="action-btn remove-btn" onclick="modifierQuantite(${item.product_id}, 0, '${item.product.name}')">Retirer</button>
+    </div>
+  `;
+  divVendables.appendChild(ligne);
+});
+
+
+
+autres.forEach(async item => {
+  const ligne = document.createElement("div");
+  ligne.className = "product-row";
+
+  const imageURL = await getImageUrl(item.product_id);
+
+  ligne.innerHTML = `
+    <div style="display:flex; flex-direction: row; gap: 12px;">
+      <img src="${imageURL}" alt="Produit" style="width: 40px; height: 40px; object-fit: contain; border-radius: 6px; background: white;">
+
+      <div style="display:flex; flex-direction: column;">
+        <span><strong>${item.product.name}</strong></span>
+        <small style="font-size: 12px;">Quantité : ${item.quantity} (Magasin : ${item.shop?.name || 'ID ' + item.shop_id})</small>
+      </div>
+    </div>
+    <button class="action-btn add-btn" onclick="modifierQuantite(${item.product_id}, 1, '${item.product.name}')">Ajouter</button>
+  `;
+  divDisponibles.appendChild(ligne);
+});
+
     }
 
-    function modifierQuantite(productId, quantity, productName) {
-      const body = {
-        admin_email: "edwar@boozy.com",
-        admin_password: "adminpass",
-        shop_id: storeId,
-        products: [
-          {
-            product_id: productId,
-            quantity: quantity
-          }
-        ]
-      };
+    function modifierQuantite(productId, isAjout, productName) {
+  let newQuantity;
 
-      fetch("http://4.172.252.189:5000/admin/modifyAvailability", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === "success") {
-          alert(`✅ Produit modifié : ${productName}`);
-          fetchStock();
-        } else {
-          alert(`❌ Erreur : ${data.message || 'modification échouée'}`);
-        }
-      })
-      .catch(error => {
-        console.error("❌ Erreur réseau:", error);
-        alert("❌ Erreur de communication avec le serveur.");
-      });
+  if (isAjout) {
+    newQuantity = parseInt(prompt("Entrez la quantité à ajouter :", "1"));
+    if (isNaN(newQuantity) || newQuantity < 1) return alert("❌ Quantité invalide.");
+  } else {
+    // ✅ On met automatiquement la quantité à 0
+    newQuantity = 0;
+  }
+
+  const body = {
+    admin_email: utilisateur.email,
+    admin_password: utilisateur.password,
+    shop_id: storeId,
+    products: [
+      {
+        product_id: productId,
+        quantity: newQuantity
+      }
+    ]
+  };
+
+  fetch("http://4.172.252.189:5000/admin/modifyAvailability", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === "success") {
+      alert(`✅ Produit modifié : ${productName}`);
+      setTimeout(fetchStock, 300); // Rechargement après modif
+    } else {
+      alert(`❌ Erreur : ${data.message || 'modification échouée'}`);
     }
+  })
+  .catch(error => {
+    console.error("❌ Erreur réseau:", error);
+    alert("❌ Erreur de communication avec le serveur.");
+  });
+}
+
+
+
+    async function getImageUrl(productId) {
+  try {
+    const response = await fetch(`http://4.172.252.189:5000/getImages/product/${productId}`);
+    if (!response.ok) throw new Error("Image not found");
+    return URL.createObjectURL(await response.blob());
+  } catch (err) {
+    console.warn("❌ Image manquante pour produit", productId, err);
+    return "static/default-placeholder.png"; // Une image de secours par défaut
+  }
+}
+
 
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("show");
@@ -424,14 +502,32 @@
     }
 
     function switchLanguage() {
-      window.location.href = "english/stock_magasin_en.html";
+      window.location.href = "stock_magasin_en.html";
     }
 
     window.onload = fetchStock;
+
+    document.getElementById("searchBar").addEventListener("input", function () {
+  const query = this.value.toLowerCase();
+  const produitsFiltresMagasin = produitsMagasin.filter(p =>
+    p.product.name.toLowerCase().includes(query)
+  );
+  const produitsFiltresAutres = produitsAutres.filter(p =>
+    p.product.name.toLowerCase().includes(query)
+  );
+  renderProducts(produitsFiltresMagasin, produitsFiltresAutres);
+});
+document.querySelector(".search-bar button").addEventListener("click", function () {
+  const searchEvent = new Event("input");
+  document.getElementById("searchBar").dispatchEvent(searchEvent);
+});
+
+function switchLanguage() {
+        window.location.href = "english/stock_magasin_en.html";
+      }
+
+
   </script>
-  
-  
-  
 </body>
 </html>
 

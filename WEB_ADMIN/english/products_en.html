@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Produits SAQ</title>
+  <title>SAQ Products</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -15,44 +15,63 @@
       --gray-border: #d0d7de;
       --danger: #dc2626;
     }
-
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-
-    body {
+    body, html {
       font-family: 'Poppins', sans-serif;
       background-color: var(--gray-light);
-      min-height: 100vh;
+      height: 100%;
+    }
+    .wrapper {
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
     }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 24px;
-      background-color: var(--white);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    .logo-container {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-left: 40px;
-    }
-
-    header h1 {
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--gray-dark);
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background-color: var(--white); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .logo-container { display: flex; align-items: center; gap: 12px; margin-left: 40px; }
+    header h1 { font-size: 24px; font-weight: 600; color: var(--gray-dark); display: flex; align-items: center; gap: 12px; }
+    nav { width: 300px; max-width: 80%; background-color: var(--white); position: fixed; top: 0; left: -100%; height: 100vh; padding: 40px 24px; display: flex; flex-direction: column; gap: 28px; z-index: 100; box-shadow: 4px 0 12px rgba(0,0,0,0.2); transition: left 0.3s ease; }
+    nav.show { left: 0; }
+    nav a { display: flex; align-items: center; gap: 14px; padding: 14px 20px; font-size: 16px; color: var(--gray-dark); text-decoration: none; border-radius: 12px; transition: all 0.3s; font-weight: 500; }
+    nav a:hover, nav a.active { background-color: var(--gray-light); }
+    nav a img { width: 20px; height: 20px; }
+    .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.5); z-index: 98; display: none; }
+    .sidebar-overlay.show { display: block; }
+    .sidebar-toggle { position: fixed; top: 28px; left: 16px; z-index: 99; background-color: var(--primary); color: white; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+    .header-controls { display: flex; align-items: center; gap: 10px; }
+    .lang-btn, .logout { font-size: 14px; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; }
+    .lang-btn { background: transparent; border: 1.5px solid var(--gray-dark); color: var(--gray-dark); }
+    .lang-btn:hover { background-color: var(--gray-dark); color: white; }
+    .logout { background-color: var(--primary); color: white; border: none; }
+    .logout:hover { background-color: var(--primary-hover); }
+    footer { background-color: var(--primary); height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-size: 14px; padding: 10px; text-align: center; }
+    footer a { color: #ffc0cb; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .main { flex: 1; padding: 24px; display: flex; gap: 24px; }
+    .form-box { background-color: var(--white); padding: 24px; border-radius: 16px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05); max-width: 400px; width: 100%; }
+    .product-list-box { flex: 1; background-color: var(--gray-dark); border-radius: 16px; padding: 16px; max-height: 580px; overflow-y: auto; }
+    .form-box input, .form-box select { width: 100%; margin-bottom: 12px; padding: 10px; border-radius: 8px; border: 1px solid var(--gray-border); }
+    .form-box button { background-color: var(--primary); color: white; border: none; padding: 12px 20px; font-size: 14px; font-weight: 500; border-radius: 8px; cursor: pointer; }
+    .product-entry { display: flex; justify-content: space-between; align-items: center; background-color: var(--white); padding: 16px; border-radius: 12px; box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05); margin-bottom: 12px; }
+    .product-entry p { margin: 0 0 4px 0; font-size: 14px; color: var(--gray-dark); }
+    .entry-actions { display: flex; gap: 8px; }
+    .entry-actions button { padding: 8px 12px; font-size: 13px; border-radius: 6px; cursor: pointer; border: none; font-weight: 500; }
+    .edit-btn { background-color: var(--gray-dark); color: white; }
+    .delete-btn { background-color: var(--danger); color: white; }
+    .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 1000; }
+    .modal input { margin-bottom: 10px; width: 100%; padding: 8px; border: 1px solid var(--gray-border); border-radius: 6px; }
+    .form-btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
     }
 
     .search-bar {
@@ -64,16 +83,14 @@
       padding: 4px 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-
     .search-bar input {
       border: none;
       outline: none;
       padding: 6px 12px;
       font-size: 14px;
       border-radius: 999px;
-      width: 200px;
+      width: 160px;
     }
-
     .search-bar button {
       background-color: var(--primary);
       color: white;
@@ -84,172 +101,409 @@
       font-weight: 500;
       transition: 0.3s;
     }
-
     .search-bar button:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .lang-btn, .back-btn {
-      font-size: 14px;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-      border: none;
-    }
-
-    .lang-btn {
-      background: transparent;
-      border: 1.5px solid var(--gray-dark);
-      color: var(--gray-dark);
-    }
-
-    .lang-btn:hover {
-      background-color: var(--gray-dark);
-      color: white;
-    }
-
-    .back-btn {
-      background-color: var(--primary);
-      color: white;
-    }
-
-    .back-btn:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .main {
-      padding: 24px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      flex: 1;
-    }
-
-    .product-box {
-      background-color: var(--white);
-      border-radius: 16px;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
-      padding: 20px;
-      flex: 1 1 320px;
-    }
-
-    .product {
-      border-bottom: 1px solid var(--gray-border);
-      padding: 12px 0;
-    }
-
-    .product:last-child {
-      border-bottom: none;
-    }
-
-    .product h3 {
-      font-size: 18px;
-      color: var(--gray-dark);
-      margin-bottom: 4px;
-    }
-
-    .product p {
-      font-size: 14px;
-      color: #555;
-      margin: 0;
-    }
-
-    footer {
-      background-color: var(--primary);
-      color: white;
-      text-align: center;
-      padding: 16px 20px;
-      font-size: 14px;
-    }
-
-    footer a {
-      color: #ffc0cb;
-      text-decoration: none;
-      margin: 0 10px;
-    }
-
-    footer a:hover {
-      text-decoration: underline;
+      background-color: white;
+      color: var(--primary);
+      border: 1px solid var(--primary);
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo-container">
-      <h1><img src="assets/image/LOGO 1.png" alt="Logo" style="width: 50px; height: 50px;">Produits SAQ</h1>
-    </div>
-    <div class="search-bar">
-      <input type="text" id="searchBar" placeholder="Rechercher un produit...">
-      <button onclick="searchProducts()">Recherche</button>
-    </div>
-    <div class="header-controls">
-      <button onclick="switchLanguage()" class="lang-btn">FR</button>
-      <a href="dashboard.html" class="back-btn">← Retour</a>
-    </div>
-  </header>
+  <div class="wrapper">
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    <nav id="sidebar">
+      <a href="dashboard_en.html"><img src="../static/Frame 218.png" alt="Home">Home</a>
+      <a href="stores_en.html"><img src="../static/store-alt.png" alt="Stores">Stores</a>
+      <a href="orders_en.html"><img src="../static/border-all.png" alt="Orders">Orders</a>
+      <a href="products_en.html" class="active"><img src="../static/wine-bottle.png" alt="Products">Products</a>
+      <a href="users_en.html"><img src="../static/users.png" alt="Users">Users</a>
+    </nav>
+    <header>
+      <div class="logo-container">
+        <h1><a href="dashboard_en.html"><img src="../static/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> SAQ Products</h1>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="searchBar" placeholder="Search...">
+        <button type="submit">Search</button>
+      </div>
+      <div class="header-controls">
+        <button onclick="switchLanguage()" class="lang-btn">🌐 FR</button>
+        <a href="dashboard_en.html" class="logout" style="text-decoration: none;">← Back</a>
+      </div>
+    </header>
 
-  <div class="main">
-    <div class="product-box">
-      <h2>Liste des produits</h2>
-      <div id="productList"></div>
+    <div class="main">
+      <div class="form-box">
+        <h2>Add Product</h2>
+        <input type="text" id="productName" placeholder="Name">
+        <select id="productCategory"></select>
+        <input type="text" id="productDesc" placeholder="Description">
+        <input type="text" id="productPrice" placeholder="Price">
+        <input type="file" id="productImage" accept="image/png" />
+        <button onclick="addProduct()">Add</button>
+      </div>
+      <div class="product-list-box" id="productList"></div>
     </div>
+
+    <div class="modal" id="editModal">
+      <h3>Edit Product</h3>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div>
+          <label for="editName">Name</label>
+          <input type="text" id="editName" placeholder="Name" style="width: 100%;">
+        </div>
+        <div>
+          <label for="editCategory">Category</label>
+          <select id="editCategory" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--gray-border);"></select>
+        </div>
+        <div>
+          <label for="editDesc">Description</label>
+          <input type="text" id="editDesc" placeholder="Description" style="width: 100%;">
+        </div>
+        <div>
+          <label for="editPrice">Price</label>
+          <input type="text" id="editPrice" placeholder="Price" style="width: 100%;">
+        </div>
+      </div>
+      <input type="file" id="productImage" accept="image/png" />
+      <img id="editPreviewImage" src="" alt="Current image" style="max-height: 100px; margin-top: 12px;" />
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+        <button class="form-btn" onclick="validerEditionProduit()">Save</button>
+        <button class="form-btn" style="background-color: var(--danger);" onclick="fermerModal()">Cancel</button>
+      </div>
+    </div>
+
+    <footer>
+      <p><strong>© 2025 Boozy Inc.</strong> All rights reserved.</p>
+      <p><a href="mailto:support@boozy.com">support@boozy.com</a> &nbsp; | &nbsp; 514-652-3145</p>
+    </footer>
   </div>
 
-  <footer>
-    <p>&copy; 2025 Boozy Inc. Tous droits réservés.</p>
-    <p><a href="mailto:support@boozy.com">support@boozy.com</a> | 514-652-3145</p>
-  </footer>
-
   <script>
-    async function fetchProducts() {
-      try {
-        const response = await fetch("http://4.172.255.120:5000/getProducts");
-        const produits = await response.json();
-        afficherProduits(produits);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des produits:", error);
-        document.getElementById("productList").innerHTML = '<p>Erreur lors du chargement des produits.</p>';
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    
+    const session = getCookie("session");
+    let utilisateur = null;
+    
+    try {
+      utilisateur = JSON.parse(atob(session));
+      if (utilisateur.user_type !== "admin") {
+        window.location.href = "seConnecter.html";
+      }
+    } catch {
+      window.location.href = "seConnecter.html";
+    }
+    
+    
+        function toggleSidebar() {
+          document.getElementById("sidebar").classList.toggle("show");
+          document.getElementById("overlay").classList.toggle("show");
+        }
+    
+        function fermerModal() {
+      document.getElementById('editModal').style.display = 'none';
+    }
+    
+    
+        const categories = {};
+        let produitActuel = null;
+    
+        function fetchProductsFromAPI() {
+      const productList = document.getElementById('productList');
+      productList.innerHTML = "";
+      for (const key in categories) delete categories[key]; // 👈 Vider proprement
+    
+      fetch("http://4.172.252.189:5000/getProducts")
+        .then(res => res.json())
+        .then(data => {
+          data.forEach(product => {
+            const cat = product.category || 'Inconnu';
+            if (!categories[cat]) categories[cat] = [];
+            categories[cat].push(product);
+          });
+          remplirCategoriesDansSelect();
+          renderAllProducts();
+        })
+        .catch(err => console.error("Erreur lors de la récupération des produits:", err));
+    }
+    
+    
+        function remplirCategoriesDansSelect() {
+          const selectEdit = document.getElementById('editCategory');
+          const selectAdd = document.getElementById('productCategory');
+          selectEdit.innerHTML = '';
+          selectAdd.innerHTML = '';
+    
+          const uniqueCategories = Object.keys(categories).sort((a, b) => a.localeCompare(b));
+          uniqueCategories.forEach(cat => {
+            const optionEdit = document.createElement('option');
+            const optionAdd = document.createElement('option');
+            optionEdit.value = cat;
+            optionAdd.value = cat;
+            optionEdit.textContent = optionAdd.textContent = cat;
+            selectEdit.appendChild(optionEdit);
+            selectAdd.appendChild(optionAdd);
+          });
+        }
+    
+        function renderAllProducts(filtreTexte = "") {
+      const productList = document.getElementById('productList');
+      productList.innerHTML = '';
+    
+      const filtre = filtreTexte.trim().toLowerCase();
+    
+      Object.entries(categories).forEach(([cat, products]) => {
+        products.forEach((product, index) => {
+          const nom = product.name.toLowerCase();
+          const desc = product.description.toLowerCase();
+          const prix = String(product.price).toLowerCase();
+          const catLower = cat.toLowerCase();
+    
+          if (
+            nom.includes(filtre) ||
+            desc.includes(filtre) ||
+            prix.includes(filtre) ||
+            catLower.includes(filtre)
+          ) {
+            const div = document.createElement('div');
+            div.className = 'product-entry';
+            div.innerHTML = `
+      <div style="display: flex; gap: 16px;">
+        <img src="${getImageURL(product.product_id)}" alt="Image produit" style="max-width: 80px; max-height: 120px; object-fit: contain; border-radius: 8px;" />
+    
+    
+        <div>
+          <p><strong>Nom:</strong> ${product.name}</p>
+          <p><strong>Catégorie:</strong> ${cat}</p>
+          <p><strong>Description:</strong> ${product.description}</p>
+          <p><strong>Prix:</strong> ${product.price}$</p>
+        </div>
+      </div>
+      <div class="entry-actions">
+        <button class="edit-btn" onclick="editProduct('${cat}', ${index})">Modifier</button>
+        <button class="delete-btn" onclick="deleteProduct('${cat}', ${index})">Supprimer</button>
+      </div>
+    `;
+    
+            productList.appendChild(div);
+          }
+        });
+      });
+    }
+    
+        function deleteProduct(cat, index) {
+          categories[cat].splice(index, 1);
+          renderAllProducts();
+        }
+    
+        function editProduct(cat, index) {
+          produitActuel = { cat, index };
+          const produit = categories[cat][index];
+          document.getElementById('editName').value = produit.name;
+          document.getElementById('editCategory').value = produit.category;
+          document.getElementById('editDesc').value = produit.description;
+          document.getElementById('editPrice').value = produit.price;
+          document.getElementById('editModal').style.display = 'block';
+          document.getElementById('editPreviewImage').src = getImageURL(produit.product_id);
+    
+        }
+    
+        function validerEditionProduit() {
+      if (!produitActuel) return;
+      const { cat, index } = produitActuel;
+      const produit = categories[cat][index];
+    
+      const newName = document.getElementById('editName').value;
+      const newCategory = document.getElementById('editCategory').value;
+      const newDesc = document.getElementById('editDesc').value;
+      const newPrice = parseFloat(document.getElementById('editPrice').value);
+      const newImageFile = document.getElementById('productImage').files[0];
+    
+      const sendUpdateRequest = (imageBase64 = null) => {
+        const updatedData = {
+          admin_email: utilisateur.email,
+          admin_password: utilisateur.password,
+          product_id: produit.product_id,
+          name: newName,
+          description: newDesc,
+          price: newPrice,
+          category: newCategory,
+          alcohol: produit.alcohol || 0
+        };
+    
+        if (imageBase64) {
+          updatedData.image_base64 = imageBase64;
+        }
+    
+        modifierProduit(updatedData)
+          .then(response => {
+            if (response.status === "success") {
+              alert("✅ Produit modifié !");
+              fetchProductsFromAPI();
+              produitActuel = null;
+              fermerModal();
+            } else {
+              alert("❌ Échec de la modification !");
+              console.error("Erreur serveur:", response);
+            }
+          })
+          .catch(error => {
+            alert("❌ Erreur réseau !");
+            console.error(error);
+          });
+      };
+    
+      // Si une nouvelle image a été sélectionnée, lis-la en base64
+      if (newImageFile) {
+        const reader = new FileReader();
+        reader.onload = function () {
+          const base64Image = reader.result;
+          sendUpdateRequest(base64Image);
+        };
+        reader.readAsDataURL(newImageFile);
+      } else {
+        // Sinon, envoie sans image
+        sendUpdateRequest();
       }
     }
-
-    function afficherProduits(produits) {
-      const productList = document.getElementById("productList");
-      productList.innerHTML = "";
-
-      produits.forEach(prod => {
-        const div = document.createElement("div");
-        div.className = "product";
-        div.innerHTML = `
-          <h3>${prod.name}</h3>
-          <p>${prod.description}</p>
-          <p><strong>${prod.price} $</strong> – Catégorie : ${prod.category}</p>
-        `;
-        productList.appendChild(div);
+    
+    
+    
+    function addProduct() {
+      const name = document.getElementById('productName').value;
+      const description = document.getElementById('productDesc').value;
+      const category = document.getElementById('productCategory').value;
+      const price = document.getElementById('productPrice').value;
+      const imageFile = document.getElementById('productImage').files[0];
+    
+      if (!name || !category || !description || !price || isNaN(parseFloat(price))) {
+        alert("❌ Veuillez remplir tous les champs correctement.");
+        return;
+      }
+    
+      if (!imageFile) {
+        alert("❌ Veuillez choisir une image.");
+        return;
+      }
+    
+      const reader = new FileReader();
+      reader.onload = function () {
+        const base64Image = reader.result;
+    
+        const data = {
+          admin_email: utilisateur.email,
+          admin_password: utilisateur.password,
+          name: name,
+          description: description,
+          category: category,
+          price: price,
+          alcohol: 0,
+          image_base64: base64Image // ce que PowWow attend
+        };
+    
+        fetch("http://4.172.252.189:5000/admin/createProduct", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "success") {
+            alert("✅ Produit ajouté !");
+            fetchProductsFromAPI();
+            document.querySelectorAll('.form-box input').forEach(i => i.value = '');
+            document.getElementById('productCategory').selectedIndex = 0;
+          } else {
+            console.error("Réponse serveur:", data);
+            alert("❌ Échec de l'ajout !");
+          }
+        })
+        .catch(err => {
+          console.error("Erreur:", err);
+          alert("❌ Erreur réseau !");
+        });
+      };
+    
+      reader.readAsDataURL(imageFile); // ✅ encodage en base64
+    }
+    
+    
+    
+    
+    
+    function modifierProduit(productData) {
+      return fetch("http://4.172.252.189:5000/admin/modifyProduct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(productData)
+      }).then(res => res.json());
+    }
+    
+    function deleteProduct(cat, index) {
+      const produit = categories[cat][index];
+    
+      if (!confirm(`Supprimer le produit : ${produit.name} ?`)) return;
+    
+      fetch("http://4.172.252.189:5000/admin/deleteProduct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          admin_email: utilisateur.email,
+          admin_password: utilisateur.password,
+    
+          product_id: produit.product_id
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          alert("Produit supprimé avec succès !");
+          fetchProductsFromAPI(); // Recharge la liste à jour
+        } else {
+          alert("Échec de la suppression.");
+          console.error("Réponse:", data);
+        }
+      })
+      .catch(err => {
+        alert("Erreur réseau !");
+        console.error(err);
       });
     }
-
-    function searchProducts() {
-      const input = document.getElementById("searchBar").value.toLowerCase();
-      const items = document.querySelectorAll(".product");
-
-      items.forEach(item => {
-        const name = item.querySelector("h3").textContent.toLowerCase();
-        item.style.display = name.includes(input) ? "block" : "none";
-      });
+    
+    
+    document.getElementById('searchBar').addEventListener('input', function () {
+      const value = this.value;
+      renderAllProducts(value);
+    });
+    
+    function getImageURL(product_id) {
+      return `http://4.172.252.189:5000/getImages/product/${product_id}`;
     }
-
+    
+    
+    document.getElementById("productPrice").addEventListener("input", function () {
+      this.value = this.value
+        .replace(/[^0-9.]/g, "")        // Supprime tout sauf chiffres et point
+        .replace(/(\..*)\./g, "$1");    // Empêche d'avoir plus d'un point
+    });
+    
+    document.getElementById("editPrice").addEventListener("input", function () {
+      this.value = this.value
+        .replace(/[^0-9.]/g, "")
+        .replace(/(\..*)\./g, "$1");
+    });
+    
     function switchLanguage() {
-      window.location.href = "products.html";
-    }
-
-    window.onload = fetchProducts;
-  </script>
+          window.location.href = "../products.html";
+        }
+    
+      window.onload = fetchProductsFromAPI;
+      </script>
 </body>
 </html>

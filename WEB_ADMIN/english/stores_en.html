@@ -2,318 +2,765 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Add SAQ Store</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add a SAQ Store</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
   <style>
-    body {
+    :root {
+      --primary: #34495e;
+      --primary-hover: #2c3e50;
+      --gray-light: #f4f6f8;
+      --gray-dark: #2c3e50;
+      --white: #ffffff;
+      --gray-border: #d0d7de;
+      --danger: #dc2626;
+      --muted: #6b7280;
+    }
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+    html, body {
       font-family: 'Poppins', sans-serif;
-      background-color: #F4F6F9;
+      background-color: var(--gray-light);
+      height: 100%;
+    }
+    .wrapper {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
     }
-
     header {
-      height: 80px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background-color: var(--white);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .logo-container {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 40px;
-      border-bottom: 1px solid #E0E6ED;
-      background-color: #ffffff;
-      gap: 20px;
+      gap: 12px;
+      margin-left: 40px;
     }
-
     header h1 {
-      font-size: 30px;
+      font-size: 24px;
       font-weight: 600;
-      color: #1F2937;
-      margin: 0;
-    }
-
-    .search-wrapper {
-      flex: 1;
+      color: var(--gray-dark);
       display: flex;
-      justify-content: center;
+      align-items: center;
+      gap: 12px;
     }
-
-    .search-input {
-      padding: 8px 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+     header h1 img {
+      height: 36px;
+      border-radius: 8px;
+    }
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background-color: var(--white);
+      border: 1px solid var(--gray-border);
+      border-radius: 999px;
+      padding: 4px 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .search-bar input {
+      border: none;
+      outline: none;
+      padding: 6px 12px;
       font-size: 14px;
-      width: 300px;
+      border-radius: 999px;
+      width: 160px;
     }
-
+    .search-bar input:focus {
+      border: 1px solid var(--primary);
+      box-shadow: 0 0 0 2px rgba(52, 73, 94, 0.2);
+    }
+    .search-bar button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+    .search-bar button:hover {
+      background-color: white;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    .lang-btn, .logout {
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .lang-btn {
+      background: transparent;
+      border: 1.5px solid var(--gray-dark);
+      color: var(--gray-dark);
+    }
+    .lang-btn:hover {
+      background-color: var(--gray-dark);
+      color: white;
+    }
+    .logout {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+    }
+    .logout:hover {
+      background-color: var(--primary-hover);
+    }
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 98;
+      display: none;
+    }
+    .sidebar-overlay.show {
+      display: block;
+    }
+    .sidebar-toggle {
+      position: fixed;
+      top: 28px;
+      left: 16px;
+      z-index: 99;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    nav {
+      width: 300px;
+      max-width: 80%;
+      background-color: var(--white);
+      position: fixed;
+      top: 0;
+      left: -100%;
+      height: 100vh;
+      padding: 40px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      z-index: 100;
+      box-shadow: 4px 0 12px rgba(0,0,0,0.2);
+      transition: left 0.3s ease;
+    }
+    nav.show {
+      left: 0;
+    }
+    nav a {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      font-size: 16px;
+      color: var(--gray-dark);
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all 0.3s;
+      font-weight: 500;
+    }
+    nav a:hover,
+    nav a.active {
+      background-color: var(--gray-light);
+    }
+    nav a img {
+      width: 20px;
+      height: 20px;
+    }
     .container {
-      flex: 1;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding: 40px;
-      gap: 40px;
+      padding: 24px;
+      gap: 24px;
+      flex-wrap: wrap;
     }
-
-    .form-box {
-      background: white;
-      padding: 40px;
-      border-radius: 14px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-      max-width: 500px;
-      width: 100%;
-    }
-
-    .form-box h2 {
-      margin-bottom: 30px;
-      font-size: 24px;
-      color: #2F3E46;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 10px;
-      font-weight: 500;
-      color: #34495E;
-    }
-
-    input[type="text"], input[type="number"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      font-size: 16px;
-    }
-
-    button {
-      background-color: #1F2937;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 16px;
-      font-weight: 500;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #111827;
-    }
-
-    .store-list-box {
-      max-width: 500px;
-      width: 100%;
-    }
-
-    .store-entry {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .store-entry p {
-      margin: 0;
-      font-size: 16px;
-    }
-
-    .entry-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .delete-btn, .edit-btn {
-      background: darkred;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .edit-btn {
-      background: #6f7279;
-    }
-
-    .edit-popup input {
-      width: 100%;
-      padding: 8px;
-      margin-top: 8px;
-      margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
-    footer {
-      height: 80px;
-      background-color: #ffffff;
-      border-top: 1px solid #E0E6ED;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 16px;
-      font-weight: 500;
-      color: #6B6B6B;
-    }
-
-    .back-button {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: #1F2937;
-      font-weight: 500;
-      font-size: 16px;
-      transition: transform 0.2s ease, color 0.2s ease;
-    }
-
-    .back-button:hover {
-      color: #2563EB;
-    }
-
-    .back-button img {
-      width: 24px;
-      height: 24px;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
+    .form-box, .store-list-box {
+      background-color: var(--white);
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
       flex: 1;
-      gap: 20px;
+      min-width: 300px;
     }
-
-    .lang-btn {
+    .form-box {
+      max-width: 400px;
+    }
+    .form-box h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: var(--gray-dark);
+    }
+    label {
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: block;
+      color: var(--gray-dark);
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--gray-border);
+      border-radius: 8px;
+      margin-bottom: 16px;
       font-size: 14px;
-      background: transparent;
-      border: 1.5px solid #1F2937;
-      color: #1F2937;
-      border-radius: 5px;
-      padding: 6px 12px;
+      transition: 0.3s;
+    }
+    input[type="text"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(52, 73, 94, 0.2);
+    }
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 8px;
       cursor: pointer;
       transition: 0.3s;
     }
-
-    .lang-btn:hover {
-      background-color: #1F2937;
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+    .store-list-box {
+      background-color:#2c3e50;
+      max-height: 580px;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    .store-entry {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--white);
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 12px;
+      transition: transform 0.3s;
+    }
+    .store-entry:hover {
+      transform: translateY(-2px);
+    }
+    .store-entry p {
+      margin: 0 0 4px 0;
+      font-size: 14px;
+      color: var(--gray-dark);
+    }
+    .entry-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .entry-actions button {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    .edit-btn {
+      background-color: var(--gray-dark);
+    }
+    .stock-btn {
+      background-color: var(--primary);
+    }
+    .delete-btn {
+      background-color: var(--danger);
+    }
+    .delete-btn:hover {
+      background-color: #b91c1c;
+    }
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: var(--white);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      min-width: 300px;
+    }
+    footer {
+      background-color: var(--primary);
+      height: 90px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       color: white;
+      font-size: 14px;
+      padding: 10px;
+      text-align: center;
+    }
+    footer p {
+      margin: 2px 0;
+    }
+    footer a {
+      color: #ffc0cb;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-<header>
-  <h1>Add SAQ Store</h1>
-  <div class="search-wrapper">
-    <input type="text" id="searchBar" placeholder="Search..." class="search-input" style="margin-bottom: 0px !important; width: 200px !important; margin-left: 300px !important;">
+  <div class="wrapper">
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    <header>
+      <div class="logo-container">
+        <h1><a href="dashboard_en.html"><img src="../static/LOGO 1.png" alt="BOOZY Logo" style="width: 60px; height: 60px;"></a> Add a SAQ Store</h1>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="searchBar" placeholder="Search...">
+        <button>Search</button>
+      </div>
+      <div class="header-controls">
+        <button onclick="switchLanguage()" class="lang-btn">🌐 FR</button>
+        <a href="dashboard_en.html" class="logout">← Back</a>
+      </div>
+    </header>
+
+    <nav id="sidebar">
+      <a href="dashboard_en.html"><img src="../static/Frame 218.png" alt="Home">Home</a>
+      <a href="stores_en.html" class="active"><img src="../static/store-alt.png" alt="Stores">Stores</a>
+      <a href="orders_en.html"><img src="../static/border-all.png" alt="Orders">Orders</a>
+      <a href="products_en.html"><img src="../static/wine-bottle.png" alt="Products">Products</a>
+      <a href="users_en.html"><img src="../static/users.png" alt="Users">Users</a>
+    </nav>
+
+    <div class="container">
+      <div class="form-box">
+        <h2>Store Information</h2>
+        <form onsubmit="addStore(event)">
+          <label for="nom">Store Name</label>
+          <input type="text" id="nom" name="nom" placeholder="e.g. SAQ Downtown" required>
+
+          <label for="num_civique">Civic Number</label>
+          <input type="text" id="num_civique" name="num_civique" placeholder="e.g. 123" required>
+
+          <label for="rue">Street Name</label>
+          <input type="text" id="rue" name="rue" placeholder="e.g. Sainte-Catherine Street" required>
+
+          <label for="ville">City</label>
+          <input type="text" id="ville" name="ville" placeholder="e.g. Montreal" required>
+
+          <label for="appartement">Apartment</label>
+          <input type="text" id="appartement" name="appartement" placeholder="e.g. 3B">
+
+          <label for="postal_code">Postal Code</label>
+          <input type="text" id="postal_code" name="postal_code" placeholder="e.g. H3A 1A1">
+
+          <label for="storeImage">Store Image (PNG)</label>
+          <input type="file" id="storeImage" accept="image/png" required>
+
+          <button type="submit">Add Store</button>
+        </form>
+      </div>
+
+      <div class="store-list-box" id="storeList"></div>
+    </div>
+
+    <footer>
+      <p><strong>© 2025 Boozy Inc.</strong> All rights reserved.</p>
+      <p><a href="mailto:support@boozy.com">support@boozy.com</a> | 514-652-3145</p>
+    </footer>
   </div>
-  <div class="header-right">
-    <button onclick="switchLanguage()" class="lang-btn">FR</button>
-    <a href="dashboard.html" class="back-button">
-      <img src="assets/image/Frame 218.png" alt="Back">
-      <span>Back</span>
-    </a>
-  </div>
-</header>
 
-<div class="container">
-  <div class="form-box">
-    <h2>Store Information</h2>
-    <form onsubmit="addStore(event)">
-      <label for="nom">Store Name</label>
-      <input type="text" id="nom" name="nom" placeholder="SAQ Downtown" required>
-
-      <label for="id_adresse">Associated Address ID</label>
-      <input type="number" id="id_adresse" name="id_adresse" placeholder="e.g.: 1" required>
-
-      <button type="submit">Add Store</button>
-    </form>
+  <div id="modal" class="modal" style="display:none;">
+    <h3>Edit Store</h3>
+    <input type="text" id="edit-nom" placeholder="Store Name">
+    <input type="text" id="edit-num" placeholder="Civic Number">
+    <input type="text" id="edit-rue" placeholder="Street Name">
+    <input type="text" id="edit-ville" placeholder="City">
+    <input type="text" id="edit-appartement" placeholder="Apartment">
+    <input type="text" id="edit-postal" placeholder="Postal Code">
+    <label for="editImage">Store Image (PNG)</label>
+    <input type="file" id="editImage" accept="image/png">
+    <button onclick="validerModification()">Save</button>
+    <button style="background-color: #6b7280;" onclick="document.getElementById('modal').style.display='none'">Close</button>
   </div>
 
-  <div class="store-list-box" id="storeList"></div>
-</div>
-
-<footer>
-  If you need help, contact us at 514-652-3145
-</footer>
-
-<script>
-  function switchLanguage() {
-    window.location.href = "stores.html";
-  }
-
-  function addStore(event) {
-    event.preventDefault();
-    const nom = document.getElementById("nom").value;
-    const id_adresse = document.getElementById("id_adresse").value;
-
-    if (!nom || !id_adresse) return;
-
-    const storeList = document.getElementById("storeList");
-
-    const div = document.createElement("div");
-    div.className = "store-entry";
-    div.innerHTML = `
-      <div>
-        <p><strong>Name:</strong> <span class="store-nom">${nom}</span></p>
-        <p><strong>Address ID:</strong> <span class="store-id">${id_adresse}</span></p>
-      </div>
-      <div class="entry-actions">
-        <button class="edit-btn" onclick="modifierMagasin(this)">✏️</button>
-        <button class="delete-btn" onclick="this.closest('.store-entry').remove()">&times;</button>
-      </div>
-    `;
-
-    storeList.appendChild(div);
-
-    document.getElementById("nom").value = "";
-    document.getElementById("id_adresse").value = "";
-  }
-
-  function modifierMagasin(btn) {
-    const storeDiv = btn.closest(".store-entry");
-    const nom = storeDiv.querySelector(".store-nom").textContent;
-    const id = storeDiv.querySelector(".store-id").textContent;
-
-    storeDiv.innerHTML = `
-      <div class="user-info">
-        <input type="text" class="edit-nom" value="${nom}">
-        <input type="number" class="edit-id" value="${id}">
-      </div>
-      <div class="entry-actions">
-        <button class="edit-btn" onclick="sauvegarderMagasin(this)">💾</button>
-        <button class="delete-btn" onclick="this.closest('.store-entry').remove()">&times;</button>
-      </div>
-    `;
-  }
-
-  function sauvegarderMagasin(btn) {
-    const storeDiv = btn.closest(".store-entry");
-    const nom = storeDiv.querySelector(".edit-nom").value;
-    const id = storeDiv.querySelector(".edit-id").value;
-
-    storeDiv.innerHTML = `
-      <div>
-        <p><strong>Name:</strong> <span class="store-nom">${nom}</span></p>
-        <p><strong>Address ID:</strong> <span class="store-id">${id}</span></p>
-      </div>
-      <div class="entry-actions">
-        <button class="edit-btn" onclick="modifierMagasin(this)">✏️</button>
-        <button class="delete-btn" onclick="this.closest('.store-entry').remove()">&times;</button>
-      </div>
-    `;
-  }
-</script>
+  <script>
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    
+    const session = getCookie("session");
+    let utilisateur = null;
+    
+    try {
+      utilisateur = JSON.parse(atob(session));
+      if (utilisateur.user_type !== "admin") {
+        window.location.href = "seConnecter.html";
+      }
+    } catch {
+      window.location.href = "seConnecter.html";
+    }
+    
+    
+      function switchLanguage() {
+        window.location.href = "../stores.html";
+      }
+      function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("show");
+        document.getElementById("overlay").classList.toggle("show");
+      }
+    
+      document.getElementById("searchBar").addEventListener("input", () => {
+      const keyword = document.getElementById("searchBar").value.toLowerCase();
+      filtrerMagasins(keyword);
+    });
+    
+    
+      function ouvrirStockPage(nom, num_civique, rue, ville) {
+        const url = `stock_magasin.html?nom=${encodeURIComponent(store.name)}&id=${store.shop_id}`;
+    
+        window.location.href = url;
+      }
+      function createStoreEntry(store) {
+      const div = document.createElement("div");
+      div.className = "store-entry";
+    
+      // Création de l'image vide
+      const imageElement = document.createElement("img");
+      imageElement.alt = `Image du magasin ${store.name}`;
+      imageElement.style.width = "80px";
+      imageElement.style.height = "80px";
+      imageElement.style.borderRadius = "8px";
+      imageElement.style.objectFit = "cover";
+      imageElement.style.marginRight = "10px";
+    
+      // Charger l’image dynamique depuis l’API
+      getImageMagasin(store.shop_id, imageElement);
+    
+      // Div contenant le texte (nom + adresse)
+      const infoDiv = document.createElement("div");
+      infoDiv.innerHTML = `
+        <p><strong>Nom:</strong> <span class="store-nom">${store.name}</span></p>
+        <p><strong>Adresse complète:</strong><br>
+          ${store.address_components?.civic || ''} 
+          ${store.address_components?.apartment ? ', Apt. ' + store.address_components.apartment : ''}<br>
+          ${store.address_components?.street || ''}<br>
+          ${store.address_components?.city || ''}, ${store.address_components?.postal_code || ''}
+        </p>
+      `;
+    
+      // Partie gauche contenant image + texte
+      const leftDiv = document.createElement("div");
+      leftDiv.style.display = "flex";
+      leftDiv.style.alignItems = "center";
+      leftDiv.appendChild(imageElement);
+      leftDiv.appendChild(infoDiv);
+    
+      // Boutons Modifier / Produits / Supprimer
+      const actionsDiv = document.createElement("div");
+      actionsDiv.className = "entry-actions";
+      actionsDiv.innerHTML = `
+        <button class="edit-btn modifier">Modifier</button>
+        <button class="edit-btn stock">Produits</button>
+        <button class="delete-btn">Supprimer</button>
+      `;
+    
+      // Ajout à l'entrée principale
+      div.appendChild(leftDiv);
+      div.appendChild(actionsDiv);
+    
+      // Actions des boutons
+      div.querySelector(".modifier").addEventListener("click", () => {
+        currentEditStore = {
+          div,
+          store: {
+            shop_id: store.shop_id,
+            name: store.name,
+            civic: store.address_components?.civic || "",
+            apartment: store.address_components?.apartment || "",
+            street: store.address_components?.street || "",
+            city: store.address_components?.city || "",
+            postal_code: store.address_components?.postal_code || ""
+          }
+        };
+    
+        document.getElementById("edit-nom").value = store.name;
+        document.getElementById("edit-num").value = store.address_components?.civic || "";
+        document.getElementById("edit-rue").value = store.address_components?.street || "";
+        document.getElementById("edit-ville").value = store.address_components?.city || "";
+        document.getElementById("edit-appartement").value = store.address_components?.apartment || "";
+        document.getElementById("edit-postal").value = store.address_components?.postal_code || "";
+    
+        document.getElementById("modal").style.display = "block";
+      });
+    
+      div.querySelector(".stock").addEventListener("click", () => {
+        const url = `stock_magasin.html?nom=${encodeURIComponent(store.name)}&id=${store.shop_id}`;
+        window.location.href = url;
+      });
+    
+      div.querySelector(".delete-btn").addEventListener("click", () => {
+        if (confirm("Voulez-vous vraiment supprimer ce magasin ?")) {
+          supprimerMagasin(store.shop_id)
+            .then(data => {
+              if (data.status === "success") {
+                alert("Magasin supprimé !");
+                fetchStoresFromAPI(); // Recharge la liste
+              } else {
+                alert("Erreur lors de la suppression !");
+                console.error("Réponse API:", data);
+              }
+            })
+            .catch(err => {
+              alert("Erreur réseau !");
+              console.error("Erreur:", err);
+            });
+        }
+      });
+    
+      document.getElementById("storeList").appendChild(div);
+    }
+    
+    function validerModification() {
+      if (!currentEditStore) return;
+    
+      const { store } = currentEditStore;
+      const newImageFile = document.getElementById("editImage").files[0];
+    
+      const baseData = {
+        admin_email: utilisateur.email,
+        admin_password: utilisateur.password,
+        shop_id: store.shop_id,
+        name: document.getElementById("edit-nom").value,
+        civic: document.getElementById("edit-num").value,
+        apartment: document.getElementById("edit-appartement").value,
+        street: document.getElementById("edit-rue").value,
+        city: document.getElementById("edit-ville").value,
+        postal_code: document.getElementById("edit-postal").value
+      };
+    
+      const sendUpdate = (imageBase64 = null) => {
+        const finalData = { ...baseData };
+        if (imageBase64) finalData.image_base64 = imageBase64;
+    
+        fetch("http://4.172.252.189:5000/admin/modifyShop", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(finalData)
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === "success") {
+              alert("✅ Magasin modifié !");
+              fetchStoresFromAPI();
+              document.getElementById("modal").style.display = "none";
+              currentEditStore = null;
+            } else {
+              alert("❌ Erreur de modification !");
+            }
+          })
+          .catch(err => {
+            alert("❌ Erreur réseau !");
+            console.error("Erreur:", err);
+          });
+      };
+    
+      if (newImageFile) {
+        const reader = new FileReader();
+        reader.onload = () => sendUpdate(reader.result);
+        reader.readAsDataURL(newImageFile);
+      } else {
+        sendUpdate();
+      }
+    }
+    
+    
+      function fetchStoresFromAPI() {
+        fetch("http://4.172.252.189:5000/getShops")
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById("storeList").innerHTML = "";
+            data.forEach(store => createStoreEntry(store));
+          })
+          .catch(error => {
+            console.error("Erreur lors du chargement des magasins :", error);
+            document.getElementById("storeList").innerHTML = "<p style='padding:20px;'>Impossible de charger les magasins.</p>";
+          });
+      }
+    
+      function getImageMagasin(shop_id, imgElement) {
+      console.log("🔍 Chargement image pour shop_id :", shop_id);
+    
+      fetch(`http://4.172.252.189:5000/getImages/shop/${shop_id}`)
+        .then(response => {
+          if (!response.ok) {
+            console.warn("⚠️ Image non trouvée pour shop_id:", shop_id);
+            throw new Error("Erreur image");
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          const imageUrl = URL.createObjectURL(blob);
+          imgElement.src = imageUrl;
+        })
+        .catch(() => {
+          imgElement.src = "assets/image/default-store.png"; // Fallback
+        });
+    }
+    
+    
+      function filtrerMagasins(keyword) {
+      const magasins = document.querySelectorAll(".store-entry");
+    
+      magasins.forEach(entry => {
+        const nom = entry.querySelector(".store-nom")?.textContent.toLowerCase() || "";
+        const adresse = entry.querySelector(".store-adresse")?.textContent.toLowerCase() || "";
+        
+        // On filtre aussi par tous les éléments visibles dans la carte
+        const textGlobal = entry.textContent.toLowerCase();
+    
+        if (
+          nom.includes(keyword) ||
+          adresse.includes(keyword) ||
+          textGlobal.includes(keyword)
+        ) {
+          entry.style.display = "flex";
+        } else {
+          entry.style.display = "none";
+        }
+      });
+    }
+    
+    
+    
+    function addStore(event) {
+      event.preventDefault();
+      const imageFile = document.getElementById("storeImage").files[0];
+    
+      if (!imageFile) {
+        alert("Veuillez choisir une image PNG.");
+        return;
+      }
+    
+      const reader = new FileReader();
+      reader.onload = function () {
+        const base64Image = reader.result;
+    
+        const storeData = {
+          admin_email: utilisateur.email,
+          admin_password: utilisateur.password,
+          name: document.getElementById("nom").value,
+          civic: document.getElementById("num_civique").value,
+          apartment: document.getElementById("appartement").value,
+          street: document.getElementById("rue").value,
+          city: document.getElementById("ville").value,
+          postal_code: document.getElementById("postal_code").value,
+          image_base64: base64Image
+        };
+    
+        fetch("http://4.172.252.189:5000/admin/createShop", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(storeData)
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === "success") {
+              alert("Magasin ajouté !");
+              fetchStoresFromAPI();
+              document.querySelector("form").reset();
+            } else {
+              alert("Erreur lors de l'ajout !");
+            }
+          })
+          .catch(err => {
+            alert("Erreur réseau !");
+            console.error("Erreur:", err);
+          });
+      };
+    
+      reader.readAsDataURL(imageFile);
+    }
+    
+    
+    function modifierMagasin(shopData) {
+      return fetch("http://4.172.252.189:5000/admin/modifyShop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          admin_email: utilisateur.email,
+          admin_password: utilisateur.password,
+          shop_id: shopData.shop_id,
+          name: shopData.name,
+          civic: shopData.civic,
+          apartment: shopData.apartment,
+          street: shopData.street,
+          city: shopData.city,
+          postal_code: shopData.postal_code
+        })
+      }).then(res => res.json());
+    }
+    
+    function supprimerMagasin(shop_id) {
+      return fetch("http://4.172.252.189:5000/admin/deleteShop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          admin_email: utilisateur.email,
+          admin_password: utilisateur.password,
+          shop_id: shop_id
+        })
+      }).then(res => res.json());
+    }
+    
+    document.getElementById("num_civique").addEventListener("input", function () {
+      this.value = this.value.replace(/\D/g, "").slice(0, 3);
+    });
+    document.getElementById("postal_code").addEventListener("input", function () {
+      this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+    });
+    
+    const villesQuebec = [
+      "Montréal", "Québec", "Laval", "Gatineau", "Longueuil",
+      "Terrebonne", "Sherbrooke", "Trois-Rivières", "Repentigny", "Saint-Jean-sur-Richelieu",
+      "Granby", "Blainville", "Brossard", "Drummondville", "Saint-Jérôme",
+      "Mirabel", "Mascouche", "Lévis", "Victoriaville", "Shawinigan"
+    ];
+    
+    const villeInput = document.getElementById("ville");
+    villeInput.setAttribute("list", "villesQC");
+    
+    const datalist = document.createElement("datalist");
+    datalist.id = "villesQC";
+    villesQuebec.forEach(ville => {
+      const option = document.createElement("option");
+      option.value = ville;
+      datalist.appendChild(option);
+    });
+    document.body.appendChild(datalist);
+    
+    
+      window.onload = fetchStoresFromAPI;
+      </script>
 </body>
 </html>
-
-

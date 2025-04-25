@@ -1,5 +1,3 @@
-<!-- This is the English version of the homepage for the BOOZY admin space. -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -108,9 +106,9 @@
   <div class="top-bar">
     <button class="lang-btn" onclick="switchLanguage()">FR</button>
   </div>  
-  <p class="tagline">Welcome to BOOZY's admin space!</p>
+  <p class="tagline">Welcome to the BOOZY administrator portal!</p>
   <div class="logo-container">
-    <img src="assets/image/LOGO 1.png" alt="BOOZY Logo">
+    <img src="../static/LOGO 1.png" alt="BOOZY Logo">
   </div>
   <div class="buttons">
     <button class="signup">Sign up</button>
@@ -120,13 +118,14 @@
     document.querySelector('.signup').addEventListener('click', function() {
       window.location.href = 'inscription_en.html';
     });
-
+  
     document.querySelector('.login').addEventListener('click', function() {
       window.location.href = 'seConnecter_en.html';
     });
-
+  </script>
+  <script>
     function switchLanguage() {
-      window.location.href = "accueil.html";
+      window.location.href = "../accueil.html";
     }
   </script>
 </body>
