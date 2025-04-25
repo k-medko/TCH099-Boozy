@@ -52,7 +52,8 @@ CREATE TABLE Product (
     category VARCHAR(100) NOT NULL,
     alcohol DECIMAL(4,2) NOT NULL
 );
-
+ 
+ 
 -- 5. Create ClientOrder with separate client and carrier references
 CREATE TABLE ClientOrder (
     client_order_id INT(10) AUTO_INCREMENT PRIMARY KEY,
