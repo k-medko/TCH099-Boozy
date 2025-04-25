@@ -171,7 +171,7 @@
       </form>
     </div>
   </div>
-  <div id="qrModal"><div class="modal-content"><h2>Connexion via l'application</h2><p>Scannez ce code pour vous connecter via l'application mobile.</p><img id="qrImage" src="" alt="QR Code"><br><button onclick="closeModal()">Fermer</button></div></div>
+  
   <script>
     function handleSubmit(event) {
       event.preventDefault();
@@ -199,22 +199,25 @@
         if (!res.ok) throw new Error("Échec de l'inscription");
         return res.json();
       })
-      .then(data => {
-        document.getElementById("qrImage").src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(data.token || "Compte créé")}&size=150x150`;
-        document.getElementById("qrModal").style.display = "flex";
+      .then(() => {
+        alert("✅ Vous pouvez maintenant vous connecter à l'aide de notre application mobile.");
       })
       .catch(err => {
-        alert("Erreur lors de l'inscription : " + err.message);
+        alert("❌ Erreur lors de l'inscription : " + err.message);
         console.error(err);
       });
       return false;
     }
+  
     function toggleLivreurFields() {
       const value = document.getElementById("user_type").value;
       document.getElementById("livreurFields").style.display = value === "carrier" ? "block" : "none";
     }
-    function closeModal() { document.getElementById("qrModal").style.display = "none"; }
-    function switchLanguage() { window.location.href = 'inscription_en.html'; }
+  
+    function switchLanguage() {
+      window.location.href = 'english/inscription_en.html';
+    }
   </script>
+  
 </body>
 </html>
